@@ -35,3 +35,21 @@ uses something called the Solar Terrestrial Dispatch (STL) model. I would like t
 that certain propagation trends tend to persist for a period of time. It is not guaranteed that propagation at 28 Mhz will be good tomorrow
 because it was good today, but it probably will. I think these types of probabilistic radio phenomena may be well-suited to prediction
 by a machine learning model. I would like to explore this possibiliy in my project.
+
+## Data Set
+
+Solar data is plentiful and publicly available. I definitely want to keep it in mind, but for now I think I would like to focus on data that
+is in general referred to as DX spots. The DX (or distance) spots are human-created or automated reports of radio transmissions that are received
+by a listening station, along with information about their origin. Regardless of how the data are created in a reporting system, the result is
+that an arc connecting two points on the globe can be determined such that a radio wave propagation path is identified between the two points.
+Additional information such as signal strength may be included in the reports as well. These reports are collected by various networks or 
+dedicated web sites for the purpose of providing real-time reporting of conditions and stations operating. I would like to collect some of 
+this data and use it to make predictions about future propagation conditions for the coming days or weeks. 
+
+### Data Sources
+
+* DX Clusters
+* DXmaps.com
+* Reverse Beacon Network
+* Others...
+
