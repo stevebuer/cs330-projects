@@ -8,8 +8,8 @@ import sqlite3
 import time
 
 # DX Cluster server details
-HOST = 'your.dxcluster.server'
-PORT = 7300  # Common DX Cluster port
+HOST = 'dx.k3lr.com'
+PORT = 23
 
 # SQLite database setup
 DB_NAME = 'dxcluster.db'
@@ -42,16 +42,22 @@ def main():
     setup_database()
     with telnetlib.Telnet(HOST, PORT) as tn:
         print(f"Connected to {HOST}:{PORT}")
+        tn.write(b'N7MKO\r\n')  # Send login callsign
         while True:
             try:
                 data = tn.read_until(b'\n', timeout=10)
                 line = data.decode('utf-8', errors='ignore').strip()
                 if line:
                     print(line)
-                    store_line(line)
+                    if line.startswith('DX'):
+                        store_line(line)
             except Exception as e:
                 print(f"Error: {e}")
                 break
 
 if __name__ == '__main__':
-    main()
+    try:
+        main()
+    except KeyboardInterrupt:
+        print("\nShutting down gracefully...")
+        exit(0)

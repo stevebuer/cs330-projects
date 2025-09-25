@@ -4,11 +4,12 @@ The goal of this assignment is to set up an AI-powered development environment a
 
 ## Development Environment
 
-Lenovo T440p laptop.
+Lenovo T440p laptop
 
 * Intel(R) Core(TM) i5-4300M CPU @ 2.60GHz
 * 8GB RAM
 * Debian 12
+* Python 3.11
 * Visual Studio Code & Vim for editing
 * Sqlite3 and PostgreSQL for databases
 

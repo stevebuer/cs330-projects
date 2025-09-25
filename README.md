@@ -4,7 +4,7 @@ Olympic College CS 330 Projects and Homework
 
 ## Homework
 
-* [Homework 1](homework1/README.md)
+* [Homework 1](homework1)
 * Homework 2
 * Homework 3
 
