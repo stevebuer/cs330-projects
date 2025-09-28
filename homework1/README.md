@@ -19,7 +19,39 @@ Todo
 
 ## Python and Test Models
 
-Todo
+### Sentiment-analysis / Gemma Models
+
+1. Created Hugging Face Account
+2. Accept Gemma License Agreement
+3. Model [description](https://huggingface.co/google/gemma-3-270m) on site.
+4. Can be used via libraries (transformers), notebooks, or local apps.
+5. Created Hugging Face Access token (read) stored in .env file.
+6. Created basic script to verify model connectivity.
+7. Script does not run, need to create python venv on Debian 12 and pip install transformers and torch (lots of dependencies). 
+8. Verify it runs in vscode as well.
+9. 
+
+
+### Example Program Output
+<pre>
+(cs330_venv) steve@kitsap:~/GITHUB/cs330-projects/homework1$ ./hf_simple.py 
+No model was supplied, defaulted to distilbert/distilbert-base-uncased-finetuned-sst-2-english and revision 714eb0f (https://huggingface.co/distilbert/distilbert-base-uncased-finetuned-sst-2-english).
+Using a pipeline without specifying a model name and revision in production is not recommended.
+config.json: 100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 629/629 [00:00<00:00, 2.54MB/s]
+model.safetensors: 100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 268M/268M [00:24<00:00, 10.9MB/s]
+tokenizer_config.json: 100%|██████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 48.0/48.0 [00:00<00:00, 226kB/s]
+vocab.txt: 232kB [00:00, 6.14MB/s]
+Device set to use cpu
+[{'label': 'POSITIVE', 'score': 0.9971315860748291}]
+</pre>
+
+### Steve's Notes
+
+Calling a language model has two steps: tokenizing and inference.
+
+Models can't operate on words, so the tokenizer converts text into a list of numbers. A token is either a word or a part of a word.
+
+Inference can then be performed on this list (vector) of numbers.
 
 1. Select Test Data Set
 
