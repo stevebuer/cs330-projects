@@ -19,6 +19,12 @@ Todo
 
 ## Python and Test Models
 
+Activate python virtual environment 
+
+```
+source ~/cs330_venv/bin/activate
+```
+
 ### Sentiment-analysis / Gemma Models
 
 1. Created Hugging Face Account
@@ -28,9 +34,10 @@ Todo
 5. Created Hugging Face Access token (read) stored in .env file.
 6. Created basic script to verify model connectivity.
 7. Script does not run, need to create python venv on Debian 12 and pip install transformers and torch (lots of dependencies). 
-8. Verify it runs in vscode as well.
-9. 
-
+8. Todo: Verify it runs in vscode as well.
+9. Had Claude Sonnet add ability to specify text on command line.
+10. Saved a chat transcript in a Markdown file.
+11. Gave the small Gemma model a bunch of prompts. Need to adjust how it is called? Seems to generate repetitive output.
 
 ### Example Program Output
 <pre>
@@ -43,6 +50,23 @@ tokenizer_config.json: 100%|█████████████████�
 vocab.txt: 232kB [00:00, 6.14MB/s]
 Device set to use cpu
 [{'label': 'POSITIVE', 'score': 0.9971315860748291}]
+</pre>
+
+<pre>
+(cs330_venv) steve@kitsap:~/GITHUB/cs330-projects/homework1$ ./hf_simple.py "I think this ham radio antenna is mediocre at best"
+No model was supplied, defaulted to distilbert/distilbert-base-uncased-finetuned-sst-2-english and revision 714eb0f (https://huggingface.co/distilbert/distilbert-base-uncased-finetuned-sst-2-english).
+Using a pipeline without specifying a model name and revision in production is not recommended.
+Device set to use cpu
+[{'label': 'NEGATIVE', 'score': 0.9997625946998596}]
+</pre>
+
+<pre>
+(cs330_venv) steve@kitsap:~/GITHUB/cs330-projects/homework1$ ./gemma_simple.py "write a horoscope for capricorn"
+Device set to use cpu
+
+Generated text:
+write a horoscope for capricorn
+Capricorn has a unique way of thinking. He is a very logical and analytical man. He is very good at making decisions and taking the right decisions. He is very good at thinking out a plan. He is very good at making decisions and taking the right decisions. He is very good at making decisions and taking the right decisions. He is very good at making decisions and taking the right decisions.He is a very good at making decisions and taking the
 </pre>
 
 ### Steve's Notes

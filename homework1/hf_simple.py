@@ -5,15 +5,24 @@
 #
 
 import os
+import argparse
 from dotenv import load_dotenv
 from transformers import pipeline
 
-load_dotenv()
+def main():
+    # Set up command line argument parsing
+    parser = argparse.ArgumentParser(description='Analyze sentiment of input text using Hugging Face.')
+    parser.add_argument('text', type=str, help='Text to analyze for sentiment')
+    args = parser.parse_args()
 
-api_key = os.getenv("HF_TOKEN")
+    # Load environment variables and set up the pipeline
+    load_dotenv()
+    api_key = os.getenv("HF_TOKEN")
+    sentiment_pipeline = pipeline("sentiment-analysis")
 
-sentiment_pipeline = pipeline("sentiment-analysis")
+    # Analyze the provided text
+    result = sentiment_pipeline(args.text)
+    print(result)
 
-result = sentiment_pipeline("I love using Hugging Face Transformers!")
-
-print(result)
+if __name__ == "__main__":
+    main()
