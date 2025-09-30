@@ -1,0 +1,62 @@
+@startuml DX Cluster Database Schema
+
+' Styling
+skinparam linetype ortho
+skinparam class {
+    BackgroundColor White
+    ArrowColor Black
+    BorderColor Black
+}
+
+entity "raw_spots" as raw {
+    * id : INTEGER <<PK>>
+    --
+    * timestamp : DATETIME
+    * raw_text : TEXT
+}
+
+entity "dx_spots" as spots {
+    * id : INTEGER <<PK>>
+    --
+    * raw_spot_id : INTEGER <<FK>>
+    * timestamp : DATETIME
+    * dx_call : TEXT
+    * frequency : REAL
+    * spotter_call : TEXT
+    comment : TEXT
+    mode : TEXT
+    signal_report : TEXT
+    grid_square : TEXT
+    band : TEXT
+}
+
+entity "callsigns" as calls {
+    * id : INTEGER <<PK>>
+    --
+    * callsign : TEXT <<unique>>
+    * first_seen : DATETIME
+    * last_seen : DATETIME
+    * total_spots : INTEGER
+    * total_spotted : INTEGER
+}
+
+' Relationships
+raw ||--o{ spots : "raw_spot_id"
+spots }--{ calls : "dx_call/spotter_call"
+
+note bottom of raw
+  Stores original, unmodified
+  DX spot messages as received
+end note
+
+note bottom of spots
+  Contains parsed spot data with
+  structured fields for querying
+end note
+
+note bottom of calls
+  Tracks statistics for all callsigns,
+  both spotters and spotted stations
+end note
+
+@enduml
