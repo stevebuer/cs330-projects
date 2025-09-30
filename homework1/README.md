@@ -110,3 +110,10 @@ this data and use it to make predictions about future propagation conditions for
 * Reverse Beacon Network
 * Others...
 
+### Running the data collector script
+
+<pre>
+jersey% nohup ./dx-cluster.py &
+[1] 1169999
+jersey% nohup: ignoring input and appending output to 'nohup.out'
+</pre>

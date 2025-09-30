@@ -8,6 +8,6 @@ Olympic College CS 330 Projects and Homework
 * Homework 2
 * Homework 3
 
-## Project
+## Tentative Project
 
 HF Radio Propagation Predictor

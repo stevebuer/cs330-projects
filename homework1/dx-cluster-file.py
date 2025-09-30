@@ -1,45 +1,25 @@
 #!/usr/bin/env python3
 #
-# DX Cluster Telnet Client with SQLite Storage
+# DX Cluster Telnet Client with Text File Storage
 # 
 
 import telnetlib
-import sqlite3
 import time
 
 # DX Cluster server details
 HOST = 'dx.k3lr.com'
 PORT = 23
 
-# SQLite database setup
-DB_NAME = 'dxcluster.db'
-TABLE_NAME = 'dx_spots'
-
-def setup_database():
-    conn = sqlite3.connect(DB_NAME)
-    c = conn.cursor()
-    c.execute(f'''
-        CREATE TABLE IF NOT EXISTS {TABLE_NAME} (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            timestamp TEXT,
-            line TEXT
-        )
-    ''')
-    conn.commit()
-    conn.close()
+# Output file name
+OUTPUT_FILE = 'dx_spots.txt'
 
 def store_line(line):
-    conn = sqlite3.connect(DB_NAME)
-    c = conn.cursor()
-    c.execute(f'''
-        INSERT INTO {TABLE_NAME} (timestamp, line)
-        VALUES (?, ?)
-    ''', (time.strftime('%Y-%m-%d %H:%M:%S'), line))
-    conn.commit()
-    conn.close()
+    timestamp = time.strftime('%Y-%m-%d %H:%M:%S')
+    with open(OUTPUT_FILE, 'a') as f:
+        f.write(f"{timestamp}: {line}\n")
 
 def main():
-    setup_database()
+    print(f"Storing DX spots in {OUTPUT_FILE}")
     with telnetlib.Telnet(HOST, PORT) as tn:
         print(f"Connected to {HOST}:{PORT}")
         tn.write(b'N7MKO\r\n')  # Send login callsign
