@@ -1,6 +1,6 @@
 # CS 330 Homework 1 : Getting Started
 
-The goal of this assignment is to set up an AI-powered development environment and begin the process of final-project planning.
+The goal of this assignment is to set up an AI-powered development environment and begin the process of final project planning.
 
 ## Development Environment
 
@@ -15,11 +15,21 @@ Lenovo T440p laptop
 
 ## AI Agent
 
-Todo
+Currently using Visual Studio Code on Linux with Claude Sonnet 3.5, but am experimenting with other chat agents as well.
+
+I also have been using Microsoft Copilot for a few months for general information on topics I am studying. I also will
+generate oocasional code snippets there as well that I cut and paste into a terminal or whatever I am working on.
 
 ## Python and Test Models
 
-Activate python virtual environment 
+These are the steps I went through to get Python and necessary libraries installed on my computer for getting the Gemma
+models running via the Hugging Face transformers library. In the past, I have tended to install Python libraries through
+the **Debian apt** as much as possible. I used *pip* occasionally, but just installed packages locally for my user. Now it
+seems Debian is requiring all *pip* installations to be in a virtual environment (venv) so I am adapting to using the venv
+for everything. I tend to do some amount of testing in the terminal, because I am used to it. However, I will be trying to
+use VSCode as much as possible. 
+
+Activate my python virtual environment with command. Can alias in shell as 'sv' or something.
 
 ```
 source ~/cs330_venv/bin/activate
@@ -28,18 +38,22 @@ source ~/cs330_venv/bin/activate
 ### Sentiment-analysis / Gemma Models
 
 1. Created Hugging Face Account
-2. Accept Gemma License Agreement
-3. Model [description](https://huggingface.co/google/gemma-3-270m) on site.
-4. Can be used via libraries (transformers), notebooks, or local apps.
-5. Created Hugging Face Access token (read) stored in .env file.
-6. Created basic script to verify model connectivity.
-7. Script does not run, need to create python venv on Debian 12 and pip install transformers and torch (lots of dependencies). 
-8. Todo: Verify it runs in vscode as well.
-9. Had Claude Sonnet add ability to specify text on command line.
-10. Saved a chat transcript in a Markdown file.
-11. Gave the small Gemma model a bunch of prompts. Need to adjust how it is called? Seems to generate repetitive output.
+2. Accepted Gemma License Agreement
+3. Reviewed [gemma-3-270m model description](https://huggingface.co/google/gemma-3-270m) on Hugging Face. Can be used via libraries (transformers), notebooks, or local apps.
+4. Created Hugging Face Access token (read token) stored in [.env file](dotenv.template). Create .gitignore and ignore credentials, etc.
+5. Created [basic sentiment-analysis script](hf_simple.py) with the AI agent to verify Hugging Face access.
+6. Script did not run, needed to create python venv on Debian 12 and pip install transformers and torch (lots of dependencies).
+7. With basic script running, I had my agent create a [gemma_simple.py](gemma_simple.py) script.
+8. Had AI angent (Claude Sonnet) modify script to add ability to specify text prompt on command line.
+9. Asked agent to save [a transcript of a chat session](chat-conversation.md) in a Markdown file.
+10. Gave the small Gemma model several prompts. The output seemed repetitive and not very coherent. I did some research on this and found a number
+of articles [such as this](https://medium.com/nlplanet/two-minutes-nlp-most-used-decoding-methods-for-language-models-9d44b2375612) that describe all the
+different parameters that can be adjusted to produce more coherent text generation. I would like to look at this more as time permits.
 
 ### Example Program Output
+
+#### Sentiment Analysis Script Output
+
 <pre>
 (cs330_venv) steve@kitsap:~/GITHUB/cs330-projects/homework1$ ./hf_simple.py 
 No model was supplied, defaulted to distilbert/distilbert-base-uncased-finetuned-sst-2-english and revision 714eb0f (https://huggingface.co/distilbert/distilbert-base-uncased-finetuned-sst-2-english).
@@ -60,6 +74,8 @@ Device set to use cpu
 [{'label': 'NEGATIVE', 'score': 0.9997625946998596}]
 </pre>
 
+#### Gemma Model Script Output
+
 <pre>
 (cs330_venv) steve@kitsap:~/GITHUB/cs330-projects/homework1$ ./gemma_simple.py "write a horoscope for capricorn"
 Device set to use cpu
@@ -69,7 +85,15 @@ write a horoscope for capricorn
 Capricorn has a unique way of thinking. He is a very logical and analytical man. He is very good at making decisions and taking the right decisions. He is very good at thinking out a plan. He is very good at making decisions and taking the right decisions. He is very good at making decisions and taking the right decisions. He is very good at making decisions and taking the right decisions.He is a very good at making decisions and taking the
 </pre>
 
-### Steve's Notes
+<pre>
+(cs330_venv) steve@kitsap:~/GITHUB/cs330-projects/homework1$ ./gemma_simple.py "The Olympic mountains in Washington are a hiker's paradise"
+Device set to use cpu
+
+Generated text:
+The Olympic mountains in Washington are a hiker's paradise. They are the world's highest mountain ranges, and some of the world's most incredible scenery. The Olympic Mountains are located in the Cascade Range, which is the highest mountain range in the United States. The Olympic Mountains are located in Washington State, which is a small state in the U.S. of A. There are some major trails in the Olympic Mountains, including the Olympic Mountains Trail, the Olympic Mountains Wilderness Trail,
+</pre>
+
+**Steve's notes on the above**
 
 Calling a language model has two steps: tokenizing and inference.
 
@@ -77,12 +101,29 @@ Models can't operate on words, so the tokenizer converts text into a list of num
 
 Inference can then be performed on this list (vector) of numbers.
 
-1. Select Test Data Set
-
 ## Database Setup
 
-1. Sqlite test
-2. Postgresql test
+"Nouns make good tables."
+
+```
+sudo apt install postgresql sqlite3
+```
+
+### Sqlite Test
+
+<pre>
+steve@kitsap:~/GITHUB/cs330-projects/homework1$ echo 'SELECT "Steve Test", sqlite_version(), pow(2, 8);' | sqlite3
+Steve Test|3.40.1|256.0
+</pre>
+
+### Postgresql Test
+
+TODO
+
+<pre>
+(cs330_venv) steve@kitsap:~/GITHUB/cs330-projects/homework1$ psql
+psql: error: connection to server on socket "/var/run/postgresql/.s.PGSQL.5432" failed: FATAL:  role "steve" does not exist
+</pre>
 
 ## Project Planning 
 
@@ -105,15 +146,36 @@ this data and use it to make predictions about future propagation conditions for
 
 ### Data Sources
 
-* DX Clusters
-* DXmaps.com
-* Reverse Beacon Network
-* Others...
+There are a few different sources of real-time propagation report data I might be able to scrape. These include:
 
-### Running the data collector script
+* [DX Cluster network](https://www.dxcluster.info) 
+* [Reverse Beacon Network](https://www.reversebeacon.net)
+* [PSK Reporter](https://pskreporter.info)
+
+I am going to start with the DX Cluster network because I have been occasional user of this sysem since the 1990s. 
+
+### Data Collector Script
+
+I had my agent create [dx-cluster.py](dx-cluster.py) script to connect to a DX cluster node, read lines, and store them in a table.
+
+This script seemed to be a little flaky when I tried to leave it running on my server, so I asked the agent for a simpler version
+called [dx-cluster-file.py](dx-cluster-file.py) that just stored the lines to a text file. The plan being to ingest them later
+into the database. I left this running on my server with the command listed below:
 
 <pre>
 jersey% nohup ./dx-cluster.py &
 [1] 1169999
 jersey% nohup: ignoring input and appending output to 'nohup.out'
 </pre>
+
+I am also considering setting up my own DX cluster node to more reliably collect data if this does not work well.
+
+### Database Schema
+
+I asked my AI agent to set up a database, but not sure how good the result is.
+
+Would like to do a litle of my own manual design as well, just to get the hang of it.
+
+Asked for [Plant UML diagram](dx_database_schema.puml). Not too good.
+
+<img src="images/dx_cluster_schema.png" width="300">
