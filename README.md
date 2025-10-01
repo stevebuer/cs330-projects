@@ -1,6 +1,6 @@
 # cs330-projects
 
-Olympic College CS 330 Projects and Homework
+Olympic College CS 330 Homework and Project
 
 ## Homework
 
@@ -8,6 +8,8 @@ Olympic College CS 330 Projects and Homework
 * Homework 2
 * Homework 3
 
-## Tentative Project
+## Proposed Project
 
 HF Radio Propagation Predictor
+
+<img src="30m-wspr.jpg" width="500">
