@@ -12,4 +12,4 @@ Olympic College CS 330 Homework and Project
 
 HF Radio Propagation Predictor
 
-<img src="30m-wspr.jpg" width="500">
+<img src="30m-wspr.jpg" width="600">

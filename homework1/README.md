@@ -43,7 +43,7 @@ source ~/cs330_venv/bin/activate
 4. Created Hugging Face Access token (read token) stored in [.env file](dotenv.template). Create .gitignore and ignore credentials, etc.
 5. Created [basic sentiment-analysis script](hf_simple.py) with the AI agent to verify Hugging Face access.
 6. Script did not run, needed to create python venv on Debian 12 and pip install transformers and torch (lots of dependencies).
-7. With basic script running, I had my agent create a [gemma_simple.py](gemma_simple.py) script.
+7. With basic script running, I had my agent create a [gemma_test.py](gemma_test.py) script.
 8. Had AI angent (Claude Sonnet) modify script to add ability to specify text prompt on command line.
 9. Asked agent to save [a transcript of a chat session](chat-conversation.md) in a Markdown file.
 10. Gave the small Gemma model several prompts. The output seemed repetitive and not very coherent. I did some research on this and found a number
@@ -77,7 +77,7 @@ Device set to use cpu
 #### Gemma Model Script Output
 
 <pre>
-(cs330_venv) steve@kitsap:~/GITHUB/cs330-projects/homework1$ ./gemma_simple.py "write a horoscope for capricorn"
+(cs330_venv) steve@kitsap:~/GITHUB/cs330-projects/homework1$ ./gemma_cmdline.py "write a horoscope for capricorn"
 Device set to use cpu
 
 Generated text:
@@ -86,7 +86,7 @@ Capricorn has a unique way of thinking. He is a very logical and analytical man.
 </pre>
 
 <pre>
-(cs330_venv) steve@kitsap:~/GITHUB/cs330-projects/homework1$ ./gemma_simple.py "The Olympic mountains in Washington are a hiker's paradise"
+(cs330_venv) steve@kitsap:~/GITHUB/cs330-projects/homework1$ ./gemma_cmdline.py "The Olympic mountains in Washington are a hiker's paradise"
 Device set to use cpu
 
 Generated text:
@@ -153,6 +153,12 @@ There are a few different sources of real-time propagation report data I might b
 * [PSK Reporter](https://pskreporter.info)
 
 I am going to start with the DX Cluster network because I have been occasional user of this sysem since the 1990s. 
+
+I started writing a Markdown file on the DX Cluster Message Format. Then I thought, "Why am I doing this? I can have my agent do it." Saved
+endless amounts of time and the results are better.
+
+* Steve's [DX Cluster Markdown file](dx-cluster.md)
+* AI Agent [DX Cluster Markdown file](dx-cluster-info.md)
 
 ### Data Collector Script
 
