@@ -1,2 +1,8 @@
+#
+# Steve's dotenv file template read by various scripts
+#
+
 # Hugging Face Access Token
 HF_TOKEN=your_token_here
+# Callsign for DX cluster login
+MYCALL=my_callsign

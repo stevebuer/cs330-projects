@@ -1,4 +1,4 @@
 .env
 homework1/.env
 homework1/dxcluster.db
-homework1/dx_spots.txt
+homework1/data/dx_spots.txt
