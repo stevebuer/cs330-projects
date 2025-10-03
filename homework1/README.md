@@ -238,6 +238,9 @@ Skipped: 0
 
 ### Descriptive Statistics and Simple Analytics
 
+I loaded several days worth of data into the database and then [asked Claude Sonnet](chat-transcripts/analysis-chat.md) to
+create python script for some basic analysis of the data. The text output of this [analysis script](analyze_dx_spots.py) is listed below.
+
 <pre>
 steve@kitsap:~/GITHUB/cs330-projects/homework1/analysis$ ./analyze_dx_spots.py --db ../dxcluster.db 
 
@@ -296,3 +299,29 @@ PSK        9
 
 Busiest hour (UTC): 16:00 with 946 spots
 </pre>
+
+The script also has an option for generating some interesting visualizations as shown below.
+
+<img width="300" src="analysis/analysis_outputs/band_distribution.png">
+<img width="300" src="analysis/analysis_outputs/grid_square_map.png">
+<img width="300" src="analysis/analysis_outputs/heatmap_hour_band.png">
+
+<img width="300" src="analysis/analysis_outputs/spots_per_day.png">
+<img width="300" src="analysis/analysis_outputs/top_dx_calls.png">
+
+A [grid square count table](analysis/analysis_outputs/grid_square_count.csv) was created as well. I would like to expand on this
+idea a little bit and view paths between two grid squares.
+
+I also asked AI chatbot to create a [Jupyter notebook](analyze_dx_spots.ipynb) version of this program, because I have experimented
+with the notebook format in the past but don't have that much experience with it. I know it is popular in the data science world
+and it does seems useful -- but I had a little trouble getting me ipynb files working with it. The first version I generated with
+GPT-5-mini on Windows and it did not want to run. I generated another version with Claude Sonnet 3.5 and it seemed to work better,
+but it is still showing a couple of errors and not displaying the visualizations so I will need to debug it. Definitely appears that
+with more complex source files, there is more room for error with AI code-generation.
+
+## Discussion and Future Development
+
+Some of the questions and insights that I would like to explore further:
+
+* Propagation Prediction 
+* Refine the analysis (distance)
