@@ -238,4 +238,61 @@ Skipped: 0
 
 ### Descriptive Statistics and Simple Analytics
 
-TODO
+<pre>
+steve@kitsap:~/GITHUB/cs330-projects/homework1/analysis$ ./analyze_dx_spots.py --db ../dxcluster.db 
+
+=== Basic dataset summary ===
+Total spots: 13119
+Unique DX calls seen: 4301
+Unique spotter calls: 3058
+Time range: 2025-09-30 14:56:58 -> 2025-10-03 14:34:58 (2 days)
+Average spots per day: 6559.50
+
+=== Top spotted DX calls ===
+V6D           636
+DD4U          239
+IQ9BH         226
+II0IARU       195
+II6IARU       157
+IQ8TJ         139
+IQ3QR         139
+IT9ECY        124
+A52G          120
+IQ9BF         115
+
+=== Top spotter calls ===
+OH0M-44       289
+KA9UVY        116
+FM4TI         103
+VK2JJM        102
+YB1HR         96
+LU6YR         95
+UR2680SWL     93
+IZ8VDZ        83
+JR6RRD        75
+IK2MLV        70
+
+=== Band distribution (top) ===
+40m    3389
+20m    2767
+10m    1866
+6m      985
+80m     902
+15m     790
+17m     636
+30m     621
+2m      367
+12m     340
+
+=== Mode distribution (top) ===
+FT8     2643
+SSB      995
+CW       632
+RTTY     355
+FT4      217
+USB      188
+LSB      149
+PSK        9
+
+Busiest hour (UTC): 16:00 with 946 spots
+</pre>
