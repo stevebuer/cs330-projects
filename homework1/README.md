@@ -308,7 +308,7 @@ The script also has an option for generating some interesting visualizations as 
 <img width="300" src="analysis/analysis_outputs/spots_per_day.png">
 <img width="300" src="analysis/analysis_outputs/top_dx_calls.png">
 
-A [grid square count table](analysis/analysis_outputs/grid_square_count.csv) was created as well. I would like to expand on this
+A [grid square count table](analysis/analysis_outputs/grid_square_counts.csv) was created as well. I would like to expand on this
 idea a little bit and view paths between two grid squares.
 
 I also asked AI chatbot to create a [Jupyter notebook](analysis/analyze_dx_spots.ipynb) version of this program, because I have experimented
@@ -322,5 +322,8 @@ with more complex source files, there is more room for error with AI code-genera
 
 Some of the questions and insights that I would like to explore further:
 
-* Propagation Prediction 
-* Refine the analysis (distance)
+* Propagation Predictions 
+* Refine the existing analyses to determine distances between stations
+* Create a mapping of call sign prefixes to country name and geographic center. 
+
+In addition I need to make the data collection program more robust and fault-tolerant.
