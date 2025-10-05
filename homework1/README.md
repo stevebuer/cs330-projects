@@ -45,7 +45,7 @@ source ~/cs330_venv/bin/activate
 6. Script did not run, needed to create python venv on Debian 12 and pip install transformers and torch (lots of dependencies).
 7. With basic script running, I had my agent create a [gemma_test.py](gemma_test.py) script.
 8. Had AI angent (Claude Sonnet) modify script to add ability to specify text prompt on command line.
-9. Asked agent to save [a transcript of a chat session](chat-transcripts/chat-conversation.md) in a Markdown file.
+9. Asked agent to save [a transcript of a chat session](chat-transcripts/chat-sentiment.md) in a Markdown file.
 10. Gave the small Gemma model several prompts. The output seemed repetitive and not very coherent. I did some research on this and found a number
 of articles [such as this](https://medium.com/nlplanet/two-minutes-nlp-most-used-decoding-methods-for-language-models-9d44b2375612) that describe all the
 different parameters that can be adjusted to produce more coherent text generation. I would like to look at this more as time permits.
@@ -134,7 +134,7 @@ that certain propagation trends tend to persist for a period of time. It is not 
 because it was good today, but it probably will. I think these types of probabilistic radio phenomena may be well-suited to prediction
 by a machine learning model. I would like to explore this possibiliy in my project.
 
-## Data Set
+### Project Data Set
 
 Solar data is plentiful and publicly available. I definitely want to keep it in mind, but for now I think I would like to focus on data that
 is in general referred to as DX spots. The DX (or distance) spots are human-created or automated reports of radio transmissions that are received
@@ -144,7 +144,7 @@ Additional information such as signal strength may be included in the reports as
 dedicated web sites for the purpose of providing real-time reporting of conditions and stations operating. I would like to collect some of 
 this data and use it to make predictions about future propagation conditions for the coming days or weeks. 
 
-### Data Sources
+### Project Data Sources
 
 There are a few different sources of real-time propagation report data I might be able to scrape. These include:
 
@@ -160,7 +160,7 @@ endless amounts of time and the results are better.
 * Steve's [DX Cluster Markdown file](docs/dx-cluster.md)
 * AI Agent [DX Cluster Markdown file](docs/dx-cluster-info.md)
 
-### Data Collector Script
+### Project Data Collector Script
 
 I had my agent create [dx-cluster.py](dx-cluster.py) script to connect to a DX cluster node, read lines, and store them in a table.
 
@@ -178,15 +178,15 @@ I am also considering setting up my own DX cluster node to more reliably collect
 
 Note 10.01.2025: There may be a limit as to how long a client can stay connected to the DX cluster. Need to make data collection more robust.
 
-Daily files are available at: http://jxqz.org/~steve/dx-data/
+Daily files are available at: [http://jxqz.org/~steve/dx-data](http://jxqz.org/~steve/dx-data)
 
-### Database Schema
+### Project Database Schema
 
-I asked my AI agent to set up a database, but not sure how good the result is.
+I [asked my AI agent](chat-transcripts/chat-sqlite.md) to set up a database, but not sure how good the result is.
 
 Would like to do a litle of my own manual design as well, just to get the hang of it.
 
-Asked for [Plant UML diagram](dx_database_schema.puml). Not too good.
+Asked for [Plant UML diagram](docs/dx_database_schema.puml).
 
 <img src="images/dx_cluster_schema.png" width="300">
 
@@ -238,8 +238,7 @@ Skipped: 0
 
 ### Descriptive Statistics and Simple Analytics
 
-I loaded several days worth of data into the database and then [asked Claude Sonnet](chat-transcripts/analysis-chat.md) to
-create python script for some basic analysis of the data. The text output of this [analysis script](analyze_dx_spots.py) is listed below.
+I loaded several days worth of data into the database and then [asked Claude Sonnet](chat-transcripts/chat-analysis.md) to create a python script for some basic analysis of the data. The text output of this [analysis script](analysis/analyze_dx_spots.py) is listed below.
 
 <pre>
 steve@kitsap:~/GITHUB/cs330-projects/homework1/analysis$ ./analyze_dx_spots.py --db ../dxcluster.db 
@@ -312,9 +311,9 @@ The script also has an option for generating some interesting visualizations as 
 A [grid square count table](analysis/analysis_outputs/grid_square_count.csv) was created as well. I would like to expand on this
 idea a little bit and view paths between two grid squares.
 
-I also asked AI chatbot to create a [Jupyter notebook](analyze_dx_spots.ipynb) version of this program, because I have experimented
+I also asked AI chatbot to create a [Jupyter notebook](analysis/analyze_dx_spots.ipynb) version of this program, because I have experimented
 with the notebook format in the past but don't have that much experience with it. I know it is popular in the data science world
-and it does seems useful -- but I had a little trouble getting me ipynb files working with it. The first version I generated with
+and it does seems useful -- but I had a little trouble getting my ipynb files working with it. The first version I generated with
 GPT-5-mini on Windows and it did not want to run. I generated another version with Claude Sonnet 3.5 and it seemed to work better,
 but it is still showing a couple of errors and not displaying the visualizations so I will need to debug it. Definitely appears that
 with more complex source files, there is more room for error with AI code-generation.
