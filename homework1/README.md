@@ -118,11 +118,34 @@ Steve Test|3.40.1|256.0
 
 ### Postgresql Test
 
-TODO
-
 <pre>
 (cs330_venv) steve@kitsap:~/GITHUB/cs330-projects/homework1$ psql
 psql: error: connection to server on socket "/var/run/postgresql/.s.PGSQL.5432" failed: FATAL:  role "steve" does not exist
+</pre>
+
+*consulted co-pilot ai* : Right, I am not the default user.
+
+<pre>
+steve@kitsap:~$ sudo su - postgres
+postgres@kitsap:~$ psql
+psql (15.14 (Debian 15.14-0+deb12u1))
+Type "help" for help.
+
+postgres=# create database steve_test;
+CREATE DATABASE
+postgres=# \l
+                                                  List of databases
+    Name    |  Owner   | Encoding |   Collate   |    Ctype    | ICU Locale | Locale Provider |   Access privileges   
+------------+----------+----------+-------------+-------------+------------+-----------------+-----------------------
+ postgres   | postgres | UTF8     | en_US.UTF-8 | en_US.UTF-8 |            | libc            | 
+ steve_test | postgres | UTF8     | en_US.UTF-8 | en_US.UTF-8 |            | libc            | 
+ template0  | postgres | UTF8     | en_US.UTF-8 | en_US.UTF-8 |            | libc            | =c/postgres          +
+            |          |          |             |             |            |                 | postgres=CTc/postgres
+ template1  | postgres | UTF8     | en_US.UTF-8 | en_US.UTF-8 |            | libc            | =c/postgres          +
+            |          |          |             |             |            |                 | postgres=CTc/postgres
+(4 rows)
+
+postgres=# \q
 </pre>
 
 ## Project Planning 
