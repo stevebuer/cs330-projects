@@ -28,10 +28,18 @@ Anything remaining will need to be pushed to the next iteration or re-factored.
 
 ### DNS Configuration
 
-I no longer run my own DNS server. I will need to add an entry through my domain registrar I think.
-
-hostname: dx.jxqz.org
+A CNAME record for dx.jxqz.org was added to my DNS configuration in my [domain registrar](www.porkbun.) portal.
 
 ### Configure Apache virtual server
 
-I have an existing Linux virtual machine that runs my website and email.
+I have an existing Linux virtual machine that runs my website. I [asked Copilot](chat-transcripts/apache2-chat.md) to create
+an [Apache2](https://httpd.apache.org/docs/2.4) config file [dx.jxqz.org.conf](config/dx.jxqz.org.conf) to create another virtual 
+server for this project. I followed the instructions listed in the [chat transcript](chat-transcripts/apache2-chat.md) to manually
+install the file and restart the server. Tested. The site dx.jxqz.org loads successfully with an empty directory listing.
+
+### Postgresql production install and config
+
+Used *sudo apt install postgresql* to install postgres on the production server.
+
+I [asked Copilot](chat-transcripts/db-roles.md) to help me move the postgres version of my scripts to the curreny directory and create roles for the various programs that will connect to the RDBMS server.
+ 
