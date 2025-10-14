@@ -1,0 +1,61 @@
+[Mon Oct 13 17:25:27.893676 2025] [wsgi:warn] [pid 11841:tid 11841] (13)Permission denied: mod_wsgi (pid=11841): Unable to stat Python home /home/steve/cs330_venv. Python interpreter may not be able to be initialized correctly. Verify the supplied path and access permissions for whole of the path.
+Python path configuration:
+  PYTHONHOME = '/home/steve/cs330_venv'
+  PYTHONPATH = (not set)
+  program name = 'python3'
+  isolated = 0
+  environment = 1
+  user site = 1
+  safe_path = 0
+  import site = 1
+  is in build tree = 0
+  stdlib dir = '/home/steve/cs330_venv/lib/python3.11'
+  sys._base_executable = '/usr/bin/python3'
+  sys.base_prefix = '/home/steve/cs330_venv'
+  sys.base_exec_prefix = '/home/steve/cs330_venv'
+  sys.platlibdir = 'lib'
+  sys.executable = '/usr/bin/python3'
+  sys.prefix = '/home/steve/cs330_venv'
+  sys.exec_prefix = '/home/steve/cs330_venv'
+  sys.path = [
+    '/home/steve/cs330_venv/lib/python311.zip',
+    '/home/steve/cs330_venv/lib/python3.11',
+    '/home/steve/cs330_venv/lib/python3.11/lib-dynload',
+  ]
+Fatal Python error: init_fs_encoding: failed to get the Python codec of the filesystem encoding
+Python runtime state: core initialized
+ModuleNotFoundError: No module named 'encodings'
+
+Current thread 0x00007f5766a4a780 (most recent call first):
+  <no Python frame>
+[Mon Oct 13 17:25:28.896328 2025] [wsgi:warn] [pid 11844:tid 11844] (13)Permission denied: mod_wsgi (pid=11844): Unable to stat Python home /home/steve/cs330_venv. Python interpreter may not be able to be initialized correctly. Verify the supplied path and access permissions for whole of the path.
+Python path configuration:
+  PYTHONHOME = '/home/steve/cs330_venv'
+  PYTHONPATH = (not set)
+  program name = 'python3'
+  isolated = 0
+  environment = 1
+  user site = 1
+  safe_path = 0
+  import site = 1
+  is in build tree = 0
+  stdlib dir = '/home/steve/cs330_venv/lib/python3.11'
+  sys._base_executable = '/usr/bin/python3'
+  sys.base_prefix = '/home/steve/cs330_venv'
+  sys.base_exec_prefix = '/home/steve/cs330_venv'
+  sys.platlibdir = 'lib'
+  sys.executable = '/usr/bin/python3'
+  sys.prefix = '/home/steve/cs330_venv'
+  sys.exec_prefix = '/home/steve/cs330_venv'
+  sys.path = [
+    '/home/steve/cs330_venv/lib/python311.zip',
+    '/home/steve/cs330_venv/lib/python3.11',
+    '/home/steve/cs330_venv/lib/python3.11/lib-dynload',
+  ]
+Fatal Python error: init_fs_encoding: failed to get the Python codec of the filesystem encoding
+Python runtime state: core initialized
+ModuleNotFoundError: No module named 'encodings'
+
+Current thread 0x00007f5766a4a780 (most recent call first):
+  <no Python frame>
+

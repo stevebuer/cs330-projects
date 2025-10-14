@@ -43,11 +43,9 @@ Used *sudo apt install postgresql* to install postgres on the production server.
 
 I [asked Copilot](chat-transcripts/db-roles.md) to help me move the postgres version of my scripts to the curreny directory and create roles for the various programs that will connect to the RDBMS server.
 
-### UI
+### Initial Web UI Creation
 
 I chatted with copilot and asked about the best UI frameworks for data science type projects.
-
-Sure! Here's the message just before your question about copying the chat:
 
 ---
 
@@ -72,4 +70,45 @@ Would you like help scaffolding a starter dashboard with one of these frameworks
 
 ---
 
-Let me know if you'd like me to format this into a document or summary for saving!
+Based on these recommendations I [asked Claude Sonnet 3.5](chat-transcripts/web-ui-transcript.md) to create me a basic web application framework. I then
+went about installing the dependencies and attempting to get the system up and running in the "production environment" and on my laptop in some for as well
+for testing and further development.
+
+I started with the testing environment. I have not previously worked with [Python WSGI](https://en.wikipedia.org/wiki/Web_Server_Gateway_Interface) so I will need to read up on it. However,
+I have used CGI and mod_python previously for extremely simple tasks.
+
+I modfied the apache2 config file to use an alternate name for the test/dev server: dxdev.jxqz.org. I created an entry in my local /etc/hosts file for this hostname resolving to 127.0.0.5.
+
+*sudo a2ensite dxdev.jxqz.org ; sudo systemctl reload apache2*
+
+#### WSGI and Pyton Dependencies
+
+I need install dependencies in my development virtual environment. Looks like the updated [apache2 config for WSGI](config/dx.jxqz.org.conf)
+will attempt to run out of my venv and git repositing which is fine for now. 
+
+```
+source ~/cs330_venv/bin/activate
+```
+
+Now I can install my [python dependencies](requirements-web.txt).
+
+```
+pip install -r requirements-web.txt
+```
+
+Result: lots of packages downloaded and installed successfully.
+
+First attempt to start the server and web app was not successful. Getting permissions errors. Had to do some manual edits on apache config like setting venv path.
+
+Update: After hacking on this for about an hour and a half [it is clear](docs/wsgi-error.txt) that the AI generated Apache2 config and instructions are not going to be enough to get this
+running. I am going to have to dig into the Python [mod_wsgi documentation](https://www.modwsgi.org/en/develop/user-guides/virtual-environments.html). Hopefully, I 
+will only have to do this once and then my development and production environments will be set up for the remainder of the project. 
+
+**Apache / mod_wsgi setup steps**
+
+1. Install apache2, libapache2-mod-wsgi-py3 dpkg
+2. Create venv that will be used by the python wsgi instance for this application
+3. Create a DocumentRoot for the application
+4. Create an apache site configuration file for the virtual host
+5. Check directory ownership, permissions, and other gotchas
+6. Enjoy your new application
