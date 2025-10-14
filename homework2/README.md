@@ -111,4 +111,6 @@ will only have to do this once and then my development and production environmen
 3. Create a DocumentRoot for the application
 4. Create an apache site configuration file for the virtual host
 5. Check directory ownership, permissions, and other gotchas
-6. Enjoy your new application
+6. ~~Enjoy your new application~~
+7. Get an internal server error that suggests something wrong with python venv or app code.
+8. Try to get my dash app to run as a standalone python program and come back to apache/mod_wsgi later.

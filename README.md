@@ -5,7 +5,7 @@ Olympic College CS 330 Homework and Project
 ## Homework
 
 * [Homework 1](homework1)
-* Homework 2
+* [Homework 2](homework2)
 * Homework 3
 
 ## Proposed Project
