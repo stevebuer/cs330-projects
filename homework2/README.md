@@ -150,4 +150,11 @@ Can Apache run it?
 
 With a little [help from Claude Sonnet 4](chat-transcripts/wsgi-test.md), my new upgraded Copilot, it is working.
 
+#### Back to local testing of the Dash App
+
+Now that I am upgraded to Claude Sonnet 4, I am making better progress. I [asked Claude](chat-transcripts/localtest.md) to help get the Dash
+App up and running again locally, which was successful. I like the ability to start and stop scrapers from the App, but I think for now I would
+like to get the scraper running via *systemctl* so I can just get consistent data flowing into the database independent of any of this other stuff.
+That is my next goal. I also need to get the schema loaded on the production server and passwords configured, etc.
+
 
