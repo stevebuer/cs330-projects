@@ -123,9 +123,11 @@ if Dash becomes a huge time sink.
 
 Why don't I ask Claude to help me get it running locally!
 
-Yup: Claude found a compatibility issue between numpy and pandas and fixed it. <img src="screenshot.png">
+Yup: Claude [found a compatibility issue](chat-transcripts/debug-chat.md) between numpy and pandas and fixed it. 
 
-Got it running locally via Flask. Will do more testing on my laptop and them figure out the deployment.
+<img src="docs/dash-screenshot.jpg">
+
+Got it running locally. Will do more testing on my laptop and them figure out the deployment.
 
 Also, I am out of free Github Copilot chats, so I have to go get more quarters to put in the machine. **Done: upgraded to subscription**
 
@@ -157,4 +159,32 @@ App up and running again locally, which was successful. I like the ability to st
 like to get the scraper running via *systemctl* so I can just get consistent data flowing into the database independent of any of this other stuff.
 That is my next goal. I also need to get the schema loaded on the production server and passwords configured, etc.
 
+First I had to ask Claude to [consolidate scraper scripts](chat-transcripts/scraper-merge.md) so I can scrape from the live cluster. It gave
+me a new [scraper README file](DX_LIVE_MONITOR_README.md).
 
+**debugging/fixing**
+
+Need to set password for dx_scraper that has role dx_writer.
+
+<pre>
+postgres=# ALTER USER dx_scraper WITH PASSWORD 'dxdevtest' NOSUPERUSER;
+</pre>
+
+More errors:
+</pre>
+  -> Committed 0 spots to database
+03:19:24 | DX de K1BZ:       7021.6  N3JT         CWops CWT Contest              0319Z
+Database error storing spot: permission denied for table raw_spots
+</pre>
+
+I am running into some issues with roles/permissions that were created by co-pilot. Need to check if they are loaded
+correctly and such. I need to pause a second and revisit [Postgres documentation on users and roles](https://www.postgresql.org/docs/current/user-manag.html).
+
+I also need to create a little [Postgres command reference](docs/postgres-commands.md) for my commonly used commands.
+
+### Addendum
+
+In additiona I have spent some time [chatting wth AI] and reading about the foundational theory of relational databases and the
+work of [E.F. Codd](https://en.wikipedia.org/wiki/Edgar_F._Codd). In my early days of programming, relational databases did not 
+make much sense to me because I had little or no exposure to discrete mathematics and set theory. Now I have a stronger math
+background and it makes sense.
