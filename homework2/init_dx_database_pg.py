@@ -13,11 +13,11 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Database configuration
-DB_NAME = os.getenv('POSTGRES_DB', 'dxcluster')
-DB_USER = os.getenv('POSTGRES_USER', 'postgres')
-DB_PASSWORD = os.getenv('POSTGRES_PASSWORD')
-DB_HOST = os.getenv('POSTGRES_HOST', 'localhost')
-DB_PORT = os.getenv('POSTGRES_PORT', '5432')
+DB_NAME = 'dxcluster'
+DB_USER = 'postgres'
+DB_PASSWORD = None  # Using peer authentication for postgres user
+DB_HOST = 'localhost'
+DB_PORT = '5432'
 
 def init_database():
     """Initialize the database with tables for DX cluster spots"""
