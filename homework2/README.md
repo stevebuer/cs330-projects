@@ -81,7 +81,7 @@ I modfied the apache2 config file to use an alternate name for the test/dev serv
 
 *sudo a2ensite dxdev.jxqz.org ; sudo systemctl reload apache2*
 
-#### WSGI and Pyton Dependencies
+#### WSGI and Python Dependencies
 
 I need install dependencies in my development virtual environment. Looks like the updated [apache2 config for WSGI](config/dx.jxqz.org.conf)
 will attempt to run out of my venv and git repositing which is fine for now. 
@@ -114,3 +114,40 @@ will only have to do this once and then my development and production environmen
 6. ~~Enjoy your new application~~
 7. Get an internal server error that suggests something wrong with python venv or app code.
 8. Try to get my dash app to run as a standalone python program and come back to apache/mod_wsgi later.
+
+#### Dash & Streamlit: I need to learn a bit. My AI is not turnkey it seems.
+
+Now that my AI-generated Python [Dash](https://dash.plotly.com/) app doesn't seem to be working out of the box, I need to take
+a step back and learn a thing or two about the Dash framework. I may also try to do something in [Streamlit](https://streamlit.io/)
+if Dash becomes a huge time sink.
+
+Why don't I ask Claude to help me get it running locally!
+
+Yup: Claude found a compatibility issue between numpy and pandas and fixed it. <img src="screenshot.png">
+
+Got it running locally via Flask. Will do more testing on my laptop and them figure out the deployment.
+
+Also, I am out of free Github Copilot chats, so I have to go get more quarters to put in the machine. **Done: upgraded to subscription**
+
+#### Testing Apach mod_wsgi with a simple example
+
+A simple [flask Hello World](flask-test/app.py) from Microsoft Copilot.
+
+```
+sudo apt install python3-flask
+```
+<pre>
+steve@kitsap:~/GITHUB/cs330-projects/homework2$ python flask-test/app.py 
+ * Serving Flask app 'app'
+ * Debug mode: off
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on http://127.0.0.1:5000
+Press CTRL+C to quit
+127.0.0.1 - - [15/Oct/2025 18:47:41] "GET / HTTP/1.1" 200 -
+</pre>
+
+Can Apache run it?
+
+With a little [help from Claude Sonnet 4](chat-transcripts/wsgi-test.md), my new upgraded Copilot, it is working.
+
+
