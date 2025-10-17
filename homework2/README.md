@@ -185,7 +185,15 @@ I also need to create a little [Postgres command reference](docs/postgres-comman
 Once again, after stumbling around for a while I [asked claude to fix DB permissions](chat-transcripts/db-permission-fixes.md). Scraper Inserts are working now. I also asked
 for some help to make sure the deployment scripts are updated for deployment.
 
-TODO: data explorer
+#### Refactoring
+
+I asked Claude to [refactor this code](chat-transcripts/scraper-service.md) and separate
+the scraper control out of the web UI and allow me to control it as a Linux service
+via systemctl.
+
+Next step is to have a simple JSON API for data browsing.
+
+#### Todo List
 
 TODO: research React Ecosystem, webGL libs, etc.
 
