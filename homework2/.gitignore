@@ -1,0 +1,46 @@
+# Ignore exported Docker images (binary files)
+exports/
+
+# Ignore environment files with sensitive data
+.env
+.env.production
+
+# Ignore Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.so
+
+# Ignore logs
+logs/
+*.log
+
+# Ignore build artifacts
+debian/.debhelper/
+debian/debhelper-build-stamp
+debian/*.substvars
+debian/files
+debian/dxcluster-*/
+
+# Ignore database files
+*.db
+*.sqlite
+*.sqlite3
+
+# Ignore temporary files
+.tmp/
+*.tmp
+*.bak
+
+# Ignore IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Ignore OS files
+.DS_Store
+Thumbs.db

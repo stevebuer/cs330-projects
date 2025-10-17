@@ -15,6 +15,11 @@ Use pre-built container images instead of building on the production server.
 Export your tested containers:
 ```bash
 cd /home/steve/GITHUB/cs330-projects/homework2
+
+# If your images have different names (e.g., homework2_dx-api), tag them first:
+# docker tag homework2_dx-api:latest dx-cluster-api:latest
+# docker tag homework2_dx-web:latest dx-cluster-web:latest
+
 ./deploy-production.sh export
 ```
 
