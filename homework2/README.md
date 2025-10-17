@@ -222,6 +222,25 @@ Had to make a [few changes](link-to-diff.todo) to database init script. Connect 
 The original scraper script used python3-telnetlib. This is deprecated and unavailable
 on my production server. I had to ask Claude to [rewrite using sockets](chat-transcripts/telnetfix-chat.md) and rebuild the package for deployment.
 
+Had to do some manual debugging and fixes for the systemctl scripts, but have it running now:
+<pre>
+jersey% systemctl status dx-scraper
+● dx-scraper.service - DX Cluster Scraper Service
+     Loaded: loaded (/etc/systemd/system/dx-scraper.service; enabled; vendor preset: enabled)
+     Active: active (running) since Fri 2025-10-17 20:04:55 UTC; 20s ago
+   Main PID: 513472 (python3)
+      Tasks: 1 (limit: 510)
+     Memory: 9.5M
+        CPU: 81ms
+     CGroup: /system.slice/dx-scraper.service
+             └─513472 /usr/bin/python3 /usr/bin/dx_cluster_live_pg.py
+</pre>
+
+#### Docker
+
+I had a little cleanup work to do after the dpkg deployment of the database and
+scraper. Then I asked Claude to help try a [Docker deployment](chat-transcripts/docker-deploy.md) for the web components. I need to get this installed in production next.
+
 #### Todo List
 
 TODO: The DX Cluster scraper is erroring on some [badly formatted data](error.txt). I need to fix this.
