@@ -8,6 +8,29 @@ set -e
 # Configuration
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" &> /dev/null && pwd)"
 PROJECT_NAME="dx-cluster"
+
+# Auto-detect which compose file to use based on Docker Compose version
+detect_compose_file() {
+    if command -v docker-compose &> /dev/null; then
+        COMPOSE_VERSION=$(docker-compose --version 2>/dev/null | grep -o '[0-9]\+\.[0-9]\+' | head -1)
+        MAJOR_VERSION=$(echo "$COMPOSE_VERSION" | cut -d. -f1)
+        MINOR_VERSION=$(echo "$COMPOSE_VERSION" | cut -d. -f2)
+        
+        # Use simple version for very old Docker Compose (< 1.27)
+        if [[ "$MAJOR_VERSION" -eq 1 && "$MINOR_VERSION" -lt 27 ]]; then
+            PRODUCTION_COMPOSE_FILE="docker-compose.production.simple.yml"
+            log_info "Using simplified compose file for Docker Compose $COMPOSE_VERSION"
+        else
+            PRODUCTION_COMPOSE_FILE="docker-compose.production.yml"
+            log_info "Using full-featured compose file for Docker Compose $COMPOSE_VERSION"
+        fi
+    else
+        PRODUCTION_COMPOSE_FILE="docker-compose.production.simple.yml"
+        log_warning "Docker Compose not found, using simple configuration"
+    fi
+}
+
+# Set default, will be updated by detect_compose_file()
 PRODUCTION_COMPOSE_FILE="docker-compose.production.yml"
 
 # Colors for output
@@ -217,6 +240,11 @@ cleanup() {
 
 # Main function
 main() {
+    # Detect which compose file to use unless we're just showing help
+    if [[ "${1:-}" != "" && "${1:-}" != "help" ]]; then
+        detect_compose_file
+    fi
+    
     case "${1:-}" in
         "check")
             check_production_environment
@@ -262,6 +290,11 @@ main() {
             deploy
             health_check
             ;;
+        "use-simple")
+            log_info "Forcing use of simplified compose file..."
+            PRODUCTION_COMPOSE_FILE="docker-compose.production.simple.yml"
+            log_success "Will use $PRODUCTION_COMPOSE_FILE for all operations"
+            ;;
         *)
             echo "Production Deployment Script for DX Cluster"
             echo ""
@@ -280,11 +313,15 @@ main() {
             echo "  stop        - Stop all services"
             echo "  cleanup     - Clean up Docker resources"
             echo "  full-deploy - Complete deployment process (import + setup + deploy + health)"
+            echo "  use-simple  - Force use of simplified compose file for very old Docker Compose"
             echo ""
             echo "Example deployment workflow:"
             echo "  1. On dev machine: $0 export"
             echo "  2. Transfer exports/ directory to production server"
             echo "  3. On production: $0 full-deploy"
+            echo ""
+            echo "Troubleshooting:"
+            echo "  If you get 'Unsupported config option' errors, try: $0 use-simple"
             ;;
     esac
 }
