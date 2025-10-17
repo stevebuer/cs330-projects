@@ -259,14 +259,31 @@ The API documentation covers all available endpoints:
 
 All endpoints are live and tested with real DX cluster data. Perfect for integration with external monitoring tools or building custom applications on top of the DX cluster data.
 
+#### Extensive deployment debugging
+
+After a [marathon debugging session](chat-transcripts/docker-deploy.md) with Claude, I got the api container deployed.
+
+The data browser is [up and running](http://dx.jxqz.org:8080/)
+
+#### Production Deployment Challenges and Solutions
+
+Had extensive Docker deployment challenges requiring [comprehensive troubleshooting](chat-transcripts/docker-deploy-chat.md) including:
+- Docker Compose version compatibility issues between development (Debian bookworm) and production (Debian bullseye)
+- Environment variable syntax incompatibilities  
+- Database connectivity problems with container networking
+- Creation of individual container build/export/import workflows
+
+Also encountered some [Docker-specific debugging issues](chat-transcripts/docker-debug.md) during the deployment process.
+
+All issues were successfully resolved with automated deployment scripts, version detection, and host networking solutions.
+
+My analytics dashboard development will continue on my local machine for now.
+
 #### Todo List
 
-TODO: The DX Cluster scraper is erroring on some [badly formatted data](error.txt). I need to fix this.
-
+TODO: The DX Cluster scraper is occasionally erroring on some [badly formatted data](error.txt). Need to fix?
 TODO: research React Ecosystem, webGL libs, etc.
-
 TODO: requirement.md file to guide Claude?
-
 TODO: alerting infrastructure. I would like be notified of significant propagation openings or predicted openings.
 
 ### Other
