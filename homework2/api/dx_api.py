@@ -11,7 +11,7 @@ import sys
 from datetime import datetime, timedelta
 from decimal import Decimal
 import json
-from flask import Flask, jsonify, request, abort
+from flask import Flask, jsonify, request, abort, send_from_directory
 from flask_cors import CORS
 import psycopg2
 from psycopg2.extras import RealDictCursor
@@ -508,6 +508,11 @@ def get_top_callsigns():
         logger.error(f"Error getting top callsigns: {e}")
         abort(500, description="Error retrieving top callsigns")
 
+@app.route('/')
+def data_browser():
+    """Serve the data browser HTML interface"""
+    return send_from_directory('.', 'data_browser.html')
+
 @app.route('/api')
 def api_info():
     """API information and available endpoints"""
@@ -519,7 +524,8 @@ def api_info():
         'bands': '/api/bands - Get band information',
         'frequency_histogram': '/api/frequency/histogram - Frequency distribution',
         'hourly_activity': '/api/activity/hourly - Hourly activity stats',
-        'top_callsigns': '/api/callsigns/top - Top active callsigns'
+        'top_callsigns': '/api/callsigns/top - Top active callsigns',
+        'data_browser': '/ - Interactive data browser interface'
     }
     
     return jsonify({
