@@ -85,44 +85,77 @@ check_production_environment() {
     fi
 }
 
-# Export images from development machine
-export_images() {
-    log_info "Exporting Docker images..."
-    
-    # Create exports directory
+# Build individual containers
+build_api() {
+    log_info "Building API container..."
+    docker-compose build dx-api
+    docker tag homework2_dx-api:latest dx-cluster-api:latest
+    log_success "API container built and tagged as dx-cluster-api:latest"
+}
+
+build_web() {
+    log_info "Building Web container..."
+    docker-compose build dx-web
+    docker tag homework2_dx-web:latest dx-cluster-web:latest
+    log_success "Web container built and tagged as dx-cluster-web:latest"
+}
+
+build_all() {
+    log_info "Building all containers..."
+    build_api
+    build_web
+    log_success "All containers built successfully!"
+}
+
+# Export individual images
+export_api() {
+    log_info "Exporting API image..."
     mkdir -p exports
     
-    # Export API image
     if docker image inspect dx-cluster-api:latest &> /dev/null; then
         log_info "Exporting dx-cluster-api:latest..."
         docker save dx-cluster-api:latest | gzip > exports/dx-cluster-api-latest.tar.gz
         log_success "API image exported to exports/dx-cluster-api-latest.tar.gz"
+        log_info "File size: $(du -h exports/dx-cluster-api-latest.tar.gz | cut -f1)"
     else
-        log_error "dx-cluster-api:latest image not found. Build it first with: docker-compose build dx-api"
+        log_error "dx-cluster-api:latest image not found. Build it first with: $0 build-api"
         exit 1
     fi
+}
+
+export_web() {
+    log_info "Exporting Web image..."
+    mkdir -p exports
     
-    # Export Web image
     if docker image inspect dx-cluster-web:latest &> /dev/null; then
         log_info "Exporting dx-cluster-web:latest..."
         docker save dx-cluster-web:latest | gzip > exports/dx-cluster-web-latest.tar.gz
         log_success "Web image exported to exports/dx-cluster-web-latest.tar.gz"
+        log_info "File size: $(du -h exports/dx-cluster-web-latest.tar.gz | cut -f1)"
     else
-        log_error "dx-cluster-web:latest image not found. Build it first with: docker-compose build dx-web"
+        log_error "dx-cluster-web:latest image not found. Build it first with: $0 build-web"
         exit 1
     fi
+}
+
+# Export images from development machine (both)
+export_images() {
+    log_info "Exporting all Docker images..."
+    mkdir -p exports
     
-    log_success "Images exported successfully!"
+    export_api
+    export_web
+    
+    log_success "All images exported successfully!"
     log_info "Transfer these files to your production server:"
     log_info "- exports/dx-cluster-api-latest.tar.gz"
     log_info "- exports/dx-cluster-web-latest.tar.gz"
 }
 
-# Import images on production machine
-import_images() {
-    log_info "Importing Docker images..."
+# Import individual images
+import_api() {
+    log_info "Importing API image..."
     
-    # Import API image
     if [[ -f "exports/dx-cluster-api-latest.tar.gz" ]]; then
         log_info "Importing dx-cluster-api:latest..."
         docker load < exports/dx-cluster-api-latest.tar.gz
@@ -131,8 +164,11 @@ import_images() {
         log_error "API image file not found: exports/dx-cluster-api-latest.tar.gz"
         exit 1
     fi
+}
+
+import_web() {
+    log_info "Importing Web image..."
     
-    # Import Web image
     if [[ -f "exports/dx-cluster-web-latest.tar.gz" ]]; then
         log_info "Importing dx-cluster-web:latest..."
         docker load < exports/dx-cluster-web-latest.tar.gz
@@ -141,6 +177,14 @@ import_images() {
         log_error "Web image file not found: exports/dx-cluster-web-latest.tar.gz"
         exit 1
     fi
+}
+
+# Import images on production machine (both)
+import_images() {
+    log_info "Importing all Docker images..."
+    
+    import_api
+    import_web
     
     log_success "All images imported successfully!"
 }
@@ -249,11 +293,32 @@ main() {
         "check")
             check_production_environment
             ;;
+        "build-api")
+            build_api
+            ;;
+        "build-web")
+            build_web
+            ;;
+        "build-all")
+            build_all
+            ;;
         "export")
             export_images
             ;;
+        "export-api")
+            export_api
+            ;;
+        "export-web")
+            export_web
+            ;;
         "import")
             import_images
+            ;;
+        "import-api")
+            import_api
+            ;;
+        "import-web")
+            import_web
             ;;
         "setup")
             setup_production
@@ -301,24 +366,48 @@ main() {
             echo "Usage: $0 {command}"
             echo ""
             echo "Commands:"
+            echo ""
+            echo "Building:"
+            echo "  build-api   - Build only the API container"
+            echo "  build-web   - Build only the Web container"  
+            echo "  build-all   - Build both containers"
+            echo ""
+            echo "Exporting (run on dev machine):"
+            echo "  export      - Export all Docker images for transfer"
+            echo "  export-api  - Export only the API image"
+            echo "  export-web  - Export only the Web image"
+            echo ""
+            echo "Importing (run on production server):"
+            echo "  import      - Import all Docker images"
+            echo "  import-api  - Import only the API image"
+            echo "  import-web  - Import only the Web image"
+            echo ""
+            echo "Deployment:"
             echo "  check       - Check production environment requirements"
-            echo "  export      - Export Docker images for transfer (run on dev machine)"
-            echo "  import      - Import Docker images (run on production server)"
             echo "  setup       - Setup production environment"
-            echo "  deploy      - Deploy services using pre-built images"
+            echo "  deploy      - Deploy all services using pre-built images"
             echo "  start-api   - Start only the API service (with database check)"
             echo "  start-web   - Start only the Web service (with database check)"
+            echo "  full-deploy - Complete deployment process (import + setup + deploy + health)"
+            echo ""
+            echo "Management:"
             echo "  health      - Check service health"
             echo "  logs [svc]  - Show logs (all services or specific service)"
             echo "  stop        - Stop all services"
             echo "  cleanup     - Clean up Docker resources"
-            echo "  full-deploy - Complete deployment process (import + setup + deploy + health)"
             echo "  use-simple  - Force use of simplified compose file for very old Docker Compose"
             echo ""
-            echo "Example deployment workflow:"
-            echo "  1. On dev machine: $0 export"
+            echo "Example workflows:"
+            echo ""
+            echo "Full deployment:"
+            echo "  1. On dev machine: $0 build-all && $0 export"
             echo "  2. Transfer exports/ directory to production server"
             echo "  3. On production: $0 full-deploy"
+            echo ""
+            echo "API-only update:"
+            echo "  1. On dev machine: $0 build-api && $0 export-api"
+            echo "  2. Transfer exports/dx-cluster-api-latest.tar.gz to production"
+            echo "  3. On production: $0 import-api && $0 start-api"
             echo ""
             echo "Troubleshooting:"
             echo "  If you get 'Unsupported config option' errors, try: $0 use-simple"
