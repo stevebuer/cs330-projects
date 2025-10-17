@@ -9,6 +9,7 @@ services:
   postgres-check:
     image: postgres:15-alpine
     container_name: dx-postgres-check
+    network_mode: host
     environment:
       - PGHOST=${PGHOST}
       - PGDATABASE=${PGDATABASE}
@@ -28,8 +29,7 @@ services:
   dx-api:
     image: dx-cluster-api:latest
     container_name: dx-cluster-api
-    ports:
-      - "8080:8080"
+    network_mode: host
     environment:
       - PGHOST=${PGHOST}
       - PGDATABASE=${PGDATABASE}
@@ -47,8 +47,7 @@ services:
   dx-web:
     image: dx-cluster-web:latest
     container_name: dx-cluster-web
-    ports:
-      - "8050:8050"
+    network_mode: host
     environment:
       - PGHOST=${PGHOST}
       - PGDATABASE=${PGDATABASE}

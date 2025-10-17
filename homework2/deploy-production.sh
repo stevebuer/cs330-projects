@@ -329,6 +329,14 @@ main() {
         "health")
             health_check
             ;;
+        "test-db")
+            log_info "Testing database connection..."
+            if [[ -f "./diagnose-db-connection.sh" ]]; then
+                ./diagnose-db-connection.sh
+            else
+                log_error "Database diagnosis script not found"
+            fi
+            ;;
         "logs")
             show_logs "${2:-}"
             ;;
@@ -392,6 +400,7 @@ main() {
             echo ""
             echo "Management:"
             echo "  health      - Check service health"
+            echo "  test-db     - Diagnose database connection issues"
             echo "  logs [svc]  - Show logs (all services or specific service)"
             echo "  stop        - Stop all services"
             echo "  cleanup     - Clean up Docker resources"
