@@ -195,6 +195,10 @@ Next step was to [create a simple JSON API](chat-transcripts/json-api.md) and ha
 Dash dashboard interface to this -- so that dash is not making direct SQL calls. Also, I
 wanted to have a data browser capability and the ability to query with other tools.
 
+Also, had Claude cleanup some of the documentation files -- declutter homework2 directory.
+
+
+
 #### Todo List
 
 TODO: research React Ecosystem, webGL libs, etc.

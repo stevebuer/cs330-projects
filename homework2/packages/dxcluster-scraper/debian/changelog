@@ -1,0 +1,10 @@
+dxcluster-scraper (1.0.0-1) unstable; urgency=medium
+
+  * Initial release of DX Cluster Scraper service package
+  * Telnet-based DX cluster monitoring and data collection
+  * PostgreSQL database integration for spot storage
+  * Systemd service configuration for production deployment
+  * Service management scripts and utilities
+  * Automatic user and directory setup
+
+ -- Steve Buer <steve@example.com>  Wed, 16 Oct 2024 21:00:00 -0800

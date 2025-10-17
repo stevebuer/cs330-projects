@@ -1,0 +1,36 @@
+#!/bin/bash
+set -e
+
+# Post-removal script for dxcluster-scraper
+
+case "$1" in
+    remove)
+        echo "DX Cluster Scraper removed."
+        echo "To completely remove user data:"
+        echo "sudo userdel dxcluster"
+        echo "sudo rm -rf /var/lib/dxcluster"
+        echo "sudo rm -rf /etc/dxcluster"
+        ;;
+        
+    purge)
+        # Clean up user and data on purge
+        if getent passwd dxcluster >/dev/null 2>&1; then
+            userdel dxcluster >/dev/null 2>&1 || true
+        fi
+        rm -rf /var/lib/dxcluster >/dev/null 2>&1 || true
+        rm -rf /etc/dxcluster >/dev/null 2>&1 || true
+        echo "DX Cluster Scraper completely purged"
+        ;;
+        
+    upgrade|failed-upgrade|abort-install|abort-upgrade|disappear)
+        ;;
+        
+    *)
+        echo "postrm called with unknown argument \`$1'" >&2
+        exit 1
+        ;;
+esac
+
+#DEBHELPER#
+
+exit 0

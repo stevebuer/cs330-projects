@@ -1,0 +1,22 @@
+Source: dxcluster-database
+Section: database
+Priority: optional
+Maintainer: Steve Buer <steve@example.com>
+Build-Depends: debhelper (>= 12)
+Standards-Version: 4.5.0
+Homepage: https://github.com/stevebuer/cs330-projects
+
+Package: dxcluster-database
+Architecture: all
+Depends: ${misc:Depends}, postgresql, python3, python3-psycopg2, python3-dotenv
+Description: DX Cluster Database Schema and Setup Scripts
+ This package provides PostgreSQL database schema initialization and role
+ setup scripts for the DX Cluster monitoring system. It includes:
+ .
+  * Database schema creation scripts
+  * User role and permission setup
+  * Production configuration templates
+  * Interactive setup utilities
+ .
+ The package sets up tables for storing DX cluster spot data with proper
+ indexing and relationships for efficient querying and analysis.

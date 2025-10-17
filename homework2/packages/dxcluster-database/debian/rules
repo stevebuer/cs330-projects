@@ -1,0 +1,21 @@
+#!/usr/bin/make -f
+
+%:
+	dh $@
+
+override_dh_auto_build:
+	# No build required for this package
+
+override_dh_auto_test:
+	# No tests for this package
+
+override_dh_auto_install:
+	# Copy files to debian package structure
+	mkdir -p debian/dxcluster-database/usr/bin
+	mkdir -p debian/dxcluster-database/usr/share/dxcluster-database
+	
+	cp usr/bin/init_dx_database_pg.py debian/dxcluster-database/usr/bin/
+	cp usr/share/dxcluster-database/* debian/dxcluster-database/usr/share/dxcluster-database/
+	
+	chmod +x debian/dxcluster-database/usr/bin/init_dx_database_pg.py
+	chmod +x debian/dxcluster-database/usr/share/dxcluster-database/setup_production_db.sh
