@@ -22,7 +22,8 @@ DB_PORT = '5432'
 def init_database():
     """Initialize the database with tables for DX cluster spots"""
     # Connection string
-    conn_string = f"dbname={DB_NAME} user={DB_USER} password={DB_PASSWORD} host={DB_HOST} port={DB_PORT}"
+#   conn_string = f"dbname={DB_NAME} user={DB_USER} password={DB_PASSWORD} host={DB_HOST} port={DB_PORT}"
+    conn_string = f"dbname={DB_NAME} user={DB_USER}"
 
     try:
         # Connect to PostgreSQL
@@ -92,9 +93,9 @@ def init_database():
             conn.close()
 
 def main():
-    if not DB_PASSWORD:
-        print("Error: Database password not set in environment variables", file=sys.stderr)
-        sys.exit(1)
+#   if not DB_PASSWORD:
+#       print("Error: Database password not set in environment variables", file=sys.stderr)
+#       sys.exit(1)
 
     print(f"Initializing DX cluster database in PostgreSQL database '{DB_NAME}'...")
     init_database()

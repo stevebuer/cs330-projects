@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 #
 # Real-time DX Cluster Client with PostgreSQL Storage
-# Connects to DX cluster via telnet and stores spots in real-time
+# Connects to DX cluster via socket and stores spots in real-time
 #
 
-import telnetlib
+import socket
 import psycopg2
 import sys
 import re
@@ -215,23 +215,63 @@ def store_spot(cursor, spot_data):
         return False
 
 def connect_to_cluster(host, port, callsign):
-    """Connect to DX cluster and return telnet connection"""
+    """Connect to DX cluster and return socket connection"""
     try:
         print(f"Connecting to {host}:{port}...")
-        tn = telnetlib.Telnet(host, port, timeout=30)
+        
+        # Create socket connection
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sock.settimeout(30)
+        sock.connect((host, port))
         
         # Wait for login prompt and send callsign
-        tn.read_until(b'login:', timeout=10)
-        tn.write(f"{callsign}\r\n".encode('ascii'))
+        print("Waiting for login prompt...")
+        buffer = b""
+        while True:
+            try:
+                data = sock.recv(1024)
+                if not data:
+                    break
+                buffer += data
+                decoded = buffer.decode('utf-8', errors='ignore')
+                print(f"Server: {decoded}")
+                if 'login:' in decoded.lower() or 'call' in decoded.lower():
+                    break
+            except socket.timeout:
+                break
+        
+        # Send callsign
+        print(f"Sending callsign: {callsign}")
+        sock.send(f"{callsign}\r\n".encode('ascii'))
         
         # Read initial messages
         time.sleep(2)
-        initial_data = tn.read_very_eager()
-        if initial_data:
-            print("Connection established. Initial response:")
-            print(initial_data.decode('utf-8', errors='ignore'))
+        try:
+            sock.settimeout(2)  # Short timeout for initial messages
+            buffer = b""
+            for _ in range(10):  # Read up to 10 messages
+                try:
+                    data = sock.recv(1024)
+                    if not data:
+                        break
+                    buffer += data
+                    decoded = buffer.decode('utf-8', errors='ignore')
+                    lines = decoded.split('\n')
+                    for line in lines[:-1]:  # All complete lines
+                        if line.strip():
+                            print(f"Server: {line.strip()}")
+                    buffer = lines[-1].encode('utf-8')  # Keep incomplete line
+                except socket.timeout:
+                    break
+        except:
+            pass
         
-        return tn
+        # Reset timeout for normal operation
+        sock.settimeout(10)
+        print("Connection established successfully!")
+        
+        return sock
+        
     except Exception as e:
         print(f"Failed to connect to DX cluster: {e}", file=sys.stderr)
         return None
@@ -270,13 +310,14 @@ def main():
         sys.exit(1)
 
     # Connect to DX cluster
-    tn = connect_to_cluster(host, port, callsign)
-    if not tn:
+    sock = connect_to_cluster(host, port, callsign)
+    if not sock:
         sys.exit(1)
 
     spots_processed = 0
     lines_received = 0
     last_commit_time = time.time()
+    buffer = b""  # Buffer for incomplete lines
     
     try:
         print("Monitoring DX spots... (storing to database)")
@@ -284,35 +325,53 @@ def main():
         
         while running:
             try:
-                # Read data from telnet connection
-                data = tn.read_until(b'\n', timeout=10)
+                # Read data from socket connection
+                data = sock.recv(1024)
                 if not data:
+                    print("Connection lost, attempting to reconnect...")
+                    sock.close()
+                    time.sleep(5)
+                    sock = connect_to_cluster(host, port, callsign)
+                    if not sock:
+                        print("Failed to reconnect, exiting...")
+                        break
+                    buffer = b""
                     continue
+                
+                # Add new data to buffer
+                buffer += data
+                
+                # Process complete lines
+                while b'\n' in buffer:
+                    line_bytes, buffer = buffer.split(b'\n', 1)
+                    line = line_bytes.decode('utf-8', errors='ignore').strip()
                     
-                line = data.decode('utf-8', errors='ignore').strip()
-                if not line:
-                    continue
+                    if not line:
+                        continue
+                    
+                    lines_received += 1
+                    
+                    # Print all lines for monitoring
+                    print(f"{datetime.utcnow().strftime('%H:%M:%S')} | {line}")
+                    
+                    # Check if this is a DX spot and parse it
+                    if line.startswith('DX de '):
+                        spot_data = parse_dx_spot_line(line)
+                        if spot_data:
+                            if store_spot(cursor, spot_data):
+                                spots_processed += 1
+                                print(f"  -> Stored spot #{spots_processed}: {spot_data['dx_call']} on {spot_data['frequency']} by {spot_data['spotter_call']}")
+                            
+                            # Commit every 10 spots or every 60 seconds
+                            current_time = time.time()
+                            if spots_processed % 10 == 0 or (current_time - last_commit_time) > 60:
+                                connection.commit()
+                                last_commit_time = current_time
+                                print(f"  -> Committed {spots_processed} spots to database")
                 
-                lines_received += 1
-                
-                # Print all lines for monitoring
-                print(f"{datetime.utcnow().strftime('%H:%M:%S')} | {line}")
-                
-                # Check if this is a DX spot and parse it
-                if line.startswith('DX de '):
-                    spot_data = parse_dx_spot_line(line)
-                    if spot_data:
-                        if store_spot(cursor, spot_data):
-                            spots_processed += 1
-                            print(f"  -> Stored spot #{spots_processed}: {spot_data['dx_call']} on {spot_data['frequency']} by {spot_data['spotter_call']}")
-                        
-                        # Commit every 10 spots or every 60 seconds
-                        current_time = time.time()
-                        if spots_processed % 10 == 0 or (current_time - last_commit_time) > 60:
-                            connection.commit()
-                            last_commit_time = current_time
-                            print(f"  -> Committed {spots_processed} spots to database")
-                
+            except socket.timeout:
+                # Timeout is normal, just continue
+                continue
             except Exception as e:
                 if running:  # Only print error if we're not shutting down
                     print(f"Error processing data: {e}", file=sys.stderr)
@@ -325,7 +384,8 @@ def main():
             if connection:
                 connection.commit()
                 print(f"\nFinal commit: {spots_processed} spots processed from {lines_received} total lines")
-            tn.close()
+            if sock:
+                sock.close()
         except:
             pass
 
