@@ -261,7 +261,7 @@ All endpoints are live and tested with real DX cluster data. Perfect for integra
 
 #### Extensive deployment debugging
 
-After a [marathon debugging session](chat-transcripts/docker-deploy.md) with Claude, I got the api container deployed.
+After a marathon debugging session with Claude, I got the api container deployed.
 
 The data browser is [up and running](http://dx.jxqz.org:8080/)
 
