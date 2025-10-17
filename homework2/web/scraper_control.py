@@ -38,7 +38,7 @@ class ScraperManager:
         if self.status != "running":
             try:
                 # Assuming your scraper script is in the parent directory
-                script_path = os.path.join(os.path.dirname(__file__), '..', 'load_dx_spots_pg.py')
+                script_path = os.path.join(os.path.dirname(__file__), '..', 'dx_cluster_live_pg.py')
                 
                 # Start the scraper as a subprocess
                 self.process = subprocess.Popen(

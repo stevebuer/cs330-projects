@@ -9,7 +9,7 @@ User=steve
 Group=steve
 WorkingDirectory=/home/steve/GITHUB/cs330-projects/homework2
 Environment=PATH=/home/steve/GITHUB/cs330-projects/.venv/bin:/usr/local/bin:/usr/bin:/bin
-ExecStart=/home/steve/GITHUB/cs330-projects/.venv/bin/python /home/steve/GITHUB/cs330-projects/homework2/load_dx_spots_pg.py
+ExecStart=/home/steve/GITHUB/cs330-projects/.venv/bin/python /home/steve/GITHUB/cs330-projects/homework2/dx_cluster_live_pg.py
 Restart=always
 RestartSec=10
 StandardOutput=journal
