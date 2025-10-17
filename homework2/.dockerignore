@@ -1,0 +1,87 @@
+# Docker ignore file for DX Cluster services
+# Prevent unnecessary files from being copied to Docker images
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual environments
+.env
+.venv/
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Database
+*.db
+*.sqlite3
+
+# Package files
+packages/
+*.deb
+*.buildinfo
+*.changes
+
+# Documentation builds
+docs/_build/
+
+# Chat transcripts and development files
+chat-transcripts/
+*.md.backup
+error.txt
+
+# System service files
+*.service
+
+# Backup files
+*.bak
+BAK/
+
+# Screenshots
+*.png
+*.jpg
+*.jpeg
+
+# Temporary files
+*.tmp
+*.temp
