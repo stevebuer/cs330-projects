@@ -160,7 +160,7 @@ like to get the scraper running via *systemctl* so I can just get consistent dat
 That is my next goal. I also need to get the schema loaded on the production server and passwords configured, etc.
 
 First I had to ask Claude to [consolidate scraper scripts](chat-transcripts/scraper-merge.md) so I can scrape from the live cluster. It gave
-me a new [scraper README file](DX_LIVE_MONITOR_README.md).
+me a new [scraper README file](docs/DX_LIVE_MONITOR_README.md).
 
 **debugging/fixing**
 
@@ -191,7 +191,9 @@ I asked Claude to [refactor this code](chat-transcripts/scraper-service.md) and 
 the scraper control out of the web UI and allow me to control it as a Linux service
 via systemctl.
 
-Next step is to have a simple JSON API for data browsing.
+Next step was to [create a simple JSON API](chat-transcripts/json-api.md) and have the
+Dash dashboard interface to this -- so that dash is not making direct SQL calls. Also, I
+wanted to have a data browser capability and the ability to query with other tools.
 
 #### Todo List
 
@@ -201,9 +203,9 @@ TODO: requirement.md file to guide Claude?
 
 TODO: alerting infrastructure
 
-### Addendum
+### Other
 
 In additiona I have spent some time [chatting wth AI] and reading about the foundational theory of relational databases and the
 work of [E.F. Codd](https://en.wikipedia.org/wiki/Edgar_F._Codd). In my early days of programming, relational databases did not 
 make much sense to me because I had little or no exposure to discrete mathematics and set theory. Now I have a stronger math
-background and it makes sense.
+background and it makes more sense.
