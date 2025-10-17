@@ -202,13 +202,24 @@ Next I wanted to begin on some [packaging and deployment](chat-transcripts/dpkg-
 I would also like to look at CI/CD integration and some different deployment strategies
 for other components using things like docker for the web components.
 
+##### JSON Rest API
+
+Claude was nice enough to create a [README.md](api/README.md) for this component. I am working on [testing this out](docs/dx_cluster_api.jpg) now.
+
+The [data browser](docs/data_browser.jpg) is working as well.
+
+This program uses [CORS](https://en.wikipedia.org/wiki/Cross-origin_resource_sharing) which I have not used before and
+need to read about.
+
 #### Todo List
+
+TODO: The DX Cluster scraper is erroring on some [badly formatted data](error.txt). I need to fix this.
 
 TODO: research React Ecosystem, webGL libs, etc.
 
 TODO: requirement.md file to guide Claude?
 
-TODO: alerting infrastructure
+TODO: alerting infrastructure. I would like be notified of significant propagation openings or predicted openings.
 
 ### Other
 
