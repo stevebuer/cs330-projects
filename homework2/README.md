@@ -197,7 +197,10 @@ wanted to have a data browser capability and the ability to query with other too
 
 Also, had Claude cleanup some of the documentation files -- declutter homework2 directory.
 
+Next I wanted to begin on some [packaging and deployment](chat-transcripts/dpkg-chat.md).
 
+I would also like to look at CI/CD integration and some different deployment strategies
+for other components using things like docker for the web components.
 
 #### Todo List
 
