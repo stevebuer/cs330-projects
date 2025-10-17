@@ -182,6 +182,9 @@ correctly and such. I need to pause a second and revisit [Postgres documentation
 
 I also need to create a little [Postgres command reference](docs/postgres-commands.md) for my commonly used commands.
 
+Once again, after stumbling around for a while I [asked claude to fix DB permissions](chat-transcripts/db-permission-fixes.md). Scraper Inserts are working now. I also asked
+for some help to make sure the deployment scripts are updated for deployment.
+
 TODO: data explorer
 
 TODO: research React Ecosystem, webGL libs, etc.
