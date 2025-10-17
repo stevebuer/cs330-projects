@@ -1,11 +1,10 @@
 import os
-from dash import Dash, html, dcc, Input, Output, State, callback, callback_context
+from dash import Dash, html, dcc, Input, Output
 import dash_bootstrap_components as dbc
 from dotenv import load_dotenv
 import psycopg2
 from datetime import datetime, timedelta
 import pandas as pd
-from scraper_control import scraper_manager
 
 # Load environment variables
 load_dotenv()
@@ -35,31 +34,6 @@ header = dbc.Navbar(
     dark=True,
 )
 
-# Scraper control card
-scraper_control = dbc.Card([
-    dbc.CardHeader("Scraper Control"),
-    dbc.CardBody([
-        dbc.Row([
-            dbc.Col([
-                dbc.Button("Start Scraper", id="start-scraper", color="success", className="me-2"),
-                dbc.Button("Stop Scraper", id="stop-scraper", color="danger", className="me-2"),
-                html.Div([
-                    html.H5("Status: ", className="d-inline"),
-                    html.Span(id="scraper-status", className="ms-2"),
-                ], className="mt-3"),
-                html.Div([
-                    html.H5("Last Error: ", className="d-inline"),
-                    html.Span(id="last-error", className="ms-2 text-danger"),
-                ], className="mt-2"),
-                html.Div([
-                    html.H5("Running Since: ", className="d-inline"),
-                    html.Span(id="start-time", className="ms-2"),
-                ], className="mt-2"),
-            ])
-        ])
-    ])
-])
-
 # Real-time stats card
 stats_card = dbc.Card([
     dbc.CardHeader("Real-time Statistics"),
@@ -68,36 +42,36 @@ stats_card = dbc.Card([
             dbc.Col([
                 html.H5("Total Spots Today"),
                 html.H3(id="total-spots", children="0")
-            ], width=4),
+            ], width=3),
             dbc.Col([
                 html.H5("Active Stations"),
                 html.H3(id="active-stations", children="0")
-            ], width=4),
+            ], width=3),
             dbc.Col([
                 html.H5("Latest Update"),
                 html.H3(id="latest-update", children="--:--")
-            ], width=4),
+            ], width=3),
+            dbc.Col([
+                html.H5("Total Records"),
+                html.H3(id="total-records", children="0")
+            ], width=3),
         ])
     ])
 ])
 
-# Log display card
-log_display = dbc.Card([
-    dbc.CardHeader("Scraper Logs"),
-    dbc.CardBody([
-        html.Div(id="log-content", style={'height': '300px', 'overflowY': 'scroll', 'fontFamily': 'monospace'})
-    ])
-])
-
-# Scraper statistics card
-scraper_stats = dbc.Card([
-    dbc.CardHeader("Scraper Statistics"),
+# Database statistics card
+db_stats = dbc.Card([
+    dbc.CardHeader("Database Statistics"),
     dbc.CardBody([
         dbc.Row([
             dbc.Col([
                 html.H5("Last 24 Hours"),
                 html.Div(id="stats-24h")
-            ])
+            ], width=6),
+            dbc.Col([
+                html.H5("Last 7 Days"),
+                html.Div(id="stats-7d")
+            ], width=6)
         ])
     ])
 ])
@@ -108,16 +82,11 @@ app.layout = html.Div([
     dbc.Container([
         html.Br(),
         dbc.Row([
-            dbc.Col([scraper_control], width=12)
+            dbc.Col([stats_card], width=12)
         ]),
         html.Br(),
         dbc.Row([
-            dbc.Col([stats_card], width=6),
-            dbc.Col([scraper_stats], width=6)
-        ]),
-        html.Br(),
-        dbc.Row([
-            dbc.Col([log_display], width=12)
+            dbc.Col([db_stats], width=12)
         ]),
         html.Br(),
         dbc.Row([
@@ -138,7 +107,10 @@ app.layout = html.Div([
     [Output('total-spots', 'children'),
      Output('active-stations', 'children'),
      Output('latest-update', 'children'),
-     Output('live-spots-graph', 'figure')],
+     Output('total-records', 'children'),
+     Output('live-spots-graph', 'figure'),
+     Output('stats-24h', 'children'),
+     Output('stats-7d', 'children')],
     [Input('interval-component', 'n_intervals')]
 )
 def update_stats(n):
@@ -167,11 +139,26 @@ def update_stats(n):
                 }
             }
             
+            demo_24h_stats = html.Div([
+                html.P([html.Strong("Total Spots: "), html.Span("250")]),
+                html.P([html.Strong("Unique Spotters: "), html.Span("42")]),
+                html.P([html.Strong("Unique DX Stations: "), html.Span("85")]),
+            ])
+            
+            demo_7d_stats = html.Div([
+                html.P([html.Strong("Total Spots: "), html.Span("1,750")]),
+                html.P([html.Strong("Unique Spotters: "), html.Span("156")]),
+                html.P([html.Strong("Unique DX Stations: "), html.Span("420")]),
+            ])
+            
             return (
-                str(random.randint(100, 500)),  # Demo total spots
+                str(random.randint(100, 500)),  # Demo total spots today
                 str(random.randint(20, 80)),    # Demo active stations
                 datetime.now().strftime("%H:%M:%S"),
-                graph_figure
+                str(random.randint(10000, 50000)),  # Demo total records
+                graph_figure,
+                demo_24h_stats,
+                demo_7d_stats
             )
         
         cur = conn.cursor()
@@ -192,6 +179,10 @@ def update_stats(n):
         """)
         active_stations = cur.fetchone()[0]
         
+        # Get total records count
+        cur.execute("SELECT COUNT(*) FROM dx_spots")
+        total_records = cur.fetchone()[0]
+        
         # Get spots by hour for graph
         cur.execute("""
             SELECT DATE_TRUNC('hour', spot_time) as hour,
@@ -203,6 +194,28 @@ def update_stats(n):
         """)
         results = cur.fetchall()
         df = pd.DataFrame(results, columns=['hour', 'spot_count'])
+        
+        # Get 24h statistics
+        cur.execute("""
+            SELECT
+                COUNT(*) as total_spots,
+                COUNT(DISTINCT spotter_call) as unique_spotters,
+                COUNT(DISTINCT dx_call) as unique_dx_stations
+            FROM dx_spots
+            WHERE spot_time >= NOW() - INTERVAL '24 hours'
+        """)
+        stats_24h = cur.fetchone()
+        
+        # Get 7d statistics
+        cur.execute("""
+            SELECT
+                COUNT(*) as total_spots,
+                COUNT(DISTINCT spotter_call) as unique_spotters,
+                COUNT(DISTINCT dx_call) as unique_dx_stations
+            FROM dx_spots
+            WHERE spot_time >= NOW() - INTERVAL '7 days'
+        """)
+        stats_7d = cur.fetchone()
         
         cur.close()
         conn.close()
@@ -224,11 +237,27 @@ def update_stats(n):
             }
         }
         
+        # Format statistics
+        stats_24h_display = html.Div([
+            html.P([html.Strong("Total Spots: "), html.Span(str(stats_24h[0]))]),
+            html.P([html.Strong("Unique Spotters: "), html.Span(str(stats_24h[1]))]),
+            html.P([html.Strong("Unique DX Stations: "), html.Span(str(stats_24h[2]))]),
+        ])
+        
+        stats_7d_display = html.Div([
+            html.P([html.Strong("Total Spots: "), html.Span(str(stats_7d[0]))]),
+            html.P([html.Strong("Unique Spotters: "), html.Span(str(stats_7d[1]))]),
+            html.P([html.Strong("Unique DX Stations: "), html.Span(str(stats_7d[2]))]),
+        ])
+        
         return (
             str(total_spots),
             str(active_stations),
             datetime.now().strftime("%H:%M:%S"),
-            graph_figure
+            str(total_records),
+            graph_figure,
+            stats_24h_display,
+            stats_7d_display
         )
         
     except Exception as e:
@@ -255,86 +284,27 @@ def update_stats(n):
             }
         }
         
-        return (
-            "Demo: 250",
-            "Demo: 42",
-            datetime.now().strftime("%H:%M:%S"),
-            graph_figure
-        )
-
-# Callback for scraper control buttons
-@app.callback(
-    [Output("scraper-status", "children"),
-     Output("last-error", "children"),
-     Output("start-time", "children")],
-    [Input("start-scraper", "n_clicks"),
-     Input("stop-scraper", "n_clicks"),
-     Input("interval-component", "n_intervals")],
-    [State("scraper-status", "children")]
-)
-def control_scraper(start_clicks, stop_clicks, n_intervals, current_status):
-    ctx = callback_context
-    status = scraper_manager.get_status()
-    
-    if ctx.triggered and ctx.triggered[0]["prop_id"] != "interval-component.n_intervals":
-        button_id = ctx.triggered[0]["prop_id"].split(".")[0]
-        if button_id == "start-scraper":
-            scraper_manager.start_scraper()
-        elif button_id == "stop-scraper":
-            scraper_manager.stop_scraper()
-    
-    status_color = {
-        "running": "text-success",
-        "stopped": "text-warning",
-        "error": "text-danger"
-    }.get(status["status"], "")
-    
-    return (
-        html.Span(status["status"].upper(), className=status_color),
-        status["last_error"] or "None",
-        status["start_time"] or "Not started"
-    )
-
-# Callback for updating log display
-@app.callback(
-    Output("log-content", "children"),
-    Input("interval-component", "n_intervals")
-)
-def update_logs(n):
-    status = scraper_manager.get_status()
-    logs = status.get("recent_logs", [])
-    return [html.Div(log, className="log-line") for log in logs]
-
-# Callback for updating scraper statistics
-@app.callback(
-    Output("stats-24h", "children"),
-    Input("interval-component", "n_intervals")
-)
-def update_scraper_stats(n):
-    status = scraper_manager.get_status()
-    stats = status.get("statistics", {})
-    
-    if not stats:
-        return "No statistics available"
-    
-    return html.Div([
-        html.P([
-            html.Strong("Total Spots: "),
-            html.Span(stats.get("last_24h_spots", 0))
-        ]),
-        html.P([
-            html.Strong("Unique Spotters: "),
-            html.Span(stats.get("last_24h_spotters", 0))
-        ]),
-        html.P([
-            html.Strong("Unique DX Stations: "),
-            html.Span(stats.get("last_24h_dx_stations", 0))
-        ]),
-        html.P([
-            html.Strong("Last Spot: "),
-            html.Span(stats.get("last_spot_time", "Never"))
+        error_24h_stats = html.Div([
+            html.P([html.Strong("Total Spots: "), html.Span("Error")]),
+            html.P([html.Strong("Unique Spotters: "), html.Span("Error")]),
+            html.P([html.Strong("Unique DX Stations: "), html.Span("Error")]),
         ])
-    ])
+        
+        error_7d_stats = html.Div([
+            html.P([html.Strong("Total Spots: "), html.Span("Error")]),
+            html.P([html.Strong("Unique Spotters: "), html.Span("Error")]),
+            html.P([html.Strong("Unique DX Stations: "), html.Span("Error")]),
+        ])
+        
+        return (
+            "Error",
+            "Error",
+            datetime.now().strftime("%H:%M:%S"),
+            "Error",
+            graph_figure,
+            error_24h_stats,
+            error_7d_stats
+        )
 
 if __name__ == '__main__':
     app.run_server(debug=True, host='0.0.0.0', port=8050)
