@@ -239,6 +239,16 @@ main() {
         "logs")
             show_logs "${2:-}"
             ;;
+        "start-api")
+            log_info "Starting API service only..."
+            docker-compose -f "$PRODUCTION_COMPOSE_FILE" up -d dx-api postgres-check
+            log_success "API service started"
+            ;;
+        "start-web")
+            log_info "Starting Web service only..."
+            docker-compose -f "$PRODUCTION_COMPOSE_FILE" up -d dx-web postgres-check
+            log_success "Web service started"
+            ;;
         "stop")
             stop_services
             ;;
@@ -263,6 +273,8 @@ main() {
             echo "  import      - Import Docker images (run on production server)"
             echo "  setup       - Setup production environment"
             echo "  deploy      - Deploy services using pre-built images"
+            echo "  start-api   - Start only the API service (with database check)"
+            echo "  start-web   - Start only the Web service (with database check)"
             echo "  health      - Check service health"
             echo "  logs [svc]  - Show logs (all services or specific service)"
             echo "  stop        - Stop all services"

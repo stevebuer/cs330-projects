@@ -112,8 +112,10 @@ After deployment:
 ## Follow-up Actions
 
 - Committed all new files to git repository
+- **Image Naming Issue Resolved**: Script expects `dx-cluster-api:latest` and `dx-cluster-web:latest` but Docker Compose builds `homework2_dx-api:latest` and `homework2_dx-web:latest`. Solution: Tag images with expected names using `docker tag`
+- **Successfully Tested Export/Import**: All deployment script functions verified working
+- Added `.gitignore` to exclude binary exports and sensitive files
 - Ready for production deployment testing
-- Documentation available for team members
 - Deployment process can be automated in CI/CD pipeline
 
 ---

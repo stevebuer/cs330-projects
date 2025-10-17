@@ -15,7 +15,7 @@ services:
       - PGUSER=${PGUSER}
       - PGPASSWORD=${PGPASSWORD}
       - PGPORT=${PGPORT}
-      - FLASK_ENV=${FLASK_ENV:-production}
+      - FLASK_ENV=production
     env_file:
       - .env
     restart: unless-stopped
@@ -40,7 +40,7 @@ services:
       - PGUSER=${PGUSER}
       - PGPASSWORD=${PGPASSWORD}
       - PGPORT=${PGPORT}
-      - DASH_ENV=${DASH_ENV:-production}
+      - DASH_ENV=production
     env_file:
       - .env
     restart: unless-stopped
