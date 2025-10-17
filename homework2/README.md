@@ -241,6 +241,24 @@ jersey% systemctl status dx-scraper
 I had a little cleanup work to do after the dpkg deployment of the database and
 scraper. Then I asked Claude to help try a [Docker deployment](chat-transcripts/docker-deploy.md) for the web components. I need to get this installed in production next.
 
+#### API Documentation
+
+Created comprehensive API documentation for the DX Cluster REST API:
+
+- **[API_DOCUMENTATION.md](API_DOCUMENTATION.md)** - Complete API reference with all endpoints, parameters, and examples
+- **[API_QUICKSTART.md](API_QUICKSTART.md)** - Quick start guide for developers to get up and running in 5 minutes  
+- **[openapi.yaml](openapi.yaml)** - OpenAPI 3.0 specification for Swagger/Postman integration
+
+The API documentation covers all available endpoints:
+- Health checks and system status
+- DX spot retrieval with filtering and pagination
+- Band activity statistics and analytics
+- Real-time monitoring endpoints
+- Top callsign activity tracking
+- Frequency analysis and histograms
+
+All endpoints are live and tested with real DX cluster data. Perfect for integration with external monitoring tools or building custom applications on top of the DX cluster data.
+
 #### Todo List
 
 TODO: The DX Cluster scraper is erroring on some [badly formatted data](error.txt). I need to fix this.
