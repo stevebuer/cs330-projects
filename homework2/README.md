@@ -182,6 +182,14 @@ correctly and such. I need to pause a second and revisit [Postgres documentation
 
 I also need to create a little [Postgres command reference](docs/postgres-commands.md) for my commonly used commands.
 
+TODO: data explorer
+
+TODO: research React Ecosystem, webGL libs, etc.
+
+TODO: requirement.md file to guide Claude?
+
+TODO: alerting infrastructure
+
 ### Addendum
 
 In additiona I have spent some time [chatting wth AI] and reading about the foundational theory of relational databases and the

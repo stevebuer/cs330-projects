@@ -26,7 +26,7 @@ DEFAULT_CALLSIGN = 'N7MKO'
 DB_HOST = os.getenv('DB_HOST', 'localhost')
 DB_PORT = os.getenv('DB_PORT', '5432')
 DB_NAME = os.getenv('DB_NAME', 'dxcluster')
-DB_USER = os.getenv('DB_USER', 'postgres')
+DB_USER = os.getenv('DB_USER', 'dx_scraper')
 DB_PASS = os.getenv('DB_PASSWORD', '')
 
 # Global variables for graceful shutdown
