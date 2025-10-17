@@ -211,6 +211,17 @@ The [data browser](docs/data_browser.jpg) is working as well.
 This program uses [CORS](https://en.wikipedia.org/wiki/Cross-origin_resource_sharing) which I have not used before and
 need to read about.
 
+#### Initial Production Deployment
+
+I would like to get the dx cluster scraper up and running because my data collection is a real-time process, so if it
+is not running -- I have no data. I also think there are a few bugs that need to be ironed out, so I want to be able to check
+log files for errors and such. I am following the [deployment instructions](packages/README.md) from Claude.
+
+Had to make a [few changes](link-to-diff.todo) to database init script. Connect string wasn't working.
+
+The original scraper script used python3-telnetlib. This is deprecated and unavailable
+on my production server. I had to ask Claude to [rewrite using sockets](chat-transcripts/telnetfix-chat.md) and rebuild the package for deployment.
+
 #### Todo List
 
 TODO: The DX Cluster scraper is erroring on some [badly formatted data](error.txt). I need to fix this.
