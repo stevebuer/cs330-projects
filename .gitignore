@@ -1,4 +1,44 @@
+# Environment files
 .env
+.env.*
 homework1/.env
+homework2/.env.*
+
+# Database files
+*.db
+dxcluster.db
 homework1/dxcluster.db
+
+# Data files
 homework1/data/dx_spots.txt
+homework1/data/dx_spots.*.txt
+
+# Build artifacts and packages
+homework2/packages/*/debian/.debhelper/
+homework2/packages/*/debian/debhelper-build-stamp
+homework2/packages/*/debian/*.substvars
+homework2/packages/*/debian/dxcluster-*/
+homework2/packages/*/debian/files
+
+# Jupyter checkpoints
+.ipynb_checkpoints/
+*/.ipynb_checkpoints/
+
+# Screenshots and images
+*.png
+*.jpg
+*.jpeg
+
+# Error logs
+error.txt
+homework2/error.txt
+
+# Backup directories
+BAK/
+*/BAK/
+
+# Update directories
+UPDATE/
+
+# Notes
+notes.txt
