@@ -13,9 +13,11 @@ import dash_bootstrap_components as dbc
 import pandas as pd
 import plotly.graph_objs as go
 from dotenv import load_dotenv
+from email.utils import parsedate_to_datetime
 
 # Load environment variables
-load_dotenv()
+load_dotenv()  # Load default .env
+load_dotenv('/home/steve/GITHUB/cs330-projects/homework2/.env.local')  # Load local config
 
 # API Configuration
 API_BASE_URL = os.getenv('API_BASE_URL', 'http://localhost:5000/api')
@@ -38,7 +40,7 @@ def api_request(endpoint, params=None):
 header = dbc.Navbar(
     dbc.Container([
         dbc.NavbarBrand("DX Cluster Monitor (API Version)", className="ms-2"),
-        dbc.NavbarText(f"API: {API_BASE_URL}", className="me-2")
+        html.Span(f"API: {API_BASE_URL}", className="navbar-text me-2")
     ]),
     color="primary",
     dark=True,
@@ -269,8 +271,14 @@ def create_recent_spots_table(recent_data):
     
     table_rows = []
     for spot in spots[:10]:  # Limit to 10 spots
-        timestamp = datetime.fromisoformat(spot['timestamp'].replace('Z', '+00:00'))
-        time_str = timestamp.strftime('%H:%M:%S')
+        try:
+            # Parse RFC format timestamp: "Mon, 20 Oct 2025 17:56:58 GMT"
+            timestamp = parsedate_to_datetime(spot['timestamp'])
+            time_str = timestamp.strftime('%H:%M:%S')
+        except (ValueError, TypeError) as e:
+            print(f"Error parsing timestamp '{spot['timestamp']}': {e}")
+            time_str = "N/A"
+        
         freq_str = f"{float(spot['frequency']):.1f}"
         
         row = html.Tr([

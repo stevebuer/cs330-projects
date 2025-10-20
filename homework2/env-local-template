@@ -1,0 +1,16 @@
+# Local development environment template for dashboard testing
+# Copy this to .env.local and customize for your environment
+
+# API Configuration for connecting to cloud server
+API_BASE_URL=http://dx.jxqz.org:8080/api
+
+# Application Environment
+FLASK_ENV=development
+DASH_ENV=development
+
+# Dashboard Configuration
+DASHBOARD_PORT=8051
+DASHBOARD_HOST=127.0.0.1
+
+# Debug settings
+DEBUG=true
