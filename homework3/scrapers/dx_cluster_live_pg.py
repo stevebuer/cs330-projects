@@ -147,29 +147,97 @@ def parse_dx_spot_line(line):
         print(f"Error details: {str(e)}", file=sys.stderr)
         return None
 
-def determine_band(frequency):
-    """Determine the amateur radio band based on frequency in kHz"""
-    freq_ranges = {
-        '2200m': (135.7, 137.8),
-        '630m': (472.0, 479.0),
-        '160m': (1800.0, 2000.0),
-        '80m': (3500.0, 4000.0),
-        '60m': (5351.5, 5366.5),
-        '40m': (7000.0, 7300.0),
-        '30m': (10100.0, 10150.0),
-        '20m': (14000.0, 14350.0),
-        '17m': (18068.0, 18168.0),
-        '15m': (21000.0, 21450.0),
-        '12m': (24890.0, 24990.0),
-        '10m': (28000.0, 29700.0),
-        '6m': (50000.0, 54000.0),
-        '2m': (144000.0, 148000.0)
-    }
-    
-    for band, (low, high) in freq_ranges.items():
-        if low <= frequency <= high:
-            return band
-    return None
+def parse_wwv_announcement(line):
+    """
+    Parse a WWV announcement line and return a dictionary of propagation data
+    WWV format examples:
+    WWV de VE7CC:                   2100   14  73  14   0  0   0  0  0  0  0  0  0  0
+    WWV de W1AW:                    SFI=102 A=5 K=1 SSN=0
+    """
+    try:
+        # Check if this is a WWV announcement
+        if not (line.startswith('WWV de ') or 'WWV' in line.upper()):
+            return None
+
+        # Add current timestamp
+        current_timestamp = datetime.utcnow()
+        formatted_line = f"{current_timestamp.strftime('%Y-%m-%d %H:%M:%S')}: {line}"
+
+        # Initialize data structure
+        wwv_data = {
+            'timestamp': current_timestamp,
+            'raw_text': formatted_line.strip(),
+            'solar_flux': None,
+            'a_index': None,
+            'k_index': None,
+            'sunspot_number': None,
+            'xray_flux': None,
+            'proton_flux': None,
+            'band_80m': None,
+            'band_40m': None,
+            'band_30m': None,
+            'band_20m': None,
+            'band_17m': None,
+            'band_15m': None,
+            'band_12m': None,
+            'band_10m': None,
+            'geomagnetic_storm': None,
+            'solar_radiation_storm': None,
+            'announcement_type': 'WWV',
+            'parsed_successfully': False
+        }
+
+        # Extract station callsign
+        station_match = re.search(r'WWV de ([A-Z0-9/-]+):', line)
+        if station_match:
+            wwv_data['station_call'] = station_match.group(1)
+
+        # Try different WWV formats
+
+        # Format 1: Space-separated numbers (old format)
+        # WWV de VE7CC:                   2100   14  73  14   0  0   0  0  0  0  0  0  0  0
+        numbers = re.findall(r'\b\d+\b', line)
+        if len(numbers) >= 4:
+            try:
+                wwv_data['solar_flux'] = int(numbers[0])
+                wwv_data['a_index'] = int(numbers[1])
+                wwv_data['k_index'] = int(numbers[2])
+                wwv_data['sunspot_number'] = int(numbers[3]) if len(numbers) > 3 else None
+                wwv_data['parsed_successfully'] = True
+            except (ValueError, IndexError):
+                pass
+
+        # Format 2: Key=value format (newer format)
+        # SFI=102 A=5 K=1 SSN=0
+        sfi_match = re.search(r'SFI[=:](\d+)', line, re.IGNORECASE)
+        if sfi_match:
+            wwv_data['solar_flux'] = int(sfi_match.group(1))
+
+        a_match = re.search(r'A[=:](\d+)', line, re.IGNORECASE)
+        if a_match:
+            wwv_data['a_index'] = int(a_match.group(1))
+
+        k_match = re.search(r'K[=:](\d+)', line, re.IGNORECASE)
+        if k_match:
+            wwv_data['k_index'] = int(k_match.group(1))
+
+        ssn_match = re.search(r'SSN[=:](\d+)', line, re.IGNORECASE)
+        if ssn_match:
+            wwv_data['sunspot_number'] = int(ssn_match.group(1))
+
+        # If we found any key=value pairs, mark as successfully parsed
+        if any([wwv_data['solar_flux'], wwv_data['a_index'], wwv_data['k_index'], wwv_data['sunspot_number']]):
+            wwv_data['parsed_successfully'] = True
+
+        # Look for band conditions (typically in comments)
+        # This is more complex and would require specific parsing of band data
+
+        return wwv_data
+
+    except Exception as e:
+        print(f"Error parsing WWV line: {line.strip()}", file=sys.stderr)
+        print(f"Error details: {str(e)}", file=sys.stderr)
+        return None
 
 def update_callsign_stats(cursor, callsign, is_spotter=True):
     """Update the callsigns table statistics"""
@@ -236,6 +304,56 @@ def store_spot(cursor, spot_data):
         return True
     except psycopg2.Error as e:
         print(f"Database error storing spot: {e}", file=sys.stderr)
+        return False
+
+def store_wwv_announcement(cursor, wwv_data):
+    """Store a WWV announcement in the database"""
+    try:
+        # Insert raw announcement (reuse raw_spots table for consistency)
+        cursor.execute('''
+            INSERT INTO raw_spots (timestamp, raw_text)
+            VALUES (%s, %s)
+            RETURNING id
+        ''', (wwv_data['timestamp'], wwv_data['raw_text']))
+        raw_announcement_id = cursor.fetchone()[0]
+
+        # Insert parsed WWV data
+        cursor.execute('''
+            INSERT INTO wwv_announcements (
+                raw_announcement_id, timestamp, raw_text,
+                solar_flux, a_index, k_index, sunspot_number,
+                xray_flux, proton_flux,
+                band_80m, band_40m, band_30m, band_20m, band_17m, band_15m, band_12m, band_10m,
+                geomagnetic_storm, solar_radiation_storm,
+                announcement_type, parsed_successfully
+            ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+        ''', (
+            raw_announcement_id,
+            wwv_data['timestamp'],
+            wwv_data['raw_text'],
+            wwv_data['solar_flux'],
+            wwv_data['a_index'],
+            wwv_data['k_index'],
+            wwv_data['sunspot_number'],
+            wwv_data['xray_flux'],
+            wwv_data['proton_flux'],
+            wwv_data['band_80m'],
+            wwv_data['band_40m'],
+            wwv_data['band_30m'],
+            wwv_data['band_20m'],
+            wwv_data['band_17m'],
+            wwv_data['band_15m'],
+            wwv_data['band_12m'],
+            wwv_data['band_10m'],
+            wwv_data['geomagnetic_storm'],
+            wwv_data['solar_radiation_storm'],
+            wwv_data['announcement_type'],
+            wwv_data['parsed_successfully']
+        ))
+
+        return True
+    except psycopg2.Error as e:
+        print(f"Database error storing WWV announcement: {e}", file=sys.stderr)
         return False
 
 def connect_to_cluster(host, port, callsign):
@@ -339,6 +457,7 @@ def main():
         sys.exit(1)
 
     spots_processed = 0
+    wwv_processed = 0
     lines_received = 0
     last_commit_time = time.time()
     buffer = b""  # Buffer for incomplete lines
@@ -400,6 +519,22 @@ def main():
                                 connection.commit()
                                 last_commit_time = current_time
                                 print(f"  -> Committed {spots_processed} spots to database")
+                    
+                    # Check if this is a WWV announcement
+                    elif 'WWV' in line.upper():
+                        wwv_data = parse_wwv_announcement(line)
+                        if wwv_data:
+                            if store_wwv_announcement(cursor, wwv_data):
+                                wwv_processed += 1
+                                status = "parsed" if wwv_data['parsed_successfully'] else "received"
+                                print(f"  -> Stored WWV #{wwv_processed} ({status}): SFI={wwv_data['solar_flux'] or 'N/A'} A={wwv_data['a_index'] or 'N/A'} K={wwv_data['k_index'] or 'N/A'}")
+                            
+                            # Commit every 5 WWV announcements or every 60 seconds
+                            current_time = time.time()
+                            if wwv_processed % 5 == 0 or (current_time - last_commit_time) > 60:
+                                connection.commit()
+                                last_commit_time = current_time
+                                print(f"  -> Committed {wwv_processed} WWV announcements to database")
                 
             except socket.timeout:
                 # Timeout is normal, just continue
@@ -415,7 +550,7 @@ def main():
         try:
             if connection:
                 connection.commit()
-                print(f"\nFinal commit: {spots_processed} spots processed from {lines_received} total lines")
+                print(f"\nFinal commit: {spots_processed} spots and {wwv_processed} WWV announcements processed from {lines_received} total lines")
             if sock:
                 sock.close()
         except:

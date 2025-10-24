@@ -19,6 +19,19 @@ Third iteration on DX Predictor Project.
 * Documentation on joins and join tables. Sqlite sample db for examples.
 * Add automated test cases?
 * Alerting infrastructure
+* Configure AR-Cluster Filters: YAML FILE?
+* Store WWV Reports
+
+## Store WWV Announcements in database
+
+<pre>
+   Date     Hour  SFI   A   K   Forecast
+24-Oct-2025 00    130   6   2   No Storms -> No Storms                 <VE7CC>
+23-Oct-2025 21    130   5   2   No Storms -> No Storms                 <AE5E>
+23-Oct-2025 18    133   4   1   No Storms -> No Storms                 <W0MU>
+23-Oct-2025 15    133   4   1   No Storms -> No Storms                 <VE7CC>
+23-Oct-2025 12    133   4   1   No Storms -> No Storms                 <AE5E>
+</pre>
 
 ## Done
 
@@ -34,5 +47,4 @@ postgres=# ALTER DATABASE dxcluster RENAME TO dx_analysis;
 Update database name in /etc/dxcluster/dxcluster.env
 
 *sudo systemctl start dx-scraper*
-
 

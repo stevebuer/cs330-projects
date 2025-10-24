@@ -28,16 +28,21 @@ The script will:
 
 ## Current Migrations
 
-### 001_add_grid_squares_table.sql
-Adds a `spot_grid_squares` table to store source (spotter) and destination (DX station) Maidenhead grid locators for DX spots that contain this information.
+### 002_add_wwv_announcements_table.sql
+Adds a `wwv_announcements` table to store WWV propagation announcements from NIST.
 
 Table structure:
 - `id`: Primary key
-- `dx_spot_id`: Foreign key to `dx_spots.id`
-- `source_grid`: Spotter's 4-6 character grid locator
-- `dest_grid`: DX station's 4-6 character grid locator
-- `created_at`: Timestamp when the record was created
+- `raw_announcement_id`: Foreign key to `raw_spots.id`
+- `timestamp`: When the announcement was received
+- `raw_text`: Full announcement text
+- Solar data: `solar_flux`, `a_index`, `k_index`, `sunspot_number`
+- Ionospheric data: `xray_flux`, `proton_flux`
+- Band conditions: `band_80m` through `band_10m`
+- Storm data: `geomagnetic_storm`, `solar_radiation_storm`
+- `announcement_type`: Type of announcement (WWV, WWVH, etc.)
+- `parsed_successfully`: Whether the data was successfully parsed
 
-Includes indices on `dx_spot_id`, `source_grid`, and `dest_grid` for performance.
+Includes indices on `timestamp` and `parsed_successfully` for performance.
 
-**Note**: The DX cluster scraper (`scrapers/dx_cluster_live_pg.py`) has been updated to automatically populate this table when spots contain grid square information for both the spotter and DX station.
+**Note**: The DX cluster scraper (`scrapers/dx_cluster_live_pg.py`) has been updated to automatically detect and store WWV announcements.
