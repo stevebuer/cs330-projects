@@ -9,6 +9,10 @@ homework2/.env.*
 dxcluster.db
 homework1/dxcluster.db
 
+# Python bytecode
+*.pyc
+__pycache__/
+
 # Data files
 homework1/data/dx_spots.txt
 homework1/data/dx_spots.*.txt
