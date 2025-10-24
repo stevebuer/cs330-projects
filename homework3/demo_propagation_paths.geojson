@@ -1,0 +1,189 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -71,
+          42.5
+        ]
+      },
+      "properties": {
+        "grid": "FN42",
+        "type": "source",
+        "latitude": 42.5,
+        "longitude": -71
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -97,
+          32.5
+        ]
+      },
+      "properties": {
+        "grid": "EM12",
+        "type": "destination",
+        "latitude": 32.5,
+        "longitude": -97
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -71,
+            42.5
+          ],
+          [
+            -97,
+            32.5
+          ]
+        ]
+      },
+      "properties": {
+        "source_grid": "FN42",
+        "dest_grid": "EM12",
+        "distance_km": 2535.0,
+        "bearing_deg": 252.6,
+        "type": "propagation_path",
+        "color": "#FF0000"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -123,
+          47.5
+        ]
+      },
+      "properties": {
+        "grid": "CN87",
+        "type": "source",
+        "latitude": 47.5,
+        "longitude": -123
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -119,
+          34.5
+        ]
+      },
+      "properties": {
+        "grid": "DM04",
+        "type": "destination",
+        "latitude": 34.5,
+        "longitude": -119
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123,
+            47.5
+          ],
+          [
+            -119,
+            34.5
+          ]
+        ]
+      },
+      "properties": {
+        "source_grid": "CN87",
+        "dest_grid": "DM04",
+        "distance_km": 1483.5,
+        "bearing_deg": 165.6,
+        "type": "propagation_path",
+        "color": "#0000FF"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -71,
+            42.5
+          ],
+          [
+            -123,
+            47.5
+          ]
+        ]
+      },
+      "properties": {
+        "source_grid": "FN42",
+        "dest_grid": "CN87",
+        "distance_km": 4049.0,
+        "bearing_deg": 296.3,
+        "type": "propagation_path",
+        "color": "#00FF00"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -97,
+            32.5
+          ],
+          [
+            -119,
+            34.5
+          ]
+        ]
+      },
+      "properties": {
+        "source_grid": "EM12",
+        "dest_grid": "DM04",
+        "distance_km": 2047.9,
+        "bearing_deg": 282.3,
+        "type": "propagation_path",
+        "color": "#800080"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -71,
+            42.5
+          ],
+          [
+            -119,
+            34.5
+          ]
+        ]
+      },
+      "properties": {
+        "source_grid": "FN42",
+        "dest_grid": "DM04",
+        "distance_km": 4212.8,
+        "bearing_deg": 274.2,
+        "type": "propagation_path",
+        "color": "#FFA500"
+      }
+    }
+  ]
+}

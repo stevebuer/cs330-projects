@@ -125,8 +125,8 @@ Returns DX spots with optional filtering and pagination.
 - `limit` (integer, optional): Maximum number of spots to return (default: 50, max: 500)
 - `offset` (integer, optional): Number of spots to skip for pagination (default: 0)
 - `band` (string, optional): Filter by amateur radio band (e.g., "20m", "40m")
-- `min_freq` (float, optional): Minimum frequency in kHz
-- `max_freq` (float, optional): Maximum frequency in kHz
+- `frequency_min` (float, optional): Minimum frequency in kHz
+- `frequency_max` (float, optional): Maximum frequency in kHz
 - `dx_call` (string, optional): Filter by DX station callsign
 - `spotter_call` (string, optional): Filter by spotter callsign
 - `mode` (string, optional): Filter by operating mode (e.g., "CW", "SSB", "FT8")
@@ -135,7 +135,7 @@ Returns DX spots with optional filtering and pagination.
 
 **Example Request:**
 ```
-GET /api/spots?band=20m&limit=10&mode=CW
+GET /api/spots?band=20m&frequency_min=14000&frequency_max=14350&limit=10&mode=CW
 ```
 
 **Response:**

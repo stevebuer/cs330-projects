@@ -53,7 +53,7 @@ watch -n 30 'curl -s "http://localhost:8080/api/spots/recent?limit=3" | jq ".spo
 ### Filter by Frequency
 ```bash
 # 14.200-14.250 MHz (20m CW/Digital)
-curl "http://localhost:8080/api/spots?min_freq=14200&max_freq=14250"
+curl "http://localhost:8080/api/spots?frequency_min=14200&frequency_max=14250"
 ```
 
 ## Key Endpoints Summary
