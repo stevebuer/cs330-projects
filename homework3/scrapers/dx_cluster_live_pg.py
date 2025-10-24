@@ -239,6 +239,30 @@ def parse_wwv_announcement(line):
         print(f"Error details: {str(e)}", file=sys.stderr)
         return None
 
+def determine_band(frequency):
+    """Determine the amateur radio band based on frequency in kHz"""
+    freq_ranges = {
+        '2200m': (135.7, 137.8),
+        '630m': (472.0, 479.0),
+        '160m': (1800.0, 2000.0),
+        '80m': (3500.0, 4000.0),
+        '60m': (5351.5, 5366.5),
+        '40m': (7000.0, 7300.0),
+        '30m': (10100.0, 10150.0),
+        '20m': (14000.0, 14350.0),
+        '17m': (18068.0, 18168.0),
+        '15m': (21000.0, 21450.0),
+        '12m': (24890.0, 24990.0),
+        '10m': (28000.0, 29700.0),
+        '6m': (50000.0, 54000.0),
+        '2m': (144000.0, 148000.0)
+    }
+    
+    for band, (low, high) in freq_ranges.items():
+        if low <= frequency <= high:
+            return band
+    return None
+
 def update_callsign_stats(cursor, callsign, is_spotter=True):
     """Update the callsigns table statistics"""
     try:
@@ -504,6 +528,16 @@ def main():
                             # Filter out frequencies above 54 MHz (54000 kHz)
                             if spot_data['frequency'] > 54000:
                                 print(f"  -> Skipping spot: {spot_data['dx_call']} on {spot_data['frequency']} kHz (frequency too high)")
+                                continue
+                            
+                            # Filter out 160m band spots
+                            if spot_data.get('band') == '160m':
+                                print(f"  -> Skipping spot: {spot_data['dx_call']} on {spot_data['frequency']} kHz (160m band filtered)")
+                                continue
+                            
+                            # Filter out FT4 and FT8 spots
+                            if spot_data.get('mode') and spot_data['mode'].upper() in ['FT4', 'FT8']:
+                                print(f"  -> Skipping spot: {spot_data['dx_call']} on {spot_data['frequency']} kHz (mode {spot_data['mode']} filtered)")
                                 continue
                             
                             if store_spot(cursor, spot_data):

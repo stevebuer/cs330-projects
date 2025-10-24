@@ -48,3 +48,7 @@ Update database name in /etc/dxcluster/dxcluster.env
 
 *sudo systemctl start dx-scraper*
 
+### Filter out FT4 and FT8
+
+These are weak signal digital modes that people use even if the band is not
+open enough for voice communications. They are note useful indicators to me.
