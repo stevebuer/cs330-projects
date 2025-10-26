@@ -29,8 +29,7 @@ This directory contains Debian packages for deploying the DX Cluster monitoring 
 - Production-ready configuration
 
 **Files installed:**
-- `/usr/bin/dx_cluster_live_pg.py` - Live DX cluster monitoring
-- `/usr/bin/load_dx_spots_pg.py` - Data loading and processing
+- `/usr/bin/dx_cluster_live_pg.py` - Live DX cluster monitoring and database insertion
 - `/usr/bin/manage-scraper.sh` - Service management script
 - `/etc/systemd/system/dx-scraper.service` - Systemd service definition
 - `/etc/dxcluster/dxcluster.env.template` - Configuration template

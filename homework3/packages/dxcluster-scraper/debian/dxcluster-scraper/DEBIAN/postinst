@@ -26,7 +26,6 @@ case "$1" in
         
         # Make scripts executable
         chmod +x /usr/bin/dx_cluster_live_pg.py
-        chmod +x /usr/bin/load_dx_spots_pg.py
         chmod +x /usr/bin/manage-scraper.sh
         
         # Reload systemd daemon
