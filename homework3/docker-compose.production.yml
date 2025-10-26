@@ -29,9 +29,9 @@ services:
       - "traefik.http.services.dx-api.loadbalancer.server.port=8080"
 
   # DX Cluster Web Dashboard
-  dx-web:
-    image: dx-cluster-web:latest  # Use your pre-built image
-    container_name: dx-cluster-web
+  dx-dash:
+    image: dx-cluster-dash:latest  # Use your pre-built image
+    container_name: dx-cluster-dash
     ports:
       - "8050:8050"
     environment:
@@ -50,8 +50,8 @@ services:
       - postgres-check
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.dx-web.rule=Host(`dashboard.dx.local`)"
-      - "traefik.http.services.dx-web.loadbalancer.server.port=8050"
+      - "traefik.http.routers.dx-dash.rule=Host(`dashboard.dx.local`)"
+      - "traefik.http.services.dx-dash.loadbalancer.server.port=8050"
 
   # DX Cluster Streamlit Dashboard
   dx-streamlit:

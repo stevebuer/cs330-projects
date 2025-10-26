@@ -186,6 +186,7 @@ show_help() {
     echo "Examples:"
     echo "  $0 start           # Start all services"
     echo "  $0 logs dx-api     # Show API logs"
+    echo "  $0 logs dx-dash    # Show Dash logs"
     echo "  $0 logs dx-streamlit # Show Streamlit logs"
     echo "  $0 dev             # Development mode with live reload"
 }

@@ -145,7 +145,7 @@ The API container build infrastructure has been moved from homework2 to homework
 - Runs on port 8080
 - Health check endpoint: `/api/health`
 
-**dx-web**: Dash web dashboard for data visualization
+**dx-dash**: Dash web dashboard for data visualization
 - Built from `Dockerfile.web`
 - Runs on port 8050
 - Health check endpoint: `/`
