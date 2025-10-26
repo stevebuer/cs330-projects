@@ -150,9 +150,7 @@ def parse_dx_spot_line(line):
 def parse_wwv_announcement(line):
     """
     Parse a WWV announcement line and return a dictionary of propagation data
-    WWV format examples:
-    WWV de VE7CC:                   2100   14  73  14   0  0   0  0  0  0  0  0  0  0
-    WWV de W1AW:                    SFI=102 A=5 K=1 SSN=0
+    Focuses on short format messages: SFI=102 A=5 K=1 SSN=0
     """
     try:
         # Check if this is a WWV announcement
@@ -163,7 +161,7 @@ def parse_wwv_announcement(line):
         current_timestamp = datetime.utcnow()
         formatted_line = f"{current_timestamp.strftime('%Y-%m-%d %H:%M:%S')}: {line}"
 
-        # Initialize data structure
+        # Initialize data structure (simplified for short format)
         wwv_data = {
             'timestamp': current_timestamp,
             'raw_text': formatted_line.strip(),
@@ -171,18 +169,6 @@ def parse_wwv_announcement(line):
             'a_index': None,
             'k_index': None,
             'sunspot_number': None,
-            'xray_flux': None,
-            'proton_flux': None,
-            'band_80m': None,
-            'band_40m': None,
-            'band_30m': None,
-            'band_20m': None,
-            'band_17m': None,
-            'band_15m': None,
-            'band_12m': None,
-            'band_10m': None,
-            'geomagnetic_storm': None,
-            'solar_radiation_storm': None,
             'announcement_type': 'WWV',
             'parsed_successfully': False
         }
@@ -192,23 +178,7 @@ def parse_wwv_announcement(line):
         if station_match:
             wwv_data['station_call'] = station_match.group(1)
 
-        # Try different WWV formats
-
-        # Format 1: Space-separated numbers (old format)
-        # WWV de VE7CC:                   2100   14  73  14   0  0   0  0  0  0  0  0  0  0
-        numbers = re.findall(r'\b\d+\b', line)
-        if len(numbers) >= 4:
-            try:
-                wwv_data['solar_flux'] = int(numbers[0])
-                wwv_data['a_index'] = int(numbers[1])
-                wwv_data['k_index'] = int(numbers[2])
-                wwv_data['sunspot_number'] = int(numbers[3]) if len(numbers) > 3 else None
-                wwv_data['parsed_successfully'] = True
-            except (ValueError, IndexError):
-                pass
-
-        # Format 2: Key=value format (newer format)
-        # SFI=102 A=5 K=1 SSN=0
+        # Focus on short format: SFI=102 A=5 K=1 SSN=0
         sfi_match = re.search(r'SFI[=:](\d+)', line, re.IGNORECASE)
         if sfi_match:
             wwv_data['solar_flux'] = int(sfi_match.group(1))
@@ -228,9 +198,6 @@ def parse_wwv_announcement(line):
         # If we found any key=value pairs, mark as successfully parsed
         if any([wwv_data['solar_flux'], wwv_data['a_index'], wwv_data['k_index'], wwv_data['sunspot_number']]):
             wwv_data['parsed_successfully'] = True
-
-        # Look for band conditions (typically in comments)
-        # This is more complex and would require specific parsing of band data
 
         return wwv_data
 
@@ -331,7 +298,7 @@ def store_spot(cursor, spot_data):
         return False
 
 def store_wwv_announcement(cursor, wwv_data):
-    """Store a WWV announcement in the database"""
+    """Store a WWV announcement in the database (short format only)"""
     try:
         # Insert raw announcement (reuse raw_spots table for consistency)
         cursor.execute('''
@@ -341,16 +308,13 @@ def store_wwv_announcement(cursor, wwv_data):
         ''', (wwv_data['timestamp'], wwv_data['raw_text']))
         raw_announcement_id = cursor.fetchone()[0]
 
-        # Insert parsed WWV data
+        # Insert parsed WWV data (simplified for short format)
         cursor.execute('''
             INSERT INTO wwv_announcements (
                 raw_announcement_id, timestamp, raw_text,
                 solar_flux, a_index, k_index, sunspot_number,
-                xray_flux, proton_flux,
-                band_80m, band_40m, band_30m, band_20m, band_17m, band_15m, band_12m, band_10m,
-                geomagnetic_storm, solar_radiation_storm,
                 announcement_type, parsed_successfully
-            ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+            ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
         ''', (
             raw_announcement_id,
             wwv_data['timestamp'],
@@ -359,18 +323,6 @@ def store_wwv_announcement(cursor, wwv_data):
             wwv_data['a_index'],
             wwv_data['k_index'],
             wwv_data['sunspot_number'],
-            wwv_data['xray_flux'],
-            wwv_data['proton_flux'],
-            wwv_data['band_80m'],
-            wwv_data['band_40m'],
-            wwv_data['band_30m'],
-            wwv_data['band_20m'],
-            wwv_data['band_17m'],
-            wwv_data['band_15m'],
-            wwv_data['band_12m'],
-            wwv_data['band_10m'],
-            wwv_data['geomagnetic_storm'],
-            wwv_data['solar_radiation_storm'],
             wwv_data['announcement_type'],
             wwv_data['parsed_successfully']
         ))
