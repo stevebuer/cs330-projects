@@ -15,7 +15,7 @@ COPY requirements-web.txt .
 RUN pip install --no-cache-dir -r requirements-web.txt
 
 # Copy application code
-COPY web/ ./web/
+COPY dash/ ./dash/
 COPY .env* ./
 
 # Create non-root user
@@ -31,4 +31,4 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
     CMD curl -f http://localhost:8050/ || exit 1
 
 # Run the application
-CMD ["python", "web/app.py"]
+CMD ["python", "dash/app.py"]

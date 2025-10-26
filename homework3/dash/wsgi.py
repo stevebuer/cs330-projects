@@ -1,4 +1,4 @@
-from web.app import app as application
+from dash.app import app as application
 
 # This allows running the app directly or through WSGI
 if __name__ == '__main__':
