@@ -1,0 +1,4 @@
+aadb672bac1f95c8ed87aada7711971b  usr/bin/init_dx_database_pg.py
+9a7239ea6f12c91ac3a80d6d8ed0dc85  usr/share/doc/dxcluster-database/changelog.Debian.gz
+d823d69c80f0ba64faab07ad30c5a2ea  usr/share/dxcluster-database/setup_db_roles.sql
+a6383bb0d7879e068c1caa4a7ffb01ce  usr/share/dxcluster-database/setup_production_db.sh

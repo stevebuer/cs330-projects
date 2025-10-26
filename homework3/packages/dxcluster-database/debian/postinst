@@ -1,0 +1,35 @@
+#!/bin/bash
+set -e
+
+# Post-installation script for dxcluster-database
+
+case "$1" in
+    configure)
+        echo "DX Cluster Database package installed successfully."
+        echo ""
+        echo "To set up the database:"
+        echo "1. Ensure PostgreSQL is installed and running"
+        echo "2. Create the database: sudo -u postgres createdb dxcluster"
+        echo "3. Initialize the schema: sudo -u postgres init_dx_database_pg.py"
+        echo "4. Set up user roles: /usr/share/dxcluster-database/setup_production_db.sh"
+        echo ""
+        echo "Configuration files are available in /usr/share/dxcluster-database/"
+        echo ""
+        
+        # Make scripts executable
+        chmod +x /usr/bin/init_dx_database_pg.py
+        chmod +x /usr/share/dxcluster-database/setup_production_db.sh
+        ;;
+    
+    abort-upgrade|abort-remove|abort-deconfigure)
+        ;;
+    
+    *)
+        echo "postinst called with unknown argument \`$1'" >&2
+        exit 1
+        ;;
+esac
+
+#DEBHELPER#
+
+exit 0

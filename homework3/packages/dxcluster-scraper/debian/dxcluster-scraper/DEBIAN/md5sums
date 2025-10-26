@@ -1,0 +1,5 @@
+e95c59cbd9602439495bd91c16f945b7  usr/bin/dx_cluster_live_pg.py
+8611fe869109d169a39cde6a697d68ee  usr/bin/load_dx_spots_pg.py
+4321036a2ad1042a409220672db167cf  usr/bin/manage-scraper.sh
+d42f59bf11ef3b576e93c2cfb40f4e67  usr/share/doc/dxcluster-scraper/changelog.Debian.gz
+8ca84aac604d3e01454b0da385003707  usr/share/dxcluster-scraper/requirements-pg.txt

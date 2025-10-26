@@ -1,0 +1,9 @@
+dxcluster-database (1.0.0-1) unstable; urgency=medium
+
+  * Initial release of DX Cluster Database package
+  * PostgreSQL schema creation and initialization scripts
+  * Database user role setup and permissions management
+  * Production deployment templates and configuration
+  * Interactive setup utilities for secure deployment
+
+ -- Steve Buer <steve@example.com>  Wed, 16 Oct 2024 21:00:00 -0800

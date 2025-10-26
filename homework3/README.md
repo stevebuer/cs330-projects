@@ -89,3 +89,67 @@ SELECT lat, lon FROM grid_squares WHERE grid = 'FN42';
 SELECT grid, lat, lon FROM grid_squares
 WHERE lat BETWEEN 40 AND 45 AND lon BETWEEN -75 AND -65;
 ```
+
+## Database Migrations
+
+Ran the migrations:
+
+<pre>
+jersey% python3 run_migrations.py 
+Found 3 migration file(s) to apply.
+Database: dx_analysis
+
+Running migration: /home/steve/GITHUB/cs330-projects/homework3/database/migrations/001_add_grid_squares_table.sql
+Successfully applied migration: /home/steve/GITHUB/cs330-projects/homework3/database/migrations/001_add_grid_squares_table.sql
+Running migration: /home/steve/GITHUB/cs330-projects/homework3/database/migrations/002_add_wwv_announcements_table.sql
+Successfully applied migration: /home/steve/GITHUB/cs330-projects/homework3/database/migrations/002_add_wwv_announcements_table.sql
+Running migration: /home/steve/GITHUB/cs330-projects/homework3/database/migrations/003_add_grid_squares_lookup_table.sql
+Successfully applied migration: /home/steve/GITHUB/cs330-projects/homework3/database/migrations/003_add_grid_squares_lookup_table.sql
+
+Applied 3 out of 3 migrations successfully.
+</pre>
+
+## Debian Package Infrastructure
+
+The scraper dpkg infrastructure has been moved from homework2 to homework3 for unified deployment.
+
+### Available Packages
+
+**dxcluster-database**: Database schema and setup utilities
+**dxcluster-scraper**: DX cluster monitoring service and management tools
+
+### Building Packages
+
+```bash
+cd homework3
+./build-packages.sh
+```
+
+### Package Management Scripts
+
+- `manage-scraper.sh` - Service management (start/stop/restart/status/logs)
+- `dx-scraper.service` - Systemd service definition for development
+
+### Production Deployment
+
+For production server deployment, see `database/PRODUCTION_DEPLOYMENT.md` and `packages/README.md`.
+
+## Data Cleanup Scripts
+
+Created database cleanup utilities for maintaining data quality:
+
+### FT4/FT8 Mode Removal
+
+```bash
+python database/cleanup_ft4_ft8.py
+```
+
+Removes all existing FT4 and FT8 mode spots from the database, including orphaned records.
+
+### Frequency Range Filtering
+
+```bash
+python database/cleanup_frequency_ranges.py
+```
+
+Removes spots with frequencies outside 7000-54000 kHz range (below 40m and above 6m).

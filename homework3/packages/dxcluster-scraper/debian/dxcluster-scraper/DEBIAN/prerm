@@ -1,0 +1,29 @@
+#!/bin/bash
+set -e
+
+# Pre-removal script for dxcluster-scraper
+
+case "$1" in
+    remove|upgrade|deconfigure)
+        echo "Stopping DX Cluster Scraper service..."
+        
+        # Stop and disable the service
+        systemctl stop dx-scraper >/dev/null 2>&1 || true
+        systemctl disable dx-scraper >/dev/null 2>&1 || true
+        
+        echo "DX Cluster Scraper service stopped"
+        echo "Configuration and data preserved in /etc/dxcluster/ and /var/lib/dxcluster/"
+        ;;
+        
+    failed-upgrade)
+        ;;
+        
+    *)
+        echo "prerm called with unknown argument \`$1'" >&2
+        exit 1
+        ;;
+esac
+
+
+
+exit 0

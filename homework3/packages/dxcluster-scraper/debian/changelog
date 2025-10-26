@@ -1,0 +1,20 @@
+dxcluster-scraper (1.1.0-1) unstable; urgency=medium
+
+  * BREAKING: Replaced deprecated telnetlib with socket module
+  * Improved connection reliability and error handling
+  * Better timeout management and reconnection logic
+  * Removed dependency on python3-telnetlib3
+  * Compatible with Python 3.11+ where telnetlib is not available
+
+ -- Steve Buer <steve@example.com>  Thu, 17 Oct 2024 12:00:00 -0800
+
+dxcluster-scraper (1.0.0-1) unstable; urgency=medium
+
+  * Initial release of DX Cluster Scraper service package
+  * Telnet-based DX cluster monitoring and data collection
+  * PostgreSQL database integration for spot storage
+  * Systemd service configuration for production deployment
+  * Service management scripts and utilities
+  * Automatic user and directory setup
+
+ -- Steve Buer <steve@example.com>  Wed, 16 Oct 2024 21:00:00 -0800

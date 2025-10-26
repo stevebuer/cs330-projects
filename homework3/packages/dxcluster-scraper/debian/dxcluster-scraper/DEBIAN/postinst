@@ -1,0 +1,56 @@
+#!/bin/bash
+set -e
+
+# Post-installation script for dxcluster-scraper
+
+case "$1" in
+    configure)
+        echo "DX Cluster Scraper package installed successfully."
+        
+        # Create dxcluster user if it doesn't exist
+        if ! getent passwd dxcluster >/dev/null 2>&1; then
+            adduser --system --group --home /var/lib/dxcluster --shell /bin/false dxcluster
+            echo "Created dxcluster system user"
+        fi
+        
+        # Create working directory
+        mkdir -p /var/lib/dxcluster
+        chown dxcluster:dxcluster /var/lib/dxcluster
+        
+        # Set up configuration file if it doesn't exist
+        if [ ! -f /etc/dxcluster/dxcluster.env ]; then
+            cp /etc/dxcluster/dxcluster.env.template /etc/dxcluster/dxcluster.env
+            echo "Created configuration file: /etc/dxcluster/dxcluster.env"
+            echo "Please edit this file with your database credentials and callsign"
+        fi
+        
+        # Make scripts executable
+        chmod +x /usr/bin/dx_cluster_live_pg.py
+        chmod +x /usr/bin/load_dx_spots_pg.py
+        chmod +x /usr/bin/manage-scraper.sh
+        
+        # Reload systemd daemon
+        systemctl daemon-reload
+        
+        echo ""
+        echo "To configure and start the service:"
+        echo "1. Edit /etc/dxcluster/dxcluster.env with your settings"
+        echo "2. Enable the service: sudo systemctl enable dx-scraper"
+        echo "3. Start the service: sudo systemctl start dx-scraper"
+        echo "4. Check status: sudo systemctl status dx-scraper"
+        echo ""
+        echo "Use manage-scraper.sh for service management commands"
+        ;;
+    
+    abort-upgrade|abort-remove|abort-deconfigure)
+        ;;
+    
+    *)
+        echo "postinst called with unknown argument \`$1'" >&2
+        exit 1
+        ;;
+esac
+
+
+
+exit 0

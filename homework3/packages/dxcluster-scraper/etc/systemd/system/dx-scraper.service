@@ -1,0 +1,23 @@
+[Unit]
+Description=DX Cluster Scraper Service
+After=network.target postgresql.service
+Wants=postgresql.service
+
+[Service]
+Type=simple
+User=dxcluster
+Group=dxcluster
+WorkingDirectory=/var/lib/dxcluster
+Environment=PATH=/usr/bin:/bin
+ExecStart=/usr/bin/python3 /usr/bin/load_dx_spots_pg.py
+Restart=always
+RestartSec=10
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=dx-scraper
+
+# Environment file
+EnvironmentFile=/etc/dxcluster/dxcluster.env
+
+[Install]
+WantedBy=multi-user.target

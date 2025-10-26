@@ -1,0 +1,2 @@
+/etc/dxcluster/dxcluster.env.template
+/etc/systemd/system/dx-scraper.service
