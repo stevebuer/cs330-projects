@@ -134,6 +134,72 @@ cd homework3
 
 For production server deployment, see `database/PRODUCTION_DEPLOYMENT.md` and `packages/README.md`.
 
+## API Container Infrastructure
+
+The API container build infrastructure has been moved from homework2 to homework3 for unified deployment.
+
+### Container Services
+
+**dx-api**: Flask REST API server providing data access endpoints
+- Built from `Dockerfile.api`
+- Runs on port 8080
+- Health check endpoint: `/api/health`
+
+**dx-web**: Dash web dashboard for data visualization
+- Built from `Dockerfile.web`
+- Runs on port 8050
+- Health check endpoint: `/`
+
+**dx-streamlit**: Streamlit interactive dashboard for DX propagation analysis
+- Built from `Dockerfile.streamlit`
+- Runs on port 8501
+- Health check endpoint: `/healthz`
+- Features: Login system, multi-page navigation, real-time data analysis
+
+### Docker Compose Configuration
+
+Three compose files are available:
+
+- `docker-compose.yml` - Development configuration with live building
+- `docker-compose.production.yml` - Production configuration with pre-built images
+- `docker-compose.production.simple.yml` - Simplified production setup
+
+### Container Management
+
+Use the `docker-manage.sh` script for container operations:
+
+```bash
+# Build and start services
+./docker-manage.sh build
+./docker-manage.sh start
+
+# View logs and status
+./docker-manage.sh logs
+./docker-manage.sh status
+
+# Stop services
+./docker-manage.sh stop
+```
+
+### Environment Configuration
+
+- `.env.docker` - Template for Docker environment variables
+- Requires PostgreSQL connection parameters (PGHOST, PGDATABASE, PGUSER, PGPASSWORD, PGPORT)
+
+### Production Deployment
+
+For production deployment with Traefik reverse proxy, use:
+
+```bash
+./docker-manage.sh start-proxy
+```
+
+This enables access at:
+- API: `http://api.dx.local`
+- Dashboard: `http://dashboard.dx.local`
+- Streamlit: `http://streamlit.dx.local`
+- Traefik Dashboard: `http://localhost:8888`
+
 ## Data Cleanup Scripts
 
 Created database cleanup utilities for maintaining data quality:
