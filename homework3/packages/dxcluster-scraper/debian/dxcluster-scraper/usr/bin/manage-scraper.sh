@@ -2,7 +2,7 @@
 
 # DX Scraper Service Management Script
 SERVICE_NAME="dx-scraper"
-SERVICE_FILE="/home/steve/GITHUB/cs330-projects/homework2/dx-scraper.service"
+SERVICE_FILE="/etc/systemd/system/dx-scraper.service"
 SYSTEM_SERVICE_DIR="/etc/systemd/system"
 
 show_usage() {

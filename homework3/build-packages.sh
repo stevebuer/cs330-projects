@@ -40,6 +40,10 @@ build_package() {
     
     cd "$package_dir"
     
+    # Clean up old package files before building
+    echo -e "Cleaning up old $package_name packages..."
+    rm -f ../${package_name}_*.deb ../${package_name}_*.buildinfo ../${package_name}_*.changes
+    
     # Make sure postinst, prerm, etc. are executable
     chmod +x debian/postinst debian/prerm 2>/dev/null || true
     chmod +x debian/postrm 2>/dev/null || true
@@ -56,6 +60,8 @@ build_package() {
         # Move the .deb file to packages directory
         if ls ../*.deb 1> /dev/null 2>&1; then
             mv ../*.deb ../
+            mv ../*.buildinfo ../ 2>/dev/null || true
+            mv ../*.changes ../ 2>/dev/null || true
             echo -e "${GREEN}Package files available in $PACKAGES_DIR/${NC}"
         fi
         
@@ -93,6 +99,9 @@ echo -e "Scraper package:  $(if $SCRAPER_SUCCESS; then echo -e "${GREEN}SUCCESS$
 if $DATABASE_SUCCESS && $SCRAPER_SUCCESS; then
     echo ""
     echo -e "${GREEN}All packages built successfully!${NC}"
+    echo ""
+    echo "Latest package versions:"
+    ls -la $PACKAGES_DIR/*.deb | grep -E "(dxcluster-database|dxcluster-scraper)" | sort -V
     echo ""
     echo "Installation commands:"
     echo "  sudo dpkg -i $PACKAGES_DIR/dxcluster-database_*.deb"
