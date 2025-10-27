@@ -29,6 +29,9 @@ DB_NAME = os.getenv('DB_NAME', 'dx_analysis')
 DB_USER = os.getenv('DB_USER', 'dx_scraper')
 DB_PASS = os.getenv('DB_PASSWORD', '')
 
+# Filtering configuration
+SKIP_FT8_FREQUENCIES = os.getenv('SKIP_FT8_FREQUENCIES', 'true').lower() in ('true', '1', 'yes', 'on')
+
 # Global variables for graceful shutdown
 running = True
 connection = None
@@ -230,6 +233,48 @@ def determine_band(frequency):
             return band
     return None
 
+def is_ft8_frequency(frequency):
+    """
+    Check if a frequency is commonly used for FT8 or other digital modes.
+    This includes standard FT8 calling frequencies and common digital mode segments.
+    """
+    # Common FT8 calling frequencies (exact matches)
+    ft8_calling_freqs = {
+        3573,   # 80m
+        7074,   # 40m
+        10136,  # 30m
+        14074,  # 20m
+        18100,  # 17m
+        21074,  # 15m
+        24915,  # 12m
+        28074,  # 10m
+        50313,  # 6m
+    }
+    
+    # Check for exact FT8 calling frequency matches
+    if int(frequency) in ft8_calling_freqs:
+        return True
+    
+    # Common digital mode frequency ranges (where FT8 and other digital modes operate)
+    digital_mode_ranges = [
+        (3570, 3580),    # 80m digital segment
+        (7070, 7080),    # 40m digital segment
+        (10130, 10145),  # 30m digital segment
+        (14070, 14080),  # 20m digital segment
+        (18095, 18110),  # 17m digital segment
+        (21070, 21080),  # 15m digital segment
+        (24910, 24920),  # 12m digital segment
+        (28070, 28085),  # 10m digital segment
+        (50300, 50330),  # 6m digital segment
+    ]
+    
+    # Check if frequency falls within digital mode ranges
+    for low, high in digital_mode_ranges:
+        if low <= frequency <= high:
+            return True
+    
+    return False
+
 def update_callsign_stats(cursor, callsign, is_spotter=True):
     """Update the callsigns table statistics"""
     try:
@@ -416,6 +461,7 @@ def main():
     print(f"Callsign: {callsign}")
     print(f"Server: {host}:{port}")
     print(f"Database: {DB_HOST}:{DB_PORT}/{DB_NAME}")
+    print(f"FT8 Frequency Filtering: {'Enabled' if SKIP_FT8_FREQUENCIES else 'Disabled'}")
     print("Press Ctrl+C to stop\n")
 
     # Connect to database
@@ -487,9 +533,14 @@ def main():
                                 print(f"  -> Skipping spot: {spot_data['dx_call']} on {spot_data['frequency']} kHz (160m band filtered)")
                                 continue
                             
-                            # Filter out FT4 and FT8 spots
+                            # Filter out FT4 and FT8 spots based on mode detection
                             if spot_data.get('mode') and spot_data['mode'].upper() in ['FT4', 'FT8']:
                                 print(f"  -> Skipping spot: {spot_data['dx_call']} on {spot_data['frequency']} kHz (mode {spot_data['mode']} filtered)")
+                                continue
+                            
+                            # Filter out spots on known FT8/digital mode frequencies if enabled
+                            if SKIP_FT8_FREQUENCIES and is_ft8_frequency(spot_data['frequency']):
+                                print(f"  -> Skipping spot: {spot_data['dx_call']} on {spot_data['frequency']} kHz (FT8 frequency filtered)")
                                 continue
                             
                             if store_spot(cursor, spot_data):
