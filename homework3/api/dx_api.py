@@ -220,9 +220,18 @@ def get_spots():
     
     query = f"""
         SELECT 
-            id, timestamp, dx_call, frequency, spotter_call, 
-            comment, mode, signal_report, grid_square, band
-        FROM dx_spots 
+            s.id, s.timestamp, s.dx_call, s.frequency, s.spotter_call, 
+            s.comment, s.mode, s.signal_report, s.grid_square, s.band,
+            COALESCE(sgs.source_grid, '') as spotter_grid,
+            COALESCE(sgs.dest_grid, '') as dx_grid,
+            COALESCE(sg.lat, NULL) as spotter_lat,
+            COALESCE(sg.lon, NULL) as spotter_lon,
+            COALESCE(dg.lat, NULL) as dx_lat,
+            COALESCE(dg.lon, NULL) as dx_lon
+        FROM dx_spots s
+        LEFT JOIN spot_grid_squares sgs ON s.id = sgs.dx_spot_id
+        LEFT JOIN grid_squares sg ON sgs.source_grid = sg.grid
+        LEFT JOIN grid_squares dg ON sgs.dest_grid = dg.grid
         {where_clause}
         ORDER BY {order_by}
         LIMIT %s OFFSET %s
@@ -285,11 +294,20 @@ def get_recent_spots():
         
         cur.execute("""
             SELECT 
-                id, timestamp, dx_call, frequency, spotter_call, 
-                comment, mode, signal_report, grid_square, band
-            FROM dx_spots 
-            WHERE timestamp >= NOW() - INTERVAL '%s hours'
-            ORDER BY timestamp DESC
+                s.id, s.timestamp, s.dx_call, s.frequency, s.spotter_call, 
+                s.comment, s.mode, s.signal_report, s.grid_square, s.band,
+                COALESCE(sgs.source_grid, '') as spotter_grid,
+                COALESCE(sgs.dest_grid, '') as dx_grid,
+                COALESCE(sg.lat, NULL) as spotter_lat,
+                COALESCE(sg.lon, NULL) as spotter_lon,
+                COALESCE(dg.lat, NULL) as dx_lat,
+                COALESCE(dg.lon, NULL) as dx_lon
+            FROM dx_spots s
+            LEFT JOIN spot_grid_squares sgs ON s.id = sgs.dx_spot_id
+            LEFT JOIN grid_squares sg ON sgs.source_grid = sg.grid
+            LEFT JOIN grid_squares dg ON sgs.dest_grid = dg.grid
+            WHERE s.timestamp >= NOW() - INTERVAL '%s hours'
+            ORDER BY s.timestamp DESC
             LIMIT %s
         """, (hours, limit))
         
@@ -450,14 +468,14 @@ def get_hourly_activity():
         logger.error(f"Error getting hourly activity: {e}")
         abort(500, description="Error retrieving hourly activity")
 
-@app.route('/api/callsigns/top')
-def get_top_callsigns():
-    """Get top active callsigns (spotters and spotted)"""
-    limit = min(int(request.args.get('limit', 20)), 100)
-    category = request.args.get('category', 'both')  # 'spotters', 'spotted', or 'both'
+@app.route('/api/grids/distance')
+def get_grid_distance():
+    """Calculate distance between two grid squares"""
+    grid1 = request.args.get('grid1', '').upper()
+    grid2 = request.args.get('grid2', '').upper()
     
-    if category not in ['spotters', 'spotted', 'both']:
-        abort(400, description="Invalid category. Use 'spotters', 'spotted', or 'both'")
+    if not grid1 or not grid2:
+        abort(400, description="Both grid1 and grid2 parameters are required")
     
     conn = get_db_connection()
     if not conn:
@@ -466,47 +484,57 @@ def get_top_callsigns():
     try:
         cur = conn.cursor(cursor_factory=RealDictCursor)
         
-        result = {}
+        cur.execute("""
+            SELECT 
+                g1.grid as grid1, g1.lat as lat1, g1.lon as lon1,
+                g2.grid as grid2, g2.lat as lat2, g2.lon as lon2
+            FROM grid_squares g1, grid_squares g2
+            WHERE g1.grid = %s AND g2.grid = %s
+        """, (grid1, grid2))
         
-        if category in ['spotters', 'both']:
-            cur.execute("""
-                SELECT 
-                    spotter_call as callsign,
-                    COUNT(*) as spot_count,
-                    COUNT(DISTINCT dx_call) as stations_spotted,
-                    MAX(timestamp) as last_activity
-                FROM dx_spots
-                GROUP BY spotter_call
-                ORDER BY spot_count DESC
-                LIMIT %s
-            """, (limit,))
-            
-            result['top_spotters'] = [dict(spotter) for spotter in cur.fetchall()]
+        result = cur.fetchone()
+        if not result:
+            abort(404, description=f"One or both grid squares not found: {grid1}, {grid2}")
         
-        if category in ['spotted', 'both']:
-            cur.execute("""
-                SELECT 
-                    dx_call as callsign,
-                    COUNT(*) as times_spotted,
-                    COUNT(DISTINCT spotter_call) as spotted_by,
-                    MAX(timestamp) as last_spotted
-                FROM dx_spots
-                GROUP BY dx_call
-                ORDER BY times_spotted DESC
-                LIMIT %s
-            """, (limit,))
-            
-            result['top_spotted'] = [dict(spotted) for spotted in cur.fetchall()]
+        # Calculate distance using haversine formula
+        lat1, lon1 = float(result['lat1']), float(result['lon1'])
+        lat2, lon2 = float(result['lat2']), float(result['lon2'])
+        
+        # Haversine formula
+        import math
+        R = 6371  # Earth's radius in kilometers
+        
+        dlat = math.radians(lat2 - lat1)
+        dlon = math.radians(lon2 - lon1)
+        
+        a = math.sin(dlat/2)**2 + math.cos(math.radians(lat1)) * math.cos(math.radians(lat2)) * math.sin(dlon/2)**2
+        c = 2 * math.atan2(math.sqrt(a), math.sqrt(1-a))
+        distance_km = R * c
+        
+        # Calculate bearing
+        y = math.sin(dlon) * math.cos(math.radians(lat2))
+        x = math.cos(math.radians(lat1)) * math.sin(math.radians(lat2)) - math.sin(math.radians(lat1)) * math.cos(math.radians(lat2)) * math.cos(dlon)
+        bearing = math.degrees(math.atan2(y, x))
+        bearing = (bearing + 360) % 360
         
         cur.close()
         conn.close()
         
-        result['timestamp'] = datetime.now().isoformat()
-        return jsonify(result)
+        return jsonify({
+            'grid1': {'grid': result['grid1'], 'lat': lat1, 'lon': lon1},
+            'grid2': {'grid': result['grid2'], 'lat': lat2, 'lon': lon2},
+            'distance_km': round(distance_km, 1),
+            'distance_miles': round(distance_km * 0.621371, 1),
+            'bearing_degrees': round(bearing, 1),
+            'timestamp': datetime.now().isoformat()
+        })
         
     except Exception as e:
-        logger.error(f"Error getting top callsigns: {e}")
-        abort(500, description="Error retrieving top callsigns")
+        logger.error(f"Error calculating grid distance: {e}")
+        abort(500, description="Error calculating distance")
+    finally:
+        if conn:
+            conn.close()
 
 @app.route('/')
 def data_browser():
@@ -519,19 +547,22 @@ def api_info():
     endpoints = {
         'health': '/api/health - Health check',
         'stats': '/api/stats - Basic database statistics',
-        'spots': '/api/spots - Get spots with filtering options',
-        'recent_spots': '/api/spots/recent - Get recent spots',
+        'spots': '/api/spots - Get spots with filtering options (now includes coordinates)',
+        'recent_spots': '/api/spots/recent - Get recent spots (now includes coordinates)',
         'bands': '/api/bands - Get band information',
         'frequency_histogram': '/api/frequency/histogram - Frequency distribution',
         'hourly_activity': '/api/activity/hourly - Hourly activity stats',
         'top_callsigns': '/api/callsigns/top - Top active callsigns',
+        'wwv': '/api/wwv - Get WWV propagation announcements',
+        'grids': '/api/grids - Get grid square information and coordinates',
+        'grid_distance': '/api/grids/distance?grid1=AA00&grid2=BB11 - Calculate distance between grid squares',
         'data_browser': '/ - Interactive data browser interface'
     }
     
     return jsonify({
         'name': 'DX Cluster API',
-        'version': '1.0.0',
-        'description': 'REST API for DX cluster spot data',
+        'version': '1.1.0',
+        'description': 'REST API for DX cluster spot data with coordinate and propagation data',
         'endpoints': endpoints,
         'timestamp': datetime.now().isoformat()
     })
