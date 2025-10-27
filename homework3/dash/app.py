@@ -16,10 +16,10 @@ app = Dash(__name__, external_stylesheets=[dbc.themes.DARKLY])
 def get_db_connection():
     try:
         return psycopg2.connect(
-            host=os.getenv("PGHOST"),
-            database=os.getenv("PGDATABASE"),
-            user=os.getenv("PGUSER"),
-            password=os.getenv("PGPASSWORD")
+            host=os.getenv("DB_HOST"),
+            database=os.getenv("DB_NAME"),
+            user=os.getenv("DB_USER"),
+            password=os.getenv("DB_PASSWORD")
         )
     except Exception as e:
         print(f"Database connection error: {e}")

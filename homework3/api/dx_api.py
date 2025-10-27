@@ -31,11 +31,11 @@ CORS(app)  # Enable CORS for all domains
 
 # Database configuration
 DB_CONFIG = {
-    'host': os.getenv('PGHOST', 'localhost'),
-    'database': os.getenv('PGDATABASE', 'dxcluster'),
-    'user': os.getenv('PGUSER', 'dx_reader'),
-    'password': os.getenv('PGPASSWORD'),
-    'port': os.getenv('PGPORT', '5432')
+    'host': os.getenv('DB_HOST', 'localhost'),
+    'database': os.getenv('DB_NAME', 'dxcluster'),
+    'user': os.getenv('DB_USER', 'dx_reader'),
+    'password': os.getenv('DB_PASSWORD'),
+    'port': os.getenv('DB_PORT', '5432')
 }
 
 class DateTimeEncoder(json.JSONEncoder):

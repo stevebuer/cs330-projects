@@ -28,10 +28,10 @@ class ScraperManager:
         
     def get_db_connection(self):
         return psycopg2.connect(
-            host=os.getenv("PGHOST"),
-            database=os.getenv("PGDATABASE"),
-            user=os.getenv("PGUSER"),
-            password=os.getenv("PGPASSWORD")
+            host=os.getenv("DB_HOST"),
+            database=os.getenv("DB_NAME"),
+            user=os.getenv("DB_USER"),
+            password=os.getenv("DB_PASSWORD")
         )
 
     def start_scraper(self):
