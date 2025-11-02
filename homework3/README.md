@@ -148,34 +148,36 @@ The API container build infrastructure has been moved from homework2 to homework
 ### Container Services
 
 **dx-api**: Flask REST API server providing data access endpoints
-- Built from `Dockerfile.api`
+- Built from `docker/Dockerfile.api`
 - Runs on port 8080
 - Health check endpoint: `/api/health`
 
 **dx-dash**: Dash web dashboard for data visualization
-- Built from `Dockerfile.web`
+- Built from `docker/Dockerfile.web`
 - Runs on port 8050
 - Health check endpoint: `/`
 
 **dx-streamlit**: Streamlit interactive dashboard for DX propagation analysis
-- Built from `Dockerfile.streamlit`
+- Built from `docker/Dockerfile.streamlit`
 - Runs on port 8501
 - Health check endpoint: `/healthz`
 - Features: Login system, multi-page navigation, real-time data analysis
 
 ### Docker Compose Configuration
 
-Three compose files are available:
+Three compose files are available in the `docker/` directory:
 
-- `docker-compose.yml` - Development configuration with live building
-- `docker-compose.production.yml` - Production configuration with pre-built images
-- `docker-compose.production.simple.yml` - Simplified production setup
+- `docker/docker-compose.yml` - Development configuration with live building
+- `docker/docker-compose.production.yml` - Production configuration with pre-built images
+- `docker/docker-compose.production.simple.yml` - Simplified production setup
 
 ### Container Management
 
-Use the `docker-manage.sh` script for container operations:
+Use the `docker/docker-manage.sh` script for container operations:
 
 ```bash
+cd docker
+
 # Build and start services
 ./docker-manage.sh build
 ./docker-manage.sh start
@@ -190,7 +192,7 @@ Use the `docker-manage.sh` script for container operations:
 
 ### Environment Configuration
 
-- `.env.docker` - Template for Docker environment variables
+- `docker/.env.docker` - Template for Docker environment variables
 - Requires PostgreSQL connection parameters (PGHOST, PGDATABASE, PGUSER, PGPASSWORD, PGPORT)
 
 ### Production Deployment
@@ -198,6 +200,7 @@ Use the `docker-manage.sh` script for container operations:
 For production deployment with Traefik reverse proxy, use:
 
 ```bash
+cd docker
 ./docker-manage.sh start-proxy
 ```
 
