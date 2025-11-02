@@ -6,7 +6,7 @@ Third iteration on DX Predictor Project.
 
 * Created grid square lookup table. I want to be able to store information about the spotter and spottee location and the path between them possibly.
 * Created new dashboard in Streamlit because it is a little simpler. I just need
-this thing to work right now so I can integrate my ML models.
+this thing to work right now so I can integrate my ML models. Added user login.
 * Added [spot filtering](DX_CLUSTER_MACROS.md) on the DX cluster to limit some of the digital modes that are not relevant to my analysis such as FT8/FT4. Also, filtered out high and low ham bands that are not meaningful to me.
 * Pruned some [old spots in the database](database/FREQUENCY_RANGE_CLEANUP_README.md) that were not relevant to analysis. Not sure if this cauased a problem or not yet.
 * Expanded the schema to hold WWV solar data that I might like to add to my ML feature vector.
@@ -25,11 +25,8 @@ this thing to work right now so I can integrate my ML models.
 * Is there additional meta-data I need to create or extract to characterize a DX path?
 	* Average, Max Distance propagated?
 	* Observed MUF. 
-* Create list of Steve's Personal Predictors (SPP) to watch
 * Data mining? Unsupervised learning?
-* Add user login to Das
-* Documentation on joins and join tables. Sqlite sample db for examples.
-* Add automated test cases?
+* Add automated test cases? Github automation.
 * Alerting infrastructure?
 
 ## Store WWV Announcements in database
