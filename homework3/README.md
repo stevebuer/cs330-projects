@@ -2,24 +2,29 @@
 
 Third iteration on DX Predictor Project.
 
-## Todo List
+## Done
 
-* Another scraper data source
+* Added [spot filtering](DX_CLUSTER_MACROS.md) on the DX cluster to limit some of the digital modes that are not relevant to my analysis. 
+* Pruned some [old spots in the database](database/FREQUENCY_RANGE_CLEANUP_README.md) that were not relevant to analysis. Not sure if this cauased a problem or not yet.
+* Expanded the schema to hold WWV solar data that I might like to add to my ML feature vector.
+* Add ability to store WWV reports to DX cluster scraper.
+
+## To Do
+
+* Another scraper data source? RBN?
 * Is there additional meta-data I need to create or extract to characterize a DX path?
 	* Average, Max Distance propagated?
 	* Observed MUF.
 * Data Filtering: WSPR, Weaks signal crap ignore.
-* Exclude 2 meter spots from DX cluster reports
+* Exclude 2 meter spots from DX cluster reports 
 * Create list of Steve's Personal Predictors (SPP) to watch
-* Data mining? 
-* What ML models can be developed?
+* Data mining? Unsupervised learning?
 * Add user login to Dash.
-* Try another dashboard besides dash
+* Try another dashboard besides dash?
 * Sysadmin work to get space for container deploy
 * Documentation on joins and join tables. Sqlite sample db for examples.
 * Add automated test cases?
 * Alerting infrastructure
-* Configure AR-Cluster Filters: YAML FILE?
 * Store WWV Reports
 
 ## Store WWV Announcements in database

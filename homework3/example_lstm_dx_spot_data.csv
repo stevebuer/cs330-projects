@@ -1,0 +1,13 @@
+# Example: Labeled daily DX spot summary data for LSTM training
+# Columns: total_spots,unique_dx_stations,unique_spotters,spots_10m,spots_12m,spots_15m,spots_10m_fm,date,band_open_10m,band_open_12m,band_open_15m
+# band_open_* columns are hand-labeled (1=open, 0=closed)
+total_spots,unique_dx_stations,unique_spotters,spots_10m,spots_12m,spots_15m,spots_10m_fm,date,band_open_10m,band_open_12m,band_open_15m
+5000,1800,1500,1200,300,800,50,2025-10-01,1,1,1
+4500,1700,1400,1100,250,700,40,2025-10-02,1,0,1
+3000,1200,1000,600,100,400,10,2025-10-03,0,0,1
+2000,900,800,200,50,200,2,2025-10-04,0,0,0
+3500,1300,1100,700,120,500,20,2025-10-05,1,1,1
+4000,1500,1200,900,200,600,30,2025-10-06,1,1,1
+2500,1000,900,400,80,300,5,2025-10-07,0,0,0
+3200,1100,950,500,90,350,8,2025-10-08,0,0,1
+4800,1600,1300,1000,220,750,35,2025-10-09,1,1,1

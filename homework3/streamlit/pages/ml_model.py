@@ -1,64 +1,67 @@
+
 import streamlit as st
-import requests
 import pandas as pd
+import numpy as np
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import LSTM, Dense
 from sklearn.model_selection import train_test_split
-from sklearn.neighbors import KNeighborsClassifier
-from sklearn.preprocessing import LabelEncoder
-from sklearn.metrics import accuracy_score
+from sklearn.preprocessing import StandardScaler
 
-st.title("Propagation Prediction ML Model")
+st.title("DX Band Openness Prediction (LSTM Model)")
 
-# API URL
-API_URL = "http://dx.jxqz.org:8080/api/spots?band=10m"
+# Load example data
+csv_path = "../lstm-model/example_lstm_dx_spot_data.csv"
+df = pd.read_csv(csv_path, comment="#")
 
-# Function to fetch spots
-def fetch_spots():
-    try:
-        response = requests.get(API_URL, verify=False)
-        response.raise_for_status()
-        data = response.json()
-        return data.get('spots', [])
-    except Exception as e:
-        st.error(f"Error fetching data: {e}")
-        return []
+feature_cols = ['total_spots', 'unique_dx_stations', 'unique_spotters', 'spots_10m', 'spots_12m', 'spots_15m', 'spots_10m_fm']
+label_options = {
+    '10m': 'band_open_10m',
+    '12m': 'band_open_12m',
+    '15m': 'band_open_15m'
+}
 
-spots = fetch_spots()
+band = st.selectbox("Select band to predict", options=list(label_options.keys()), index=0)
+label_col = label_options[band]
+SEQUENCE_LENGTH = 3
 
-if spots:
-    df = pd.DataFrame(spots)
-    df = df.dropna(subset=['frequency', 'mode'])
-    df['frequency'] = df['frequency'].astype(float)
-    
-    if not df.empty and len(df['mode'].unique()) > 1:
-        # Encode modes
-        le = LabelEncoder()
-        df['mode_encoded'] = le.fit_transform(df['mode'])
-        
-        # Features and target
-        X = df[['frequency']]
-        y = df['mode_encoded']
-        
-        # Split
-        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-        
-        # Model
-        model = KNeighborsClassifier(n_neighbors=3)
-        model.fit(X_train, y_train)
-        
-        # Predict on test
-        y_pred = model.predict(X_test)
-        accuracy = accuracy_score(y_test, y_pred)
-        
-        st.write(f"Model Accuracy: {accuracy:.2f}")
-        
-        # Prediction interface
-        st.subheader("Predict Mode for a Frequency")
-        freq = st.number_input("Enter frequency (kHz)", min_value=28000.0, max_value=30000.0, value=28500.0)
-        if st.button("Predict"):
-            pred = model.predict([[freq]])
-            predicted_mode = le.inverse_transform(pred)[0]
-            st.write(f"Predicted Mode: {predicted_mode}")
-    else:
-        st.write("Not enough data or modes to train the model.")
+def create_sequences(df, feature_cols, label_col, seq_len):
+    X, y = [], []
+    for i in range(len(df) - seq_len):
+        seq_x = df.iloc[i:i+seq_len][feature_cols].values
+        seq_y = df.iloc[i+seq_len][label_col]
+        X.append(seq_x)
+        y.append(seq_y)
+    return np.array(X), np.array(y)
+
+X, y = create_sequences(df, feature_cols, label_col, SEQUENCE_LENGTH)
+if len(X) == 0:
+    st.warning("Not enough data to train the model.")
 else:
-    st.write("No spots available.")
+    # Train/test split
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+    scaler = StandardScaler()
+    X_train_shape = X_train.shape
+    X_test_shape = X_test.shape
+    X_train = scaler.fit_transform(X_train.reshape(-1, len(feature_cols))).reshape(X_train_shape)
+    X_test = scaler.transform(X_test.reshape(-1, len(feature_cols))).reshape(X_test_shape)
+
+    # Build and train LSTM model
+    model = Sequential([
+        LSTM(32, input_shape=(SEQUENCE_LENGTH, len(feature_cols))),
+        Dense(1, activation='sigmoid')
+    ])
+    model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
+    model.fit(X_train, y_train, epochs=15, batch_size=2, verbose=0)
+
+    # Evaluate
+    loss, acc = model.evaluate(X_test, y_test, verbose=0)
+    st.metric("Test Accuracy", f"{acc:.2f}")
+
+    # Predict next day openness
+    st.subheader(f"Predicted Probability {band} is Open (Next Day)")
+    if len(X_test) > 0:
+        preds = model.predict(X_test)
+        st.write("Predictions:", preds.flatten())
+        st.write("Ground Truth:", y_test)
+    else:
+        st.write("Not enough test data for prediction.")
