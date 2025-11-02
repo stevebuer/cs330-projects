@@ -15,10 +15,12 @@ this thing to work right now so I can integrate my ML models.
 * Created LSTM model for propagation prediction. I need to test this.
 * I am having some issues with the extract process from the API, need to debug.  
 * Created a daily observation sheet that I will use for labeling training data. I need to listen to the radio mid day, or look at RF spectrum watefall visualization and label as good or bad propagation day for training.
-* Deployment process: need to continue this!
+* Deployment process: created Terraform files. Need to continue this!
+* Added basic RNN model for learning/comparing to my production LSTM. RNN not integrated into Steamlit.
 
 ## To Do
 
+* Integration and testing, testing, testing!!
 * Another scraper data source? RBN?
 * Is there additional meta-data I need to create or extract to characterize a DX path?
 	* Average, Max Distance propagated?
