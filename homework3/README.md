@@ -4,6 +4,7 @@ Third iteration on DX Predictor Project.
 
 ## Done
 
+* Created grid square lookup table. I want to be able to store information about the spotter and spottee location and the path between them possibly.
 * Created new dashboard in Streamlit because it is a little simpler. I just need
 this thing to work right now so I can integrate my ML models.
 * Added [spot filtering](DX_CLUSTER_MACROS.md) on the DX cluster to limit some of the digital modes that are not relevant to my analysis such as FT8/FT4. Also, filtered out high and low ham bands that are not meaningful to me.
