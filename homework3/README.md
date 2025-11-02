@@ -28,6 +28,7 @@ this thing to work right now so I can integrate my ML models. Added user login.
 * Data mining? Unsupervised learning?
 * Add automated test cases? Github automation.
 * Alerting infrastructure?
+* Update PUML diagram and docs
 
 ## Store WWV Announcements in database
 
