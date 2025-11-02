@@ -1,0 +1,45 @@
+# Vultr Production Environment Configuration
+# Copy this file to terraform.tfvars and update with your values
+
+# Vultr API Key (can also be set via environment variable: VULTR_API_KEY)
+# vultr_api_key = "your-api-key-here"
+
+# Environment name
+environment_name = "production"
+
+# Debian version (bookworm = latest, bullseye = stable)
+debian_version = "bookworm"
+
+# Vultr region code
+# Available regions: nrt (Tokyo), ewr (New Jersey), mia (Miami), sjc (San Jose), etc.
+vultr_region = "nrt"
+
+# Instance type/plan
+# Common options:
+# - "Cloud Compute - 512MB - 1 vCPU"
+# - "Cloud Compute - 1GB - 1 vCPU"
+# - "Cloud Compute - 2GB - 1 vCPU"
+# - "Cloud Compute - 4GB - 2 vCPU"
+# - "Cloud Compute - 8GB - 2 vCPU"
+instance_type = "Cloud Compute - 2GB - 1 vCPU"
+
+# Number of instances to create
+vm_count = 1
+
+# Path to SSH public key
+ssh_key_path = "~/.ssh/id_rsa.pub"
+
+# SSH access CIDR (restrict to your IP for security)
+# Example: "203.0.113.0/24" to restrict to a specific network
+# Default: "0.0.0.0/0" allows SSH from anywhere
+allowed_ssh_cidr = "0.0.0.0/0"
+
+# Enable reserved IP addresses
+enable_reserved_ip = true
+
+# Additional tags
+tags = {
+  Project     = "dx-predictor"
+  ManagedBy   = "Terraform"
+  Owner       = "steve"
+}

@@ -1,0 +1,28 @@
+# Virtualbox Testing Environment Configuration
+# Copy this file to terraform.tfvars and update with your values
+
+# Environment name
+environment_name = "testing"
+
+# Debian version (bookworm = latest, bullseye = stable)
+debian_version = "bookworm"
+
+# Number of VMs to create
+vm_count = 1
+
+# VM resources per instance
+vm_cpus      = 2
+vm_memory_mb = 2048
+
+# Path to Debian VM images directory
+# You'll need to download Debian cloud images to this location
+# wget https://cloud.debian.org/images/cloud/bookworm/latest/debian-bookworm-genericcloud-amd64.qcow2
+vm_image_path = "/opt/vms/images"
+
+# Additional tags
+tags = {
+  Project     = "dx-predictor"
+  ManagedBy   = "Terraform"
+  Owner       = "steve"
+  Environment = "testing"
+}
