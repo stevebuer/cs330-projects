@@ -1,0 +1,16 @@
+# Example terraform.tfvars file for local VirtualBox deployment
+# Copy to terraform.tfvars and customize as needed
+
+# ===== Local LibVirt (VirtualBox) Deployment =====
+environment = "local"
+vm_size     = "small"
+vm_name     = "debian-server-local"
+debian_version = "12"
+
+libvirt_pool_path = "/var/lib/libvirt/images"
+
+tags = {
+  project = "cs330"
+  managed = "terraform"
+  env     = "development"
+}

@@ -1,0 +1,175 @@
+---
+# DX Cluster Docker containers role
+# Deploys dxcluster-api and dx-analysis Docker images
+
+- name: Create docker compose directory
+  file:
+    path: "{{ deployment_home }}/docker"
+    state: directory
+    owner: "{{ deployment_user }}"
+    group: "{{ deployment_group }}"
+    mode: '0755'
+  tags:
+    - dxcluster
+    - docker
+
+- name: Create docker-compose configuration for DX Cluster services
+  template:
+    src: docker-compose-dxcluster.yml.j2
+    dest: "{{ deployment_home }}/docker/docker-compose.yml"
+    owner: "{{ deployment_user }}"
+    group: "{{ deployment_group }}"
+    mode: '0644'
+  tags:
+    - dxcluster
+    - docker
+    - config
+
+- name: Create .env file for docker-compose
+  template:
+    src: docker-compose.env.j2
+    dest: "{{ deployment_home }}/docker/.env"
+    owner: "{{ deployment_user }}"
+    group: "{{ deployment_group }}"
+    mode: '0600'
+  tags:
+    - dxcluster
+    - docker
+    - config
+
+- name: Pull dxcluster-api Docker image
+  docker_image:
+    name: "{{ docker_registry }}/dxcluster-api:{{ dxcluster_api_version }}"
+    source: pull
+    state: present
+  become: yes
+  become_user: "{{ deployment_user }}"
+  environment:
+    DOCKER_HOST: unix:///run/user/{{ ansible_user_uid }}/docker.sock
+  ignore_errors: yes
+  tags:
+    - dxcluster
+    - docker
+    - api
+
+- name: Pull dx-analysis Docker image
+  docker_image:
+    name: "{{ docker_registry }}/dx-analysis:{{ dx_analysis_version }}"
+    source: pull
+    state: present
+  become: yes
+  become_user: "{{ deployment_user }}"
+  environment:
+    DOCKER_HOST: unix:///run/user/{{ ansible_user_uid }}/docker.sock
+  ignore_errors: yes
+  tags:
+    - dxcluster
+    - docker
+    - analysis
+
+- name: Create persistent volumes directory
+  file:
+    path: "{{ deployment_home }}/volumes/{{ item }}"
+    state: directory
+    owner: "{{ deployment_user }}"
+    group: "{{ deployment_group }}"
+    mode: '0755'
+    recurse: yes
+  loop:
+    - api-logs
+    - analysis-data
+    - api-cache
+  tags:
+    - dxcluster
+    - docker
+    - volumes
+
+- name: Deploy DX Cluster services with docker-compose
+  shell: |
+    cd {{ deployment_home }}/docker
+    docker-compose up -d
+  become: yes
+  become_user: "{{ deployment_user }}"
+  register: compose_up
+  tags:
+    - dxcluster
+    - docker
+    - deploy
+
+- name: Display docker-compose deployment output
+  debug:
+    msg: "{{ compose_up.stdout_lines }}"
+  tags:
+    - dxcluster
+    - docker
+    - deploy
+
+- name: Wait for services to be healthy
+  pause:
+    seconds: 10
+  tags:
+    - dxcluster
+    - docker
+    - health
+
+- name: Check API service health
+  uri:
+    url: "http://localhost:{{ api_port }}/api/health"
+    method: GET
+    status_code: [200, 503]
+  register: api_health
+  retries: 5
+  delay: 10
+  until: api_health.status in [200, 503]
+  ignore_errors: yes
+  tags:
+    - dxcluster
+    - docker
+    - health
+
+- name: Display API health status
+  debug:
+    msg: "API service status: {{ api_health.status }}"
+  tags:
+    - dxcluster
+    - docker
+    - health
+
+- name: List running containers
+  shell: docker-compose -f {{ deployment_home }}/docker/docker-compose.yml ps
+  register: docker_ps
+  changed_when: false
+  tags:
+    - dxcluster
+    - docker
+    - verify
+
+- name: Display running containers
+  debug:
+    msg: "{{ docker_ps.stdout }}"
+  tags:
+    - dxcluster
+    - docker
+    - verify
+
+- name: Create docker logs directory
+  file:
+    path: "{{ deployment_home }}/logs/docker"
+    state: directory
+    owner: "{{ deployment_user }}"
+    group: "{{ deployment_group }}"
+    mode: '0755'
+  tags:
+    - dxcluster
+    - docker
+    - logs
+
+- name: Setup log rotation for Docker containers
+  template:
+    src: logrotate-docker.j2
+    dest: /etc/logrotate.d/dxcluster-docker
+    mode: '0644'
+  tags:
+    - dxcluster
+    - docker
+    - logs

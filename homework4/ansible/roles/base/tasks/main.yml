@@ -1,0 +1,114 @@
+---
+# Base system configuration role
+# Tasks: Update system, install dependencies, configure users
+
+- name: Update system packages
+  apt:
+    update_cache: yes
+    cache_valid_time: 3600
+    upgrade: dist
+  when: ansible_os_family == "Debian"
+  tags:
+    - base
+    - system
+
+- name: Install required system packages
+  apt:
+    name:
+      - curl
+      - wget
+      - git
+      - net-tools
+      - htop
+      - vim
+      - nano
+      - sudo
+      - apt-utils
+      - ca-certificates
+      - gnupg
+      - lsb-release
+    state: present
+  when: ansible_os_family == "Debian"
+  tags:
+    - base
+    - packages
+
+- name: Create deployment user group
+  group:
+    name: "{{ deployment_group }}"
+    state: present
+  tags:
+    - base
+    - users
+
+- name: Create deployment user
+  user:
+    name: "{{ deployment_user }}"
+    group: "{{ deployment_group }}"
+    home: "{{ deployment_home }}"
+    shell: /bin/bash
+    createhome: yes
+    state: present
+  tags:
+    - base
+    - users
+
+- name: Add deployment user to sudo group
+  user:
+    name: "{{ deployment_user }}"
+    groups: sudo
+    append: yes
+  tags:
+    - base
+    - users
+
+- name: Create deployment directories
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: "{{ deployment_user }}"
+    group: "{{ deployment_group }}"
+    mode: '0755'
+  loop:
+    - "{{ deployment_home }}"
+    - "{{ deployment_home }}/logs"
+    - "{{ deployment_home }}/data"
+    - "{{ deployment_home }}/config"
+  tags:
+    - base
+    - directories
+
+- name: Configure sudo passwordless for deployment user
+  lineinfile:
+    path: /etc/sudoers
+    state: present
+    line: "{{ deployment_user }} ALL=(ALL) NOPASSWD:ALL"
+    validate: 'visudo -cf %s'
+  tags:
+    - base
+    - sudo
+
+- name: Set system timezone to UTC
+  timezone:
+    name: UTC
+  tags:
+    - base
+    - system
+
+- name: Enable and start systemd-resolved
+  systemd:
+    name: systemd-resolved
+    enabled: yes
+    state: started
+  when: ansible_os_family == "Debian"
+  tags:
+    - base
+    - system
+
+- name: Ensure security updates are installed
+  apt:
+    update_cache: yes
+    cache_valid_time: 3600
+  tags:
+    - base
+    - security

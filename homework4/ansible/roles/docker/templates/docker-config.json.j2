@@ -1,0 +1,7 @@
+{
+  "auths": {
+    "{{ docker_registry }}": {
+      "auth": "{{ (docker_username + ':' + docker_password) | b64encode }}"
+    }
+  }
+}

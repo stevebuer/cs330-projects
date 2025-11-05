@@ -1,0 +1,62 @@
+---
+# site.yml - Main deployment playbook
+# Orchestrates full deployment of DX Cluster infrastructure
+
+- name: Deploy DX Cluster infrastructure
+  hosts: all
+  become: yes
+  vars_files:
+    - "{{ playbook_dir }}/group_vars/all.yml"
+  
+  roles:
+    # Base system configuration
+    - role: base
+      tags:
+        - base
+        - always
+
+    # Install Docker
+    - role: docker
+      tags:
+        - docker
+        - infrastructure
+
+    # Deploy DX Cluster packages (deb files)
+    - role: dxcluster_packages
+      when: "'dxcluster_database' in group_names or 'dxcluster_scraper' in group_names"
+      tags:
+        - dxcluster
+        - packages
+
+    # Deploy Docker containers (API and Analysis)
+    - role: dxcluster_docker
+      when: "'docker_hosts' in group_names"
+      tags:
+        - dxcluster
+        - docker
+
+  post_tasks:
+    - name: Deployment summary
+      debug:
+        msg: |
+          ========================================
+          DX Cluster Deployment Complete!
+          ========================================
+          
+          Deployed Components:
+          - Base system packages
+          - Docker Engine and Compose
+          - DX Cluster Database (deb)
+          - DX Cluster Scraper (deb)
+          - DX Cluster API (Docker)
+          - DX Analysis (Docker)
+          
+          Configuration:
+          - User: {{ deployment_user }}
+          - Home: {{ deployment_home }}
+          - API Port: {{ api_port }}
+          - Database: {{ db_host }}:{{ db_port }}/{{ db_name }}
+          
+          ========================================
+      tags:
+        - always

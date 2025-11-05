@@ -1,0 +1,12 @@
+---
+# packages.yml - Deploy only DX Cluster packages
+# Useful for updating packages without docker redeploy
+
+- name: Deploy DX Cluster packages
+  hosts: dxcluster_database,dxcluster_scraper
+  become: yes
+  vars_files:
+    - "{{ playbook_dir }}/group_vars/all.yml"
+  
+  roles:
+    - role: dxcluster_packages

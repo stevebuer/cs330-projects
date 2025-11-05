@@ -1,0 +1,13 @@
+---
+# docker.yml - Deploy Docker infrastructure only
+# Useful for Docker and container updates
+
+- name: Deploy Docker and containers
+  hosts: docker_hosts
+  become: yes
+  vars_files:
+    - "{{ playbook_dir }}/group_vars/all.yml"
+  
+  roles:
+    - role: docker
+    - role: dxcluster_docker

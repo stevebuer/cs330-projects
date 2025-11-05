@@ -1,0 +1,49 @@
+# Git ignore for Ansible
+# Sensitive files and secrets
+
+# Vault and secrets
+secrets.yml
+vault.yml
+*.vault
+vault_pass.txt
+
+# Host variables (may contain sensitive data)
+host_vars/*.yml
+
+# SSH keys
+*.pem
+*.key
+*.pub
+
+# Logs and temporary files
+*.log
+*.tmp
+*.swp
+*.swo
+*~
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+venv/
+env/
+ENV/
+.venv
+
+# IDE
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Ansible
+.ansible/
+*.retry
+roles/*/.test

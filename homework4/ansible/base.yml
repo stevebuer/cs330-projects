@@ -1,0 +1,13 @@
+---
+# base.yml - Base system setup only
+# Useful for quick system initialization without full deployment
+
+- name: Configure base system
+  hosts: all
+  become: yes
+  vars_files:
+    - "{{ playbook_dir }}/group_vars/all.yml"
+  
+  roles:
+    - role: base
+      tags: always

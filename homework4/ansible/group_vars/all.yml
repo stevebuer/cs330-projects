@@ -1,0 +1,37 @@
+[all:vars]
+# DX Cluster deployment configuration
+deployment_user=dxcluster
+deployment_group=dxcluster
+deployment_home=/opt/dxcluster
+
+# Database configuration
+db_user=dxcluster
+db_password={{ vault_db_password }}
+db_name=dxcluster
+db_host=localhost
+db_port=5432
+
+# API configuration
+api_port=8080
+api_workers=2
+api_timeout=120
+
+# Scraper configuration
+scraper_interval=300
+scraper_log_level=INFO
+
+# Docker configuration
+docker_registry={{ vault_docker_registry }}
+docker_username={{ vault_docker_username }}
+docker_password={{ vault_docker_password }}
+
+# Component versions
+dxcluster_database_version=1.0.0-1
+dxcluster_scraper_version=1.1.0-1
+dxcluster_api_version=latest
+dx_analysis_version=latest
+
+[web:vars]
+# Web server configuration
+http_port=8080
+https_port=8443

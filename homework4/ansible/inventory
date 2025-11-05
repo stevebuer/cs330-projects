@@ -1,0 +1,51 @@
+all:
+  hosts:
+    # Local deployment (for testing)
+    local:
+      ansible_connection: local
+      ansible_host: localhost
+      deployment_type: local
+
+  children:
+    # Development environment
+    development:
+      hosts:
+        dev-server:
+          ansible_host: 192.168.1.100
+          ansible_user: debian
+          ansible_port: 22
+          deployment_environment: development
+          deployment_type: local
+
+    # Production environment (Vultr)
+    production:
+      hosts:
+        prod-server:
+          ansible_host: vultr-server-ip
+          ansible_user: root
+          ansible_port: 22
+          deployment_environment: production
+          deployment_type: vultr
+
+    # DX Cluster database hosts
+    dxcluster_database:
+      hosts:
+        prod-server:
+        dev-server:
+
+    # DX Cluster scraper hosts
+    dxcluster_scraper:
+      hosts:
+        prod-server:
+        dev-server:
+
+    # Docker hosts (for API and analysis)
+    docker_hosts:
+      hosts:
+        prod-server:
+        dev-server:
+
+    # All web services
+    web:
+      children:
+        docker_hosts:

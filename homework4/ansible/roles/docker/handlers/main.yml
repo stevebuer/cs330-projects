@@ -1,0 +1,10 @@
+---
+# Docker handlers
+
+- name: Restart Docker
+  systemd:
+    name: docker
+    state: restarted
+
+- name: Reset SSH connection
+  meta: reset_connection

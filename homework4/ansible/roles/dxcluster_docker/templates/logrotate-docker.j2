@@ -1,0 +1,16 @@
+# Logrotate configuration for Docker containers
+# Log rotation for DX Cluster containers
+
+{{ deployment_home }}/volumes/*/logs {
+  daily
+  missingok
+  rotate 7
+  compress
+  delaycompress
+  notifempty
+  create 0644 {{ deployment_user }} {{ deployment_group }}
+  sharedscripts
+  postrotate
+    docker-compose -f {{ deployment_home }}/docker/docker-compose.yml kill -s SIGUSR1 dxcluster-api dx-analysis 2>/dev/null || true
+  endscript
+}

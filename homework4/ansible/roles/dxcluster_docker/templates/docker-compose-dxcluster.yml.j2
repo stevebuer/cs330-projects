@@ -1,0 +1,64 @@
+version: '3.8'
+
+services:
+  dxcluster-api:
+    image: "{{ docker_registry }}/dxcluster-api:{{ dxcluster_api_version }}"
+    container_name: dxcluster-api
+    ports:
+      - "{{ api_port }}:8080"
+    environment:
+      - DB_HOST={{ db_host }}
+      - DB_PORT={{ db_port }}
+      - DB_NAME={{ db_name }}
+      - DB_USER={{ db_user }}
+      - DB_PASSWORD={{ db_password }}
+      - API_LOG_LEVEL=INFO
+      - WORKERS={{ api_workers }}
+      - TIMEOUT={{ api_timeout }}
+    volumes:
+      - "{{ deployment_home }}/volumes/api-logs:/app/logs"
+      - "{{ deployment_home }}/volumes/api-cache:/app/cache"
+    depends_on:
+      - database
+    restart: unless-stopped
+    networks:
+      - dxcluster-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  dx-analysis:
+    image: "{{ docker_registry }}/dx-analysis:{{ dx_analysis_version }}"
+    container_name: dx-analysis
+    environment:
+      - DB_HOST={{ db_host }}
+      - DB_PORT={{ db_port }}
+      - DB_NAME={{ db_name }}
+      - DB_USER={{ db_user }}
+      - DB_PASSWORD={{ db_password }}
+      - LOG_LEVEL=INFO
+    volumes:
+      - "{{ deployment_home }}/volumes/analysis-data:/app/data"
+    depends_on:
+      - database
+      - dxcluster-api
+    restart: unless-stopped
+    networks:
+      - dxcluster-network
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+networks:
+  dxcluster-network:
+    driver: bridge
