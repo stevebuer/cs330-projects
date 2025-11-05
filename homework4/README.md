@@ -6,7 +6,8 @@ not integrated and fully tested.
 
 ## To Do
 
-* Github CI/CD 
+* Github CI/CD
+* Automated unit tests
 * Continue ML model development
 
 ---
