@@ -4,6 +4,9 @@ During this iteration it is critical for me to focus on end-to-end testing, beca
 this project has many individual components that have been generated or developed but
 not integrated and fully tested.
 
+## To Do
+
+* Github CI/CD 
 * Continue ML model development
 
 ---
