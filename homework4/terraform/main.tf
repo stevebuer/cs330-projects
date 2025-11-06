@@ -36,10 +36,6 @@ resource "libvirt_pool" "terraform_pool" {
   name  = "terraform-pool"
   type  = "dir"
   path  = var.libvirt_pool_path
-
-  lifecycle {
-    ignore_changes = [path]
-  }
 }
 
 # LibVirt VM Deployment (VirtualBox via KVM/QEMU)
@@ -62,7 +58,7 @@ resource "libvirt_domain" "debian_vm" {
   vcpu    = var.libvirt_compute_sizes[var.vm_size].vcpu
   running = true
 
-  boot {
+  boot_device {
     dev = ["hd"]
   }
 
