@@ -9,6 +9,7 @@ not integrated and fully tested.
 * Github CI/CD
 * Automated unit tests
 * Continue ML model development
+* New PUML Doc
 
 ---
 
