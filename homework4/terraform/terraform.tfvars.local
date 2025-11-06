@@ -1,0 +1,20 @@
+# Terraform variables for local KVM/VirtualBox deployment
+# This deploys Debian 12 to your local libvirt environment
+
+# ===== Environment Configuration =====
+environment = "local"
+vm_size     = "small"
+vm_name     = "debian-cs330-local"
+debian_version = "12"
+
+# ===== Local LibVirt Configuration =====
+# Path where libvirt stores disk images
+libvirt_pool_path = "/var/lib/libvirt/images"
+
+# ===== Resource Tags =====
+tags = {
+  project = "cs330"
+  managed = "terraform"
+  env     = "development"
+  purpose = "testing"
+}

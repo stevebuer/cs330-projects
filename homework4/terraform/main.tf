@@ -4,7 +4,7 @@ resource "vultr_instance" "debian_vm" {
   label              = var.vm_name
   plan               = var.vultr_compute_sizes[var.vm_size]
   region             = var.vultr_region
-  os_id              = data.vultr_os.debian.id
+  os_id              = var.environment == "vultr" ? data.vultr_os.debian[0].id : null
   enable_ipv6        = true
   backups            = "disabled"
   ddos_protection    = false
@@ -17,8 +17,10 @@ resource "vultr_instance" "debian_vm" {
   }
 }
 
-# Data source for latest Debian OS
+# Data source for latest Debian OS (only for Vultr)
 data "vultr_os" "debian" {
+  count = var.environment == "vultr" ? 1 : 0
+  
   filter {
     name   = "family"
     values = ["debian"]
@@ -35,7 +37,10 @@ resource "libvirt_pool" "terraform_pool" {
   count = var.environment == "local" ? 1 : 0
   name  = "terraform-pool"
   type  = "dir"
-  path  = var.libvirt_pool_path
+
+  target {
+    path = var.libvirt_pool_path
+  }
 }
 
 # LibVirt VM Deployment (VirtualBox via KVM/QEMU)
