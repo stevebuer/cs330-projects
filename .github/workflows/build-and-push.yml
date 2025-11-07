@@ -35,6 +35,19 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Set up Docker
+        run: |
+          # Verify docker is available
+          docker version
+          docker info
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+        with:
+          driver-options: |
+            image=moby/buildkit:latest
+            network=host
+
       - name: Log in to Docker Hub
         if: |
           github.event_name == 'release' ||
@@ -74,19 +87,19 @@ jobs:
           echo "api_image=${REGISTRY}/${{ github.repository_owner }}/dxcluster-api:${TAG}" >> $GITHUB_OUTPUT
           echo "web_image=${REGISTRY}/${{ github.repository_owner }}/dxcluster-web:${TAG}" >> $GITHUB_OUTPUT
 
-      - name: Build and push dxcluster-api
-        run: |
-          docker build -f ./homework2/Dockerfile.api -t ${{ steps.meta.outputs.api_image }} ./homework2
-          if [ "${{ github.event_name == 'release' || github.event.inputs.push }}" = "true" ]; then
-            docker push ${{ steps.meta.outputs.api_image }}
-          fi
+      - name: Build dxcluster-api
+        run: docker build -f ./homework2/Dockerfile.api -t ${{ steps.meta.outputs.api_image }} ./homework2
 
-      - name: Build and push dxcluster-web
-        run: |
-          docker build -f ./homework2/Dockerfile.web -t ${{ steps.meta.outputs.web_image }} ./homework2
-          if [ "${{ github.event_name == 'release' || github.event.inputs.push }}" = "true" ]; then
-            docker push ${{ steps.meta.outputs.web_image }}
-          fi
+      - name: Build dxcluster-web
+        run: docker build -f ./homework2/Dockerfile.web -t ${{ steps.meta.outputs.web_image }} ./homework2
+
+      - name: Push dxcluster-api
+        if: github.event_name == 'release' || github.event.inputs.push
+        run: docker push ${{ steps.meta.outputs.api_image }}
+
+      - name: Push dxcluster-web
+        if: github.event_name == 'release' || github.event.inputs.push
+        run: docker push ${{ steps.meta.outputs.web_image }}
 
       - name: Create build summary
         if: always()
