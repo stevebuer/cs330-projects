@@ -29,7 +29,38 @@ This pipeline enables on-demand Docker image building and publishing to either D
 - Two container images: `dxcluster-api` and `dxcluster-web`
 - Consistent tagging and naming conventions
 
-## Setup Instructions
+## Quick Start Options
+
+### Option A: Local Builds (Fastest for Development)
+
+Build and push containers directly from your machine:
+
+```bash
+cd homework4/ci-cd
+
+# Build locally (no push)
+./build-local.sh
+
+# Build and push to GHCR
+./build-local.sh -t v1.0.0 -p
+
+# See all options
+./build-local.sh -h
+```
+
+✅ **Why local builds?**
+- Instant feedback (no 5-minute GitHub queue)
+- Test before committing
+- Full debugging control
+- Works offline for local-only builds
+
+**For details**, see [LOCAL_BUILD.md](LOCAL_BUILD.md)
+
+### Option B: GitHub Actions (Automated)
+
+Use GitHub Actions for automatic builds on release or manual trigger.
+
+## Setup Instructions (GitHub Actions)
 
 ### 1. Install the Workflow File
 
@@ -198,7 +229,9 @@ Compare to automatic builds: This saves 20+ builds per month on active projects.
 
 ## Related Files
 
-- `github-actions-build-and-push.yml` - Main workflow definition
+- `build-local.sh` - Local build script (new!)
+- `LOCAL_BUILD.md` - Local build documentation (new!)
+- `github-actions-build-and-push.yml` - GitHub Actions workflow
 - `../terraform/` - Infrastructure deployment
 - `../ansible/` - Configuration management
 - `../../homework2/Dockerfile.api` - API container definition
