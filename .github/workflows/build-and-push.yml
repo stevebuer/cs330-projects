@@ -75,20 +75,18 @@ jobs:
           echo "web_image=${REGISTRY}/${{ github.repository_owner }}/dxcluster-web:${TAG}" >> $GITHUB_OUTPUT
 
       - name: Build and push dxcluster-api
-        uses: docker/build-push-action@v5
-        with:
-          context: ./homework2
-          file: ./homework2/Dockerfile.api
-          push: ${{ github.event_name == 'release' || github.event.inputs.push }}
-          tags: ${{ steps.meta.outputs.api_image }}
+        run: |
+          docker build -f ./homework2/Dockerfile.api -t ${{ steps.meta.outputs.api_image }} ./homework2
+          if [ "${{ github.event_name == 'release' || github.event.inputs.push }}" = "true" ]; then
+            docker push ${{ steps.meta.outputs.api_image }}
+          fi
 
       - name: Build and push dxcluster-web
-        uses: docker/build-push-action@v5
-        with:
-          context: ./homework2
-          file: ./homework2/Dockerfile.web
-          push: ${{ github.event_name == 'release' || github.event.inputs.push }}
-          tags: ${{ steps.meta.outputs.web_image }}
+        run: |
+          docker build -f ./homework2/Dockerfile.web -t ${{ steps.meta.outputs.web_image }} ./homework2
+          if [ "${{ github.event_name == 'release' || github.event.inputs.push }}" = "true" ]; then
+            docker push ${{ steps.meta.outputs.web_image }}
+          fi
 
       - name: Create build summary
         if: always()
