@@ -3,6 +3,7 @@ import requests
 import pandas as pd
 from datetime import datetime, timedelta
 import json
+import os
 
 # Load login state
 try:
@@ -34,8 +35,8 @@ with st.sidebar:
 # Select hours
 hours = st.selectbox("Select hours for metrics", options=[1, 2, 4, 8, 12, 24, 48], index=2)  # default 4
 
-# API URL - Replace with your actual API endpoint
-API_URL = "http://dx.jxqz.org:8080/api/spots?band=10m"  # User's API, filtered for 10m
+# API URL - from environment variable with fallback
+API_URL = os.getenv("API_URL", "http://dx.jxqz.org:8080/api/spots?band=10m")
 
 # Function to fetch spots
 def fetch_spots():
