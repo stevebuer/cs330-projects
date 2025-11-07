@@ -84,8 +84,6 @@ jobs:
           file: ./homework2/Dockerfile.api
           push: ${{ github.event_name == 'release' || github.event.inputs.push }}
           tags: ${{ steps.meta.outputs.api_image }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
 
       - name: Build and push dxcluster-web
         uses: docker/build-push-action@v5
@@ -94,8 +92,6 @@ jobs:
           file: ./homework2/Dockerfile.web
           push: ${{ github.event_name == 'release' || github.event.inputs.push }}
           tags: ${{ steps.meta.outputs.web_image }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
 
       - name: Create build summary
         if: always()
