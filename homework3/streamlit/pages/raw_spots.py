@@ -1,11 +1,12 @@
 import streamlit as st
 import requests
 import pandas as pd
+import os
 
 st.title("Raw DX Cluster Data")
 
-# API URL
-API_URL = "http://dx.jxqz.org:8080/api/spots?band=10m"
+# API URL - from environment variable with fallback
+API_URL = os.getenv("API_URL", "http://api.jxqz.org:8080/api/spots?band=10m")
 
 # Function to fetch spots
 def fetch_spots():
