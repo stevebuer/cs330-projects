@@ -102,6 +102,7 @@ ${GREEN}OPTIONS:${NC}
   
   --buildx                     Use Docker Buildx for faster builds
                                Supports multi-platform builds
+                               Note: Multi-platform builds require --push
   
   --platforms PLATFORMS        Buildx platforms (default: linux/amd64)
                                Examples: linux/amd64, linux/arm64
@@ -277,18 +278,42 @@ build_image() {
   
   if [[ $BUILDX == true ]]; then
     log_info "Using Docker Buildx (platforms: $PLATFORMS)"
-    if docker buildx build \
-        -f "$dockerfile" \
-        -t "$full_image" \
-        --platform "$PLATFORMS" \
-        $([ $PUSH == true ] && echo "--push" || echo "--load") \
-        . 2>&1 | grep -v "^#"; then
-      log_success "Built $full_image"
+    
+    # Buildx requires --push for multi-platform builds
+    if [[ "$PLATFORMS" == *","* ]] && [[ $PUSH != true ]]; then
+      log_warning "Multi-platform builds require --push. Enabling push..."
+      PUSH=true
+    fi
+    
+    if [[ $PUSH == true ]]; then
+      # Multi-platform or pushing: use --push
+      if docker buildx build \
+          -f "$dockerfile" \
+          -t "$full_image" \
+          --platform "$PLATFORMS" \
+          --push \
+          . 2>&1 | grep -v "^#"; then
+        log_success "Built and pushed $full_image"
+      else
+        log_error "Failed to build/push $full_image"
+        return 1
+      fi
     else
-      log_error "Failed to build $full_image"
-      return 1
+      # Single platform, not pushing: use --load
+      if docker buildx build \
+          -f "$dockerfile" \
+          -t "$full_image" \
+          --platform "$PLATFORMS" \
+          --load \
+          . 2>&1 | grep -v "^#"; then
+        log_success "Built $full_image"
+      else
+        log_error "Failed to build $full_image"
+        return 1
+      fi
     fi
   else
+    # Use standard docker build
     if docker build \
         -f "$dockerfile" \
         -t "$full_image" \
@@ -298,15 +323,15 @@ build_image() {
       log_error "Failed to build $full_image"
       return 1
     fi
-  fi
-  
-  if [[ $PUSH == true ]] && [[ $BUILDX != true ]]; then
-    log_info "Pushing $full_image..."
-    if docker push "$full_image" 2>&1 | grep -E "(Pushed|digest|error|Error)"; then
-      log_success "Pushed $full_image"
-    else
-      log_error "Failed to push $full_image"
-      return 1
+    
+    if [[ $PUSH == true ]]; then
+      log_info "Pushing $full_image..."
+      if docker push "$full_image" 2>&1 | grep -E "(Pushed|digest|error|Error)"; then
+        log_success "Pushed $full_image"
+      else
+        log_error "Failed to push $full_image"
+        return 1
+      fi
     fi
   fi
 }
