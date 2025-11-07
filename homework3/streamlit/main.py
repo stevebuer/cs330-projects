@@ -36,7 +36,7 @@ with st.sidebar:
 hours = st.selectbox("Select hours for metrics", options=[1, 2, 4, 8, 12, 24, 48], index=2)  # default 4
 
 # API URL - from environment variable with fallback
-API_URL = os.getenv("API_URL", "http://dx.jxqz.org:8080/api/spots?band=10m")
+API_URL = os.getenv("API_URL", "http://api.jxqz.org:8080/api/spots?band=10m")
 
 # Function to fetch spots
 def fetch_spots():
