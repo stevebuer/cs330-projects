@@ -21,8 +21,8 @@ all:
     production:
       hosts:
         prod-server:
-          ansible_host: vultr-server-ip
-          ansible_user: root
+          ansible_host: cs330.jxqz.org
+          ansible_user: steve
           ansible_port: 22
           deployment_environment: production
           deployment_type: vultr
