@@ -4,12 +4,27 @@ During this iteration it is critical for me to focus on end-to-end testing, beca
 this project has many individual components that have been generated or developed but
 not integrated and fully tested.
 
+## Completed or In-progress
+
+* Development/Production environment upgrades: 
+   * Terraform deployment testing
+   * New Vultr VM to host project (api server & dashboard server for now)
+   * Github Actions CI/CD for container builds
+   * Dashboard deployed via Github Container Registry (ghcr.io)
+   * Laptop memory upgrade (8GB -> 16GB)
+
+* Feature Engineering
+   * Scripts to extract feature vector for 1 day of observations
+   * Train various NN models (sequential, RNN) and evaluate results
+   * Iterate on feature engineering
+
 ## To Do
 
-* Github CI/CD
-* Automated unit tests
 * Continue ML model development
-* New PUML Doc
+* Github Automated unit tests
+* 1-2 more iteration on scraper and database (WWV solar data & misc.)
+* New PUML doc
+* Add openapi.yaml to data browser.
 
 ---
 
