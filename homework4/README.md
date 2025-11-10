@@ -21,6 +21,7 @@ not integrated and fully tested.
 ## To Do
 
 * Continue ML model development
+* Connect pre-trained models to dashboard instead of current dynamic training?
 * Github Automated unit tests
 * 1-2 more iteration on scraper and database (WWV solar data & misc.)
 * New PUML doc
