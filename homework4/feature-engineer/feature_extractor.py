@@ -5,10 +5,14 @@ Prepares data for neural network input.
 
 import requests
 import numpy as np
-from datetime import datetime
+import urllib.request
+import urllib.parse
+import json
+from datetime import datetime, timedelta, timezone
 from typing import List, Dict, Tuple
 from sklearn.preprocessing import MinMaxScaler
 import pandas as pd
+import sys
 
 
 class RadioSpottingFeatureExtractor:
@@ -34,29 +38,76 @@ class RadioSpottingFeatureExtractor:
         self.raw_features = None
         self.normalized_features = None
     
-    def fetch_data(self, limit: int = None) -> List[Dict]:
+    def fetch_data(self, target_date: str = None, limit: int = None) -> List[Dict]:
         """
-        Fetch radio spotting data from API.
+        Fetch radio spotting data from API for a specific completed day.
         
         Args:
+            target_date: Date string in format YYYY-MM-DD. Defaults to yesterday.
             limit: Maximum number of spots to fetch. None for all.
             
         Returns:
-            List of spot dictionaries from API response.
+            List of spot dictionaries from API response for the specified date.
         """
+        if target_date is None:
+            target_date = (datetime.now() - timedelta(days=1)).strftime("%Y-%m-%d")
+        
         try:
-            response = requests.get(self.API_URL)
-            response.raise_for_status()
-            data = response.json()
-            spots = data.get("spots", [])
+            # Parse target date
+            target_dt = datetime.strptime(target_date, "%Y-%m-%d")
+            
+            # Create ISO format timestamps for full day
+            start_dt = target_dt.replace(tzinfo=timezone.utc)
+            end_dt = (target_dt + timedelta(days=1)).replace(tzinfo=timezone.utc)
+            
+            since_param = start_dt.isoformat().replace('+00:00', 'Z')
+            until_param = end_dt.isoformat().replace('+00:00', 'Z')
+            
+            url = self.API_URL
+            page_size = 500
+            offset = 0
+            all_spots = []
+            
+            while True:
+                params = {
+                    'since': since_param,
+                    'until': until_param,
+                    'limit': page_size,
+                    'offset': offset
+                }
+                
+                query_string = "&".join(f"{k}={urllib.parse.quote(str(v))}" for k, v in params.items())
+                full_url = f"{url}?{query_string}"
+                
+                with urllib.request.urlopen(full_url, timeout=10) as response:
+                    data = json.loads(response.read().decode('utf-8'))
+                    spots = data.get("spots", [])
+                    pagination = data.get("pagination", {})
+                    
+                    if not spots:
+                        break
+                    
+                    all_spots.extend(spots)
+                    
+                    has_more = pagination.get("has_more", False)
+                    if not has_more:
+                        break
+                    
+                    offset += len(spots)
             
             if limit:
-                spots = spots[:limit]
+                all_spots = all_spots[:limit]
             
-            print(f"✓ Fetched {len(spots)} spots from API")
-            return spots
+            print(f"✓ Fetched {len(all_spots)} spots from API for {target_date}")
+            return all_spots
             
-        except requests.RequestException as e:
+        except urllib.error.HTTPError as e:
+            print(f"✗ API Error: {e.code} - {e.reason}")
+            return []
+        except ValueError as e:
+            print(f"✗ Invalid date format: {e}. Use YYYY-MM-DD")
+            return []
+        except Exception as e:
             print(f"✗ Error fetching API data: {e}")
             return []
     
@@ -221,16 +272,31 @@ class RadioSpottingFeatureExtractor:
 
 def main():
     """Demo script showing the full pipeline."""
+    # Parse command-line arguments
+    target_date = None
+    if len(sys.argv) > 1:
+        target_date = sys.argv[1]
+        # Validate date format
+        try:
+            datetime.strptime(target_date, "%Y-%m-%d")
+        except ValueError:
+            print(f"✗ Invalid date format: {target_date}. Use YYYY-MM-DD")
+            sys.exit(1)
+    else:
+        target_date = (datetime.now() - timedelta(days=1)).strftime("%Y-%m-%d")
+        print(f"ℹ No date specified. Using yesterday's date: {target_date}")
+    
     print("=" * 60)
     print("Radio Spotting API - Neural Network Feature Extractor")
+    print(f"Target Date: {target_date}")
     print("=" * 60)
     
     # Initialize extractor
     extractor = RadioSpottingFeatureExtractor()
     
-    # Fetch data from API
+    # Fetch data from API for specified date
     print("\n[1] Fetching data from API...")
-    spots = extractor.fetch_data(limit=100)  # Limit to 100 for demo
+    spots = extractor.fetch_data(target_date=target_date)
     
     if not spots:
         print("✗ Failed to fetch data")
@@ -268,8 +334,8 @@ def main():
     df = extractor.to_dataframe(normalized=True)
     print(df.head(5).to_string(index=False))
     
-    # Save to CSV
-    output_file = "radio_spotting_features.csv"
+    # Save to CSV with date in filename
+    output_file = f"radio_spotting_features_{target_date}.csv"
     df.to_csv(output_file, index=False)
     print(f"\n✓ Features saved to {output_file}")
     
