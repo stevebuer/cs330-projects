@@ -7,7 +7,9 @@ Groups all radio spots by date and creates statistical features for each day.
 import json
 import urllib.request
 import urllib.error
-from datetime import datetime, timedelta
+import urllib.parse
+import sys
+from datetime import datetime, timedelta, timezone
 from typing import List, Dict, Tuple
 from collections import defaultdict
 
@@ -30,7 +32,7 @@ class DailyFeatureExtractor:
         Fetch data from API.
         
         Args:
-            limit: Maximum number of spots to fetch (None for all)
+            limit: Maximum number of spots to fetch per page (None for all pages)
             exclude_today: If True, exclude today's data (keep only historical data for training)
             days_back: If set, only include data from N days ago or earlier (relative to today)
         
@@ -38,47 +40,80 @@ class DailyFeatureExtractor:
             List of spot dictionaries
         """
         try:
-            with urllib.request.urlopen(self.API_URL, timeout=10) as response:
-                data = json.loads(response.read().decode('utf-8'))
-                spots = data.get("spots", [])
+            # Calculate date range for API query
+            today = datetime.now().date()
+            
+            # Build base URL with date filters
+            url = self.API_URL
+            base_params = {}
+            
+            if exclude_today:
+                # Set until to start of today
+                until_dt = datetime.combine(today, datetime.min.time()).replace(tzinfo=timezone.utc)
+                base_params['until'] = until_dt.isoformat().replace('+00:00', 'Z')
+            
+            if days_back is not None:
+                cutoff_date = today - timedelta(days=days_back)
+                since_dt = datetime.combine(cutoff_date, datetime.min.time()).replace(tzinfo=timezone.utc)
+                base_params['since'] = since_dt.isoformat().replace('+00:00', 'Z')
+            
+            page_size = 500  # Use max limit per API spec
+            offset = 0
+            all_spots = []
+            
+            while True:
+                # Build query string with pagination
+                params = base_params.copy()
+                params['limit'] = page_size
+                params['offset'] = offset
                 
-                if limit:
-                    spots = spots[:limit]
+                query_string = "&".join(f"{k}={urllib.parse.quote(str(v))}" for k, v in params.items())
+                full_url = f"{url}?{query_string}" if query_string else url
                 
-                # Filter by date constraints
-                filtered_spots = []
-                today = datetime.now().date()
-                cutoff_date = None
+                with urllib.request.urlopen(full_url, timeout=10) as response:
+                    data = json.loads(response.read().decode('utf-8'))
+                    spots = data.get("spots", [])
+                    pagination = data.get("pagination", {})
+                    
+                    if not spots:
+                        # No more spots to fetch
+                        break
+                    
+                    # Check if we've fetched enough (if limit was specified)
+                    if limit and len(all_spots) + len(spots) > limit:
+                        spots = spots[:limit - len(all_spots)]
+                    
+                    all_spots.extend(spots)
+                    
+                    # If limit is specified and we've reached it, stop
+                    if limit and len(all_spots) >= limit:
+                        break
+                    
+                    # Check if there are more pages
+                    has_more = pagination.get("has_more", False)
+                    if not has_more:
+                        break
+                    
+                    offset += len(spots)
+            
+            filtered_spots = []
+            
+            for spot in all_spots:
+                timestamp_str = spot.get("timestamp", "")
+                try:
+                    dt = datetime.strptime(timestamp_str, "%a, %d %b %Y %H:%M:%S %Z")
+                    filtered_spots.append(spot)
+                except:
+                    continue
                 
-                if days_back is not None:
-                    cutoff_date = today - timedelta(days=days_back)
-                
-                for spot in spots:
-                    timestamp_str = spot.get("timestamp", "")
-                    try:
-                        dt = datetime.strptime(timestamp_str, "%a, %d %b %Y %H:%M:%S %Z")
-                        spot_date = dt.date()
-                        
-                        # Skip today if exclude_today is True
-                        if exclude_today and spot_date >= today:
-                            continue
-                        
-                        # Skip if before cutoff date
-                        if cutoff_date and spot_date < cutoff_date:
-                            continue
-                        
-                        filtered_spots.append(spot)
-                    except:
-                        continue
-                
-                print(f"✓ Fetched {len(filtered_spots)} spots from API (historical data)")
-                if exclude_today:
-                    print(f"  Note: Excluded today ({today}) - using only previous days")
-                if days_back:
-                    print(f"  Note: Limited to {days_back} days back (since {cutoff_date})")
-                
-                self.raw_spots = filtered_spots
-                return filtered_spots
+            print(f"✓ Fetched {len(filtered_spots)} spots from API (historical data)")
+            if exclude_today:
+                print(f"  Note: Excluded today ({today}) - using only previous days")
+            if days_back:
+                print(f"  Note: Limited to {days_back} days back")
+            
+            self.raw_spots = filtered_spots
+            return filtered_spots
                 
         except Exception as e:
             print(f"✗ Error fetching API data: {e}")
@@ -340,6 +375,16 @@ class DailyFeatureExtractor:
 
 def main():
     """Demo script for daily feature extraction."""
+    # Parse command-line arguments
+    days_back = 7  # Default to 7 days
+    if len(sys.argv) > 1:
+        try:
+            days_back = int(sys.argv[1])
+        except ValueError:
+            print(f"Usage: python daily_extractor.py [days_back]")
+            print(f"  days_back: Number of days to go back (default: 7)")
+            sys.exit(1)
+    
     print("=" * 70)
     print("Daily Radio Wave Propagation Feature Extractor")
     print("=" * 70)
@@ -347,8 +392,8 @@ def main():
     extractor = DailyFeatureExtractor()
     
     # Fetch data
-    print("\n[1] Fetching data from API...")
-    spots = extractor.fetch_data(limit=500)  # Fetch more to get multiple days
+    print(f"\n[1] Fetching data from API (last {days_back} days)...")
+    spots = extractor.fetch_data(limit=None, days_back=days_back)  # Fetch all spots without limit
     
     if not spots:
         print("✗ Failed to fetch data")
@@ -366,8 +411,11 @@ def main():
     print("\n[4] Normalizing features...")
     normalized = extractor.normalize_features()
     
-    # Display results
-    print("\n[5] Daily Feature Vectors (normalized):")
+    # Display results - always show raw values for clarity
+    daily_features = extractor.daily_features
+    display_data = daily_features
+    
+    print(f"\n[5] Daily Feature Vectors (raw values):")
     print("-" * 90)
     
     feature_names = extractor.get_feature_names()
@@ -375,34 +423,34 @@ def main():
     print(header)
     print("-" * 90)
     
-    for i, vec in enumerate(normalized[:10]):  # Show first 10 days
+    for i, vec in enumerate(display_data[:10]):  # Show first 10 days
         date_str = vec[0]
         numeric_vals = " ".join(f"{v:>10.4f}" for v in vec[1:])
         print(f"{date_str:<12} {numeric_vals}")
     
-    if len(normalized) > 10:
-        print(f"... and {len(normalized) - 10} more days")
+    if len(display_data) > 10:
+        print(f"... and {len(display_data) - 10} more days")
     
-    # Save to CSV
-    print("\n[6] Saving to CSV...")
+    # Save to CSV - save normalized values
+    print("\n[6] Saving to CSV (normalized values)...")
     csv_file = "daily_radio_features.csv"
     with open(csv_file, 'w') as f:
         f.write(",".join(feature_names) + "\n")
-        for vec in normalized:
+        for vec in display_data:
             # Date stays as string, numbers get formatted
             line = f"{vec[0]}," + ",".join(f"{v:.6f}" for v in vec[1:])
             f.write(line + "\n")
     
-    print(f"✓ Saved {len(normalized)} daily feature vectors to {csv_file}")
+    print(f"✓ Saved {len(display_data)} daily feature vectors to {csv_file}")
     
     # Statistics
     print("\n[7] Summary Statistics:")
     print("-" * 70)
-    print(f"Total days with data: {len(normalized)}")
+    print(f"Total days with data: {len(daily_features)}")
     print(f"Total spots analyzed: {sum(int(float(v[3])) for v in daily_features)}")
-    print(f"Date range: {normalized[0][0]} to {normalized[-1][0]}")
+    print(f"Date range: {daily_features[0][0]} to {daily_features[-1][0]}")
     
-    print("\n[8] Feature Ranges (after normalization):")
+    print(f"\n[8] Feature Ranges (normalized values for comparison):")
     print("-" * 70)
     feature_names_numeric = feature_names[1:]
     for feat_idx, name in enumerate(feature_names_numeric, start=1):

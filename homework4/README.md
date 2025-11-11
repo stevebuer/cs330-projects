@@ -15,11 +15,12 @@ not integrated and fully tested.
 
 * Feature Engineering
    * Scripts to extract feature vector for 1 day of observations
-   * Train various NN models (sequential, RNN) and evaluate results
+   * Train various NN models (sequential, RNN, LSTM, LLM) and evaluate results
    * Iterate on feature engineering
 
 ## To Do
 
+* Max records being hit on API
 * Continue ML model development
 * Connect pre-trained models to dashboard instead of current dynamic training?
 * Github Automated unit tests

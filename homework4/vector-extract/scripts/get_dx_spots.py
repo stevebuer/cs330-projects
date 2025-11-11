@@ -22,7 +22,7 @@ from typing import List, Dict, Any
 import requests
 
 
-DEFAULT_BASE_URL = "https://api.jxqz.org:8080/api"
+DEFAULT_BASE_URL = "http://api.jxqz.org:8080/api"
 DEFAULT_LIMIT = 500  # per OpenAPI spec max 500
 
 
