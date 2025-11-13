@@ -1,8 +1,29 @@
 # CS330 Homework 4
 
-During this iteration it is critical for me to focus on end-to-end testing, because
-this project has many individual components that have been generated or developed but
-not integrated and fully tested.
+I have fallen slightly behind where I wanted to be for this iteration, but have made
+some progress in key areas. I am out of town this weekend, but will be able to spend a 
+lot of time on the project beginning next week because my job is ending. 
+
+I spent some time testing the deployment infrastructure and added a little bit of IAC for 
+containers. I think my focus for next week needs to be on the dashboard and getting my ML 
+model training pipelines into a more functional state. The dashboard is currently still 
+in a protype state and I need it to have relevant and meaningful information and analysis 
+at the end of my next iteration. 
+
+I have done some work on feature engineering and I will continue this as part of the 
+model development. I like the idea of RNN/LSTM for predicting future conditions from
+recent historical. However, I would also like to add a sequential model to help me classify
+a day as good or bad -- so I don't have to manually label daily data if possible. I also
+want to experiment with just giving data sets to a LLM and see what it says about everything.
+
+I noticed earlier that my scraper script had stopped collecting data for some reason. I had
+to restart the service. I want to add some monitoring around this -- maybe a simple Grafana
+system health dashboard. Can I scrape my scraper? I would also like to get a daily prediction 
+email and real-time alerts of particular types of HF propagation events.
+
+I will probably need to make a couple of changes to the database schema and scraper, but
+I want these changes to be driven by specific needs and requirements from the dashboard. I like
+visualizations and eye candy.
 
 ## Completed or In-progress
 
@@ -12,15 +33,15 @@ not integrated and fully tested.
    * Github Actions CI/CD for container builds
    * Dashboard deployed via Github Container Registry (ghcr.io)
    * Laptop memory upgrade (8GB -> 16GB)
+   * Max records being hit on API (some scripts updated for this)
 
 * Feature Engineering
    * Scripts to extract feature vector for 1 day of observations
    * Train various NN models (sequential, RNN, LSTM, LLM) and evaluate results
    * Iterate on feature engineering
 
-## To Do
+## To Do / Push to next iteration
 
-* Max records being hit on API
 * Continue ML model development
 * Connect pre-trained models to dashboard instead of current dynamic training?
 * Github Automated unit tests
