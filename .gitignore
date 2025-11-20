@@ -17,6 +17,10 @@ __pycache__/
 homework1/data/dx_spots.txt
 homework1/data/dx_spots.*.txt
 
+# Data files in homework4
+homework4/**/*.csv
+homework4/**/*.json
+
 # Build artifacts and packages
 homework2/packages/*/debian/.debhelper/
 homework2/packages/*/debian/debhelper-build-stamp
