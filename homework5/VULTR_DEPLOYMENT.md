@@ -34,6 +34,8 @@ chmod 600 .env
 
 Replace the values with your actual database credentials.
 
+**IMPORTANT**: Use the actual hostname or IP address of your database server, NOT `localhost`. If the database is on a different server, use that server's hostname or IP. Inside Docker containers, `localhost` refers to the container itself, not the host machine.
+
 ### 3. Download docker-compose file
 
 ```bash
@@ -118,13 +120,19 @@ docker-compose up -d
    docker-compose logs dx-api
    ```
 
-2. Verify database connection:
+2. **Database connection error**: Make sure `PGHOST` in `.env` is the actual hostname or IP of your database server, NOT `localhost`. Inside containers, `localhost` refers to the container itself.
+   ```bash
+   # Example for database on another server
+   PGHOST=144.202.1.188  # Use IP or hostname, not localhost
+   ```
+
+3. Verify database connection:
    ```bash
    docker run --rm -it postgres:15-alpine \
      psql -h your-database-host -U dx_reader -d dxcluster -c "SELECT 1"
    ```
 
-3. Verify environment variables:
+4. Verify environment variables:
    ```bash
    docker-compose config | grep -A5 environment
    ```
