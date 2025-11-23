@@ -10,6 +10,8 @@ This file is maintained by Steve and is not to be modified by Github AI Copilot.
 
 * Installed Grafana for monitoring and configured SSL
 * Installed Prometheus time-series database
+* Database migration for Grafana Postgres user
+* Sysadmin work to free up space on production server root partition
 
 ---
 

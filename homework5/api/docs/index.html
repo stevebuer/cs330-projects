@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DX Cluster API Documentation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #f5f5f5;
+        }
+
+        .navbar {
+            background: #2c3e50;
+            color: white;
+            padding: 1rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .navbar a {
+            color: white;
+            text-decoration: none;
+            margin-right: 2rem;
+            display: inline-block;
+        }
+
+        .navbar a:hover {
+            color: #3498db;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 3rem 2rem;
+            margin-bottom: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .quick-links {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+
+        .link-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            text-decoration: none;
+            color: #333;
+            transition: transform 0.2s, box-shadow 0.2s;
+            display: block;
+        }
+
+        .link-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .link-card h3 {
+            color: #667eea;
+            margin-bottom: 0.5rem;
+        }
+
+        .link-card p {
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .endpoint {
+            background: white;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .endpoint h3 {
+            color: #667eea;
+            margin-bottom: 0.5rem;
+        }
+
+        .method {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 4px;
+            color: white;
+            font-weight: bold;
+            margin-right: 0.5rem;
+            font-size: 0.85rem;
+            background: #3498db;
+        }
+
+        code {
+            background: #f4f4f4;
+            padding: 0.2rem 0.4rem;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+        }
+
+        pre {
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 1rem;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 1rem 0;
+        }
+
+        pre code {
+            background: none;
+            padding: 0;
+            color: inherit;
+        }
+
+        footer {
+            text-align: center;
+            padding: 2rem;
+            color: #666;
+            margin-top: 3rem;
+            border-top: 1px solid #ddd;
+        }
+
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 1.8rem;
+            }
+
+            .quick-links {
+                grid-template-columns: 1fr;
+            }
+
+            .navbar a {
+                display: block;
+                margin-bottom: 0.5rem;
+                margin-right: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <a href="/docs">📚 Documentation</a>
+        <a href="/api/health">🏥 Health Check</a>
+        <a href="/api">📊 API Info</a>
+    </div>
+
+    <div class="container">
+        <header>
+            <h1>🌍 DX Cluster REST API</h1>
+            <p>Real-time Amateur Radio DX Cluster Spot Data</p>
+        </header>
+
+        <div class="quick-links">
+            <a href="/docs/quickstart" class="link-card">
+                <h3>⚡ Quick Start</h3>
+                <p>Get started with your first API request in minutes</p>
+            </a>
+            <a href="/docs/api" class="link-card">
+                <h3>📖 Full Documentation</h3>
+                <p>Complete API reference with examples</p>
+            </a>
+            <a href="/docs/openapi" class="link-card">
+                <h3>📋 OpenAPI Spec</h3>
+                <p>Machine-readable API specification</p>
+            </a>
+            <a href="/api/" class="link-card">
+                <h3>📡 API Root</h3>
+                <p>View available endpoints</p>
+            </a>
+        </div>
+
+        <section style="margin-top: 3rem;">
+            <h2>📋 Key Endpoints</h2>
+
+            <div class="endpoint">
+                <span class="method">GET</span>
+                <h3>/api/health</h3>
+                <p>Check API and database status</p>
+            </div>
+
+            <div class="endpoint">
+                <span class="method">GET</span>
+                <h3>/api/spots</h3>
+                <p>Get DX spots with filtering options</p>
+            </div>
+
+            <div class="endpoint">
+                <span class="method">GET</span>
+                <h3>/api/spots/recent</h3>
+                <p>Get the most recent DX spots</p>
+            </div>
+
+            <div class="endpoint">
+                <span class="method">GET</span>
+                <h3>/api/bands</h3>
+                <p>Get band activity statistics</p>
+            </div>
+
+            <div class="endpoint">
+                <span class="method">GET</span>
+                <h3>/api/callsigns/top</h3>
+                <p>Get most active stations</p>
+            </div>
+        </section>
+
+        <section style="margin-top: 3rem;">
+            <h2>🚀 Quick Examples</h2>
+            <pre><code># Check API health
+curl http://localhost:8080/api/health
+
+# Get recent spots
+curl http://localhost:8080/api/spots/recent?limit=5
+
+# Check 20m band activity
+curl "http://localhost:8080/api/spots?band=20m&limit=10"</code></pre>
+        </section>
+
+        <section style="margin-top: 3rem; background: #ecf0f1; padding: 1.5rem; border-radius: 8px;">
+            <h2>🔗 Documentation Links</h2>
+            <ul style="margin-left: 1rem;">
+                <li><a href="/docs/quickstart">Quick Start Guide</a></li>
+                <li><a href="/docs/api">Full API Documentation</a></li>
+                <li><a href="/docs/openapi">OpenAPI Specification (YAML)</a></li>
+                <li><a href="/docs/openapi.json">OpenAPI as JSON</a></li>
+            </ul>
+        </section>
+    </div>
+
+    <footer>
+        <p>DX Cluster API v1.0.0 | Amateur Radio Data Service</p>
+    </footer>
+</body>
+</html>
