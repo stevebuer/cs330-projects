@@ -21,20 +21,26 @@ cd /opt/dx-cluster
 ### 2. Create `.env` file with your database credentials
 
 ```bash
-cat > .env << 'EOF'
-PGHOST=your-database-host
-PGPORT=5432
-PGDATABASE=dxcluster
-PGUSER=dx_reader
-PGPASSWORD=your-secure-password
-EOF
-
-chmod 600 .env
+cp .env.example .env
+nano .env  # Edit with your actual credentials
 ```
 
-Replace the values with your actual database credentials.
+Update the `.env` file with your database credentials:
 
-**IMPORTANT**: Use the actual hostname or IP address of your database server, NOT `localhost`. If the database is on a different server, use that server's hostname or IP. Inside Docker containers, `localhost` refers to the container itself, not the host machine.
+```bash
+PGHOST=localhost
+PGPORT=5432
+PGDATABASE=dx_analysis
+PGUSER=dx_web_user
+PGPASSWORD=your-secure-password
+FLASK_ENV=production
+```
+
+**IMPORTANT**: 
+- The `.env` file is protected by `.gitignore` and will NOT be committed
+- Use `localhost` if PostgreSQL is on the same machine (uses host networking)
+- For remote databases, use the hostname or IP address
+- Protect this file - it contains your database password
 
 ### 3. Download docker-compose file
 
