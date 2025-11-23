@@ -18,7 +18,6 @@ RUN pip install --no-cache-dir gunicorn
 
 # Copy application code
 COPY api/ ./api/
-COPY .env* ./
 
 # Copy documentation files
 COPY API_DOCUMENTATION.md ./api/docs/
