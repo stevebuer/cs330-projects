@@ -1,0 +1,20 @@
+# Debian build artifacts
+*.deb
+*.build
+*.buildinfo
+*.changes
+
+# Debian/dpkg working directories
+dxcluster-scraper/debian/dxcluster-scraper/
+debian/.debhelper/
+debian/debhelper-build-stamp
+debian/files
+debian/*.log
+
+# Build output
+dxcluster-scraper/debian/tmp/
+
+# Temporary files
+*.tmp
+*~
+.#*

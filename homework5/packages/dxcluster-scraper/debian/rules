@@ -1,0 +1,24 @@
+#!/usr/bin/make -f
+
+%:
+	dh $@
+
+override_dh_auto_build:
+	# No build required for this package
+
+override_dh_auto_test:
+	# No tests for this package
+
+override_dh_auto_install:
+	# Copy files to debian package structure
+	mkdir -p debian/dxcluster-scraper/usr/bin
+	mkdir -p debian/dxcluster-scraper/usr/share/dxcluster-scraper
+	mkdir -p debian/dxcluster-scraper/etc/systemd/system
+	mkdir -p debian/dxcluster-scraper/etc/dxcluster
+	
+	cp usr/bin/* debian/dxcluster-scraper/usr/bin/
+	cp usr/share/dxcluster-scraper/* debian/dxcluster-scraper/usr/share/dxcluster-scraper/
+	cp etc/systemd/system/* debian/dxcluster-scraper/etc/systemd/system/
+	cp etc/dxcluster/* debian/dxcluster-scraper/etc/dxcluster/
+	
+	chmod +x debian/dxcluster-scraper/usr/bin/*
