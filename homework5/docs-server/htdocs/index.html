@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DX Cluster API Documentation</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #f5f5f5;
+        }
+
+        nav {
+            background: #2c3e50;
+            color: white;
+            padding: 1rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        nav a {
+            color: white;
+            text-decoration: none;
+            margin-right: 2rem;
+            display: inline-block;
+        }
+
+        nav a:hover {
+            color: #3498db;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 3rem 2rem;
+            margin-bottom: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .quick-links {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+
+        .link-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            text-decoration: none;
+            color: #333;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .link-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .link-card h3 {
+            color: #667eea;
+            margin-bottom: 0.5rem;
+        }
+
+        .link-card p {
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .endpoint {
+            background: white;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .endpoint h3 {
+            color: #667eea;
+            margin-bottom: 0.5rem;
+        }
+
+        .method {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 4px;
+            color: white;
+            font-weight: bold;
+            margin-right: 0.5rem;
+            font-size: 0.85rem;
+        }
+
+        .method.get {
+            background: #3498db;
+        }
+
+        .method.post {
+            background: #27ae60;
+        }
+
+        code {
+            background: #f4f4f4;
+            padding: 0.2rem 0.4rem;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+        }
+
+        pre {
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 1rem;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 1rem 0;
+        }
+
+        pre code {
+            background: none;
+            padding: 0;
+            color: inherit;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        table th {
+            background: #667eea;
+            color: white;
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        table td {
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid #ecf0f1;
+        }
+
+        table tr:hover {
+            background: #f9f9f9;
+        }
+
+        .status-200 { color: #27ae60; }
+        .status-400 { color: #e74c3c; }
+        .status-404 { color: #e74c3c; }
+        .status-500 { color: #c0392b; }
+
+        footer {
+            text-align: center;
+            padding: 2rem;
+            color: #666;
+            margin-top: 3rem;
+            border-top: 1px solid #ddd;
+        }
+
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 1.8rem;
+            }
+
+            .quick-links {
+                grid-template-columns: 1fr;
+            }
+
+            nav a {
+                display: block;
+                margin-bottom: 0.5rem;
+                margin-right: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="/">📚 Home</a>
+        <a href="/quickstart.html">⚡ Quick Start</a>
+        <a href="/openapi.html">📖 Full Documentation</a>
+        <a href="/api/health">🏥 Health Check</a>
+    </nav>
+
+    <div class="container">
+        <header>
+            <h1>🌍 DX Cluster REST API</h1>
+            <p>Real-time Amateur Radio DX Cluster Spot Data</p>
+        </header>
+
+        <div class="quick-links">
+            <div class="link-card">
+                <h3>⚡ Quick Start</h3>
+                <p>Get started with your first API request in minutes</p>
+                <a href="/quickstart.html">View Guide →</a>
+            </div>
+            <div class="link-card">
+                <h3>📖 Full Documentation</h3>
+                <p>Complete API reference with examples and use cases</p>
+                <a href="/openapi.html">View Docs →</a>
+            </div>
+            <div class="link-card">
+                <h3>🏥 Health Status</h3>
+                <p>Check API and database connection status</p>
+                <a href="/api/health">Check Status →</a>
+            </div>
+            <div class="link-card">
+                <h3>📊 API Info</h3>
+                <p>View all available endpoints</p>
+                <a href="/api/">View Endpoints →</a>
+            </div>
+        </div>
+
+        <section style="margin-top: 3rem;">
+            <h2>📋 Available Endpoints</h2>
+
+            <div class="endpoint">
+                <span class="method get">GET</span>
+                <h3>/api/health</h3>
+                <p>Health check - Returns API and database status</p>
+            </div>
+
+            <div class="endpoint">
+                <span class="method get">GET</span>
+                <h3>/api/spots</h3>
+                <p>Get DX spots with optional filtering and pagination</p>
+                <p><strong>Parameters:</strong> limit, offset, band, frequency_min, frequency_max, dx_call, spotter_call, mode, since, until</p>
+            </div>
+
+            <div class="endpoint">
+                <span class="method get">GET</span>
+                <h3>/api/spots/recent</h3>
+                <p>Get the most recent DX spots from the last 24 hours</p>
+                <p><strong>Parameters:</strong> limit, hours</p>
+            </div>
+
+            <div class="endpoint">
+                <span class="method get">GET</span>
+                <h3>/api/bands</h3>
+                <p>Get activity statistics for all amateur radio bands</p>
+            </div>
+
+            <div class="endpoint">
+                <span class="method get">GET</span>
+                <h3>/api/stats</h3>
+                <p>Get comprehensive database statistics</p>
+            </div>
+
+            <div class="endpoint">
+                <span class="method get">GET</span>
+                <h3>/api/callsigns/top</h3>
+                <p>Get the most active DX stations and spotters</p>
+                <p><strong>Parameters:</strong> limit, hours</p>
+            </div>
+
+            <div class="endpoint">
+                <span class="method get">GET</span>
+                <h3>/api/frequency/histogram</h3>
+                <p>Get frequency distribution data</p>
+                <p><strong>Parameters:</strong> bins, band, hours</p>
+            </div>
+
+            <div class="endpoint">
+                <span class="method get">GET</span>
+                <h3>/api/activity/hourly</h3>
+                <p>Get spot activity broken down by hour</p>
+                <p><strong>Parameters:</strong> hours, timezone</p>
+            </div>
+        </section>
+
+        <section style="margin-top: 3rem;">
+            <h2>🚀 Quick Examples</h2>
+
+            <h3>Get Recent Spots</h3>
+            <pre><code>curl http://localhost:8080/api/spots/recent?limit=5</code></pre>
+
+            <h3>Check 20m Band Activity</h3>
+            <pre><code>curl "http://localhost:8080/api/spots?band=20m&limit=10"</code></pre>
+
+            <h3>Find Most Active Stations</h3>
+            <pre><code>curl "http://localhost:8080/api/callsigns/top?limit=5&hours=12"</code></pre>
+
+            <h3>Get Band Statistics</h3>
+            <pre><code>curl http://localhost:8080/api/bands</code></pre>
+        </section>
+
+        <section style="margin-top: 3rem;">
+            <h2>🔗 API Base URL</h2>
+            <p><code>http://localhost:8080/api</code></p>
+            <p style="color: #666; font-size: 0.9rem; margin-top: 0.5rem;">
+                For remote access, replace <code>localhost</code> with your server hostname or IP address
+            </p>
+        </section>
+
+        <section style="margin-top: 3rem; background: #ecf0f1; padding: 1.5rem; border-radius: 8px;">
+            <h2>📚 Documentation Files</h2>
+            <ul style="margin-left: 1rem;">
+                <li><a href="/API_DOCUMENTATION.md" style="color: #667eea;">API_DOCUMENTATION.md</a> - Complete API reference</li>
+                <li><a href="/API_QUICKSTART.md" style="color: #667eea;">API_QUICKSTART.md</a> - Quick start guide</li>
+                <li><a href="/openapi.yaml" style="color: #667eea;">openapi.yaml</a> - OpenAPI specification</li>
+            </ul>
+        </section>
+    </div>
+
+    <footer>
+        <p>DX Cluster API v1.0.0 | Amateur Radio Data Service</p>
+        <p style="font-size: 0.9rem; margin-top: 0.5rem;">
+            <a href="https://github.com/stevebuer/cs330-projects" style="color: #667eea;">GitHub Repository</a>
+        </p>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+</body>
+</html>

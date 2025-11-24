@@ -1,0 +1,29 @@
+[Unit]
+Description=DX Cluster Scraper Service with Prometheus Metrics
+After=network.target postgresql.service
+Wants=postgresql.service
+
+[Service]
+Type=simple
+User=steve
+Group=steve
+WorkingDirectory=/home/steve/GITHUB/cs330-projects/homework5
+Environment=PATH=/home/steve/GITHUB/cs330-projects/homework5/.venv/bin:/usr/local/bin:/usr/bin:/bin
+
+# Prometheus metrics configuration
+Environment="METRICS_ENABLED=true"
+Environment="METRICS_PORT=8000"
+
+ExecStart=/home/steve/GITHUB/cs330-projects/homework5/.venv/bin/python /home/steve/GITHUB/cs330-projects/homework5/dx_cluster_live_pg.py
+
+Restart=always
+RestartSec=10
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=dx-scraper
+
+# Environment file for database credentials and other config
+EnvironmentFile=/home/steve/GITHUB/cs330-projects/homework5/.env
+
+[Install]
+WantedBy=multi-user.target

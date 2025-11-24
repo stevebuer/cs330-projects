@@ -8,6 +8,7 @@ This file is maintained by Steve and is not to be modified by Github AI Copilot.
 
 ## Done
 
+* Upgraded DB / API Host in Vultr
 * Installed Grafana for monitoring and configured SSL
 * Installed Prometheus time-series database
 * Database migration for Grafana Postgres user
