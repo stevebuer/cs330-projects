@@ -35,6 +35,15 @@ machine instance to the next largest compute size. It immediately solved my low 
 me enough memory for the system to run smoothly. I had been running the dashboard on a separate virtual 
 machine, but my goal is to unify the stack on one system and just scale that machine as needed.
 
+### Hardware Upgrade
+
+My laptop is old and was really struggling at the start of the quarter with some of the development tools and
+ML examples. I doubled the RAM from 8GB to 16GB last month and I finally got the CPU 
+installed: Intel(R) Core(TM) i7-4712MQ CPU @ 2.30GHz, which doubles my cores and threads. 
+I previously had a Core i5.
+
+<img src="images/ram_cpu_upgrade.jpg" width="400">
+
 ## Todo
 
 * Get dashboard updated
