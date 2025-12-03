@@ -48,5 +48,6 @@ BAK/
 # Update directories
 UPDATE/
 
-# Notes
-notes.txt
+# cred
+homework5/cron-alerts/voip-api.sh
+homework5/grafana-guest.txt
