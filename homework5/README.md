@@ -44,6 +44,21 @@ I previously had a Core i5.
 
 <img src="images/ram_cpu_upgrade.jpg" width="400">
 
+### Dashboard Overhaul
+
+As of 12/1 the dashboard component of the project is in total crisis. I am having to institute emergency
+project management triage. I am going to have to use the most powerful Github Co-Pilot models available
+for this rescue operation. This first drastic step is to have the dashboard query the Postgres database 
+directly. This will require all containers to run directly on that same server, which is fine for now.
+The API server takes time to modify and deploy and I need to iterate quickly on this dashboard with
+the simplest connection to the data as possible. I have also temporarily removed the ML model from the
+dashboard because I need to focus on core features.
+
+We created a [user login table](db_migrations...) and added this to the production database. I want
+to be able to have persistent storage of my login and user config.
+
+I want alerting.
+
 ## Todo
 
 * Get dashboard updated

@@ -8,3 +8,18 @@ services:
     env_file:
       - .env
     restart: unless-stopped
+
+  dx-dashboard:
+    build:
+      context: .
+      dockerfile: Dockerfile.streamlit
+    container_name: dx-streamlit-dashboard
+    ports:
+      - "8501:8501"
+    environment:
+      - PGHOST=${PGHOST}
+      - PGPORT=${PGPORT:-5432}
+      - PGDATABASE=${PGDATABASE}
+      - PGUSER=${PGUSER}
+      - PGPASSWORD=${PGPASSWORD}
+    restart: unless-stopped

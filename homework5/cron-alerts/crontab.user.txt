@@ -1,0 +1,2 @@
+# m h  dom mon dow   command
+*/15 8-18 * * * /home/steve/cron-alerts/alert-10fm.sh
