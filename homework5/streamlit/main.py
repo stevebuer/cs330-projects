@@ -1,10 +1,17 @@
 import streamlit as st
 import pandas as pd
-import psycopg2
 from datetime import datetime, timedelta
 import os
+from dotenv import load_dotenv
 
-st.set_page_config(page_title="DX Propagation Dashboard", layout="wide")
+# Load environment variables
+load_dotenv()
+
+# Import custom clients
+from api_client import get_api_client
+from db_client import get_db_client
+
+st.set_page_config(page_title="World Map", layout="wide")
 
 # Initialize session state for user
 if 'logged_in' not in st.session_state:
@@ -12,60 +19,33 @@ if 'logged_in' not in st.session_state:
 if 'user' not in st.session_state:
     st.session_state.user = {}
 
-# Database connection parameters from environment
-DB_HOST = os.getenv('PGHOST', 'localhost')
-DB_PORT = os.getenv('PGPORT', '5432')
-DB_NAME = os.getenv('PGDATABASE', 'dx_analysis')
-DB_USER = os.getenv('PGUSER', 'dx_web_user')
-DB_PASSWORD = os.getenv('PGPASSWORD', '')
-
-@st.cache_resource
-def get_db_connection():
-    """Create database connection"""
-    try:
-        conn = psycopg2.connect(
-            host=DB_HOST,
-            port=DB_PORT,
-            database=DB_NAME,
-            user=DB_USER,
-            password=DB_PASSWORD
-        )
-        return conn
-    except Exception as e:
-        st.error(f"Database connection failed: {e}")
-        return None
+# Get clients
+api = get_api_client()
+db = get_db_client()
 
 def fetch_recent_spots(hours=24):
-    """Fetch recent DX spots from database"""
-    conn = get_db_connection()
-    if not conn:
+    """Fetch recent DX spots from API"""
+    spots = api.get_spots(hours=hours, limit=1000)
+    
+    if not spots:
         return pd.DataFrame()
     
-    query = """
-    SELECT 
-        timestamp,
-        dx_call,
-        frequency,
-        spotter_call,
-        comment,
-        mode,
-        signal_report,
-        grid_square,
-        band
-    FROM dx_spots
-    WHERE timestamp > NOW() - INTERVAL '%s hours'
-    ORDER BY timestamp DESC
-    LIMIT 1000
-    """
+    # Convert to DataFrame
+    df = pd.DataFrame(spots)
     
-    try:
-        df = pd.read_sql_query(query, conn, params=(hours,))
-        return df
-    except Exception as e:
-        st.error(f"Query failed: {e}")
-        return pd.DataFrame()
+    # Convert timestamp strings to datetime if needed
+    if 'timestamp' in df.columns and not pd.api.types.is_datetime64_any_dtype(df['timestamp']):
+        df['timestamp'] = pd.to_datetime(df['timestamp'])
+    
+    return df
 
-st.title("🌍 DX Propagation Dashboard")
+st.title("🌍 World Map")
+
+st.markdown("""
+Interactive 3D visualization of DX spots and propagation paths using PyDeck.
+""")
+
+st.info("🚧 **Coming Soon**: Interactive globe showing real-time DX spots, propagation paths, and geographic patterns.")
 
 # Sidebar controls
 with st.sidebar:
@@ -84,66 +64,92 @@ with st.sidebar:
     
     st.header("⚙️ Settings")
     hours = st.selectbox("Time Window", options=[1, 2, 4, 8, 12, 24, 48], index=5)
-    auto_refresh = st.checkbox("Auto-refresh (60s)", value=False)
     
-    if st.button("🔄 Refresh Now"):
-        st.cache_resource.clear()
-        st.rerun()
+    st.divider()
+    
+    st.subheader("Map Controls (Coming Soon)")
+    map_style = st.selectbox("Map Style", ["Dark", "Light", "Satellite"], disabled=True)
+    show_paths = st.checkbox("Show Propagation Paths", value=True, disabled=True)
+    show_spotters = st.checkbox("Show Spotter Locations", value=True, disabled=True)
+    show_dx = st.checkbox("Show DX Locations", value=True, disabled=True)
 
-# Fetch data
-df = fetch_recent_spots(hours)
+st.divider()
 
-if df.empty:
-    st.warning("No data available")
-    st.stop()
+# Placeholder visualization
+st.subheader("🗺️ PyDeck Globe Visualization")
 
-# Main metrics
-col1, col2, col3, col4 = st.columns(4)
+st.markdown("""
+**Planned Features:**
 
-with col1:
-    total_spots = len(df)
-    st.metric("Total Spots", f"{total_spots:,}")
+- **3D Globe View**: Interactive rotating globe with DX spot locations
+- **Propagation Paths**: Arc layers showing spotter-to-DX connections
+- **Heat Maps**: Geographic density of activity
+- **Time Animation**: Watch propagation patterns evolve over time
+- **Band Filtering**: Toggle visibility by band
+- **Grid Square Overlay**: Maidenhead locator grid display
+- **Zoom Controls**: Focus on specific regions or view global patterns
+- **Elevation Profiles**: Great circle paths with terrain elevation
 
-with col2:
-    unique_dx = df['dx_call'].nunique()
-    st.metric("Unique DX Stations", unique_dx)
+**Visualization Layers:**
+- Spotter locations (marker layer)
+- DX station locations (marker layer)
+- Propagation paths (arc layer)
+- Activity heat map (hexagon layer)
+- Grid square boundaries (path layer)
+""")
 
-with col3:
-    unique_spotters = df['spotter_call'].nunique()
-    st.metric("Active Spotters", unique_spotters)
+# Mock data preview
+with st.expander("🔧 Technical Implementation Preview"):
+    st.markdown("""
+    ### PyDeck Integration
+    
+    ```python
+    import pydeck as pdk
+    
+    # Example layer configuration:
+    arc_layer = pdk.Layer(
+        'ArcLayer',
+        data=spots_df,
+        get_source_position=['spotter_lon', 'spotter_lat'],
+        get_target_position=['dx_lon', 'dx_lat'],
+        get_source_color=[255, 0, 0, 160],
+        get_target_color=[0, 255, 0, 160],
+        get_width=2,
+        pickable=True
+    )
+    
+    scatter_layer = pdk.Layer(
+        'ScatterplotLayer',
+        data=spots_df,
+        get_position=['dx_lon', 'dx_lat'],
+        get_radius=50000,
+        get_fill_color=[0, 255, 0, 200],
+        pickable=True
+    )
+    
+    view_state = pdk.ViewState(
+        latitude=0,
+        longitude=0,
+        zoom=1.5,
+        pitch=45
+    )
+    
+    deck = pdk.Deck(
+        layers=[arc_layer, scatter_layer],
+        initial_view_state=view_state,
+        map_style='mapbox://styles/mapbox/dark-v10'
+    )
+    
+    st.pydeck_chart(deck)
+    ```
+    
+    ### Data Requirements
+    - Geocoding of callsigns to lat/lon coordinates
+    - Grid square to coordinate conversion
+    - Great circle path calculations
+    - Real-time data streaming for live updates
+    """)
 
-with col4:
-    if 'timestamp' in df.columns:
-        latest = pd.to_datetime(df['timestamp']).max()
-        age_minutes = (datetime.now() - latest.to_pydatetime()).total_seconds() / 60
-        st.metric("Latest Spot", f"{age_minutes:.0f}m ago")
+st.divider()
 
-# Band analysis
-st.subheader("📊 Band Activity")
-
-# 10m breakdown
-df_10m = df[df['frequency'].between(28000, 29700)]
-col1, col2, col3 = st.columns(3)
-
-with col1:
-    fm_spots = df[df['frequency'].between(29600, 29700)]
-    st.metric("10m FM (29.6-29.7)", len(fm_spots))
-
-with col2:
-    ssb_spots = df[df['frequency'].between(28300, 28600)]
-    st.metric("10m SSB (28.3-28.6)", len(ssb_spots))
-
-with col3:
-    cw_spots = df[df['frequency'].between(28000, 28300)]
-    st.metric("10m CW (28.0-28.3)", len(cw_spots))
-
-# Recent spots table
-st.subheader("📡 Recent Spots")
-display_df = df[['timestamp', 'frequency', 'dx_call', 'spotter_call', 'band', 'comment']].head(50)
-st.dataframe(display_df, use_container_width=True)
-
-# Auto-refresh
-if auto_refresh:
-    import time
-    time.sleep(60)
-    st.rerun()
+st.info("💡 **Tip**: Visit 'Latest Spots' and 'Current Conditions' pages for current data while the map is under development.")

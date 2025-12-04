@@ -12,11 +12,12 @@ fi
 PGHOST=${PGHOST:-localhost}
 PGPORT=${PGPORT:-5432}
 PGDATABASE=${PGDATABASE:-dx_analysis}
-PGUSER=${PGUSER:-dx_web_user}
+PGUSER=${PGUSER:-steve}
 
 echo "Connecting to: $PGDATABASE on $PGHOST:$PGPORT as $PGUSER"
 
-PGPASSWORD=$PGPASSWORD psql -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" -d "$PGDATABASE" -f db_migrations/002_dashboard_users.sql
+#PGPASSWORD=$PGPASSWORD psql -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" -d "$PGDATABASE" -f db_migrations/002_dashboard_users.sql
+psql -d "$PGDATABASE" -f 002_dashboard_users.sql
 
 if [ $? -eq 0 ]; then
     echo "✓ Dashboard users table created successfully"
