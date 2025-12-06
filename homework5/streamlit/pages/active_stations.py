@@ -62,7 +62,7 @@ with col1:
     band = st.selectbox("Band", options=["All Bands", "40m", "30m", "20m", "17m", "15m", "12m", "10m"], index=0, key="active_stations_band")
 
 with col2:
-    hours = st.selectbox("Time Window", options=[1, 2, 4, 8, 12, 24], index=3, key="active_stations_hours")
+    hours = st.selectbox("Time Window (hours)", options=[1, 2, 4, 8, 12, 24], index=2, key="active_stations_hours")
 
 # Load callsign country lookup table
 @st.cache_data

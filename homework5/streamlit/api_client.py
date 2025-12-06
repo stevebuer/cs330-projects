@@ -41,7 +41,7 @@ class DXApiClient:
             from requests.adapters import HTTPAdapter
             from urllib3.util.connection import create_connection
             
-            def create_ipv4_connection(address, timeout=socket._GLOBAL_DEFAULT_TIMEOUT, source_address=None):
+            def create_ipv4_connection(address, timeout=socket._GLOBAL_DEFAULT_TIMEOUT, source_address=None, socket_options=None):
                 """Force IPv4 connections"""
                 host, port = address
                 err = None
@@ -54,6 +54,9 @@ class DXApiClient:
                             sock.settimeout(timeout)
                         if source_address:
                             sock.bind(source_address)
+                        if socket_options:
+                            for opt in socket_options:
+                                sock.setsockopt(*opt)
                         sock.connect(sa)
                         return sock
                     except socket.error as _:
@@ -87,24 +90,33 @@ class DXApiClient:
                   hours: int = 24,
                   limit: int = 1000,
                   dx_call: Optional[str] = None,
-                  spotter_call: Optional[str] = None) -> List[Dict[str, Any]]:
+                  spotter_call: Optional[str] = None,
+                  since: Optional[str] = None) -> List[Dict[str, Any]]:
         """
         Fetch DX spots from API
         
         Args:
             band: Filter by band (e.g., '10m', '20m')
-            hours: Time window in hours
+            hours: Time window in hours (converted to since parameter)
             limit: Maximum number of spots to return
             dx_call: Filter by DX callsign
             spotter_call: Filter by spotter callsign
+            since: ISO datetime string for minimum spot time (overrides hours if provided)
             
         Returns:
             List of spot dictionaries
         """
         params = {
-            'hours': hours,
             'limit': limit
         }
+        
+        # Use since parameter if provided, otherwise calculate from hours
+        if since:
+            params['since'] = since
+        else:
+            # Convert hours to ISO datetime
+            since_time = datetime.now() - timedelta(hours=hours)
+            params['since'] = since_time.isoformat()
         
         if band:
             params['band'] = band

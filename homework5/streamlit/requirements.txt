@@ -7,3 +7,4 @@ python-dotenv
 bcrypt
 extra-streamlit-components
 pytz
+pydeck

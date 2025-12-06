@@ -1,17 +1,21 @@
 import streamlit as st
 import pandas as pd
-from datetime import datetime, timedelta
 import os
+from datetime import datetime, timedelta
 from dotenv import load_dotenv
+import plotly.graph_objects as go
 
-# Load environment variables
 load_dotenv()
 
-# Import custom clients
 from api_client import get_api_client
 from db_client import get_db_client
+from auth import get_auth_cookie
 
-st.set_page_config(page_title="World Map", layout="wide")
+st.set_page_config(page_title="DX Analysis Dashboard", layout="wide")
+
+# Get clients
+api = get_api_client()
+db = get_db_client()
 
 # Initialize session state for user
 if 'logged_in' not in st.session_state:
@@ -19,37 +23,19 @@ if 'logged_in' not in st.session_state:
 if 'user' not in st.session_state:
     st.session_state.user = {}
 
-# Get clients
-api = get_api_client()
-db = get_db_client()
+# Check for existing session from cookie if not already logged in
+if not st.session_state.logged_in:
+    auth_data = get_auth_cookie()
+    if auth_data:
+        user_data = db.get_user_by_session(auth_data['session_token'])
+        if user_data:
+            st.session_state.logged_in = True
+            st.session_state.user = user_data
 
-def fetch_recent_spots(hours=24):
-    """Fetch recent DX spots from API"""
-    spots = api.get_spots(hours=hours, limit=1000)
-    
-    if not spots:
-        return pd.DataFrame()
-    
-    # Convert to DataFrame
-    df = pd.DataFrame(spots)
-    
-    # Convert timestamp strings to datetime if needed
-    if 'timestamp' in df.columns and not pd.api.types.is_datetime64_any_dtype(df['timestamp']):
-        df['timestamp'] = pd.to_datetime(df['timestamp'])
-    
-    return df
+st.title("📡 Current Conditions")
 
-st.title("🌍 World Map")
-
-st.markdown("""
-Interactive 3D visualization of DX spots and propagation paths using PyDeck.
-""")
-
-st.info("🚧 **Coming Soon**: Interactive globe showing real-time DX spots, propagation paths, and geographic patterns.")
-
-# Sidebar controls
+# Sidebar user info
 with st.sidebar:
-    # User info
     if st.session_state.logged_in:
         st.success(f"👤 {st.session_state.user.get('callsign', 'User')}")
         if st.session_state.user.get('name'):
@@ -58,98 +44,248 @@ with st.sidebar:
             st.caption(f"📍 {st.session_state.user['grid_square']}")
         st.divider()
     else:
-        st.info("👤 Not logged in")
-        st.caption("Visit User Login page to personalize")
+        st.info("Login to customize settings")
         st.divider()
-    
-    st.header("⚙️ Settings")
-    hours = st.selectbox("Time Window", options=[1, 2, 4, 8, 12, 24, 48], index=5)
-    
-    st.divider()
-    
-    st.subheader("Map Controls (Coming Soon)")
-    map_style = st.selectbox("Map Style", ["Dark", "Light", "Satellite"], disabled=True)
-    show_paths = st.checkbox("Show Propagation Paths", value=True, disabled=True)
-    show_spotters = st.checkbox("Show Spotter Locations", value=True, disabled=True)
-    show_dx = st.checkbox("Show DX Locations", value=True, disabled=True)
+
+st.markdown("""
+Real-time propagation metrics and band condition analysis.
+""")
+
+# Fetch data for metrics
+with st.spinner("Loading current conditions..."):
+    try:
+        # Get spots from last 30 minutes for MOF calculation
+        thirty_min_ago = datetime.now() - timedelta(minutes=30)
+        recent_spots = api.get_spots(since=thirty_min_ago.isoformat(), limit=1000)
+        
+        # Get today's 10m FM spots for band status
+        today = datetime.now().date()
+        today_start = f"{today}T00:00:00"
+        fm_spots = api.get_spots(since=today_start, limit=1000)
+        
+        # Calculate Maximum Observed Frequency (MOF)
+        if recent_spots:
+            frequencies = [float(spot['frequency']) for spot in recent_spots if spot.get('frequency')]
+            # Filter to HF range (7-29.7 MHz = 7000-29700 kHz)
+            hf_frequencies = [f for f in frequencies if 7000 <= f <= 29700]
+            if hf_frequencies:
+                max_freq = max(hf_frequencies)
+                mof_mhz = max_freq / 1000  # Convert kHz to MHz
+            else:
+                mof_mhz = None
+        else:
+            mof_mhz = None
+        
+        # Calculate 10m FM Band Status
+        if fm_spots:
+            # Check if any spots are in FM range (29.6-29.7 MHz = 29600-29700 kHz)
+            fm_band_spots = [s for s in fm_spots if 29600 <= float(s.get('frequency', 0)) <= 29700]
+            band_status = "OPEN" if fm_band_spots else "CLOSED"
+            band_status_delta = f"{len(fm_band_spots)} spots today" if fm_band_spots else "No activity"
+        else:
+            band_status = "CLOSED"
+            band_status_delta = "No data"
+            
+    except Exception as e:
+        st.error(f"Error fetching data: {e}")
+        mof_mhz = None
+        band_status = "ERROR"
+        band_status_delta = None
 
 st.divider()
 
-# Placeholder visualization
-st.subheader("🗺️ PyDeck Globe Visualization")
+# Key Propagation Metrics Section
+st.subheader("🔑 Key Propagation Indicators")
+
+col1, col2, col3, col4 = st.columns(4)
+
+with col1:
+    # Create gauge chart for MOF
+    if mof_mhz:
+        fig = go.Figure(go.Indicator(
+            mode="gauge+number",
+            value=mof_mhz,
+            title={'text': "Max Observed Freq (MHz)", 'font': {'size': 14}},
+            number={'suffix': " MHz", 'font': {'size': 20}},
+            gauge={
+                'axis': {'range': [7, 29.7], 'tickwidth': 1, 'tickcolor': "darkgray"},
+                'bar': {'color': "darkblue"},
+                'bgcolor': "white",
+                'borderwidth': 2,
+                'bordercolor': "gray",
+                'steps': [
+                    {'range': [7, 14], 'color': '#ffcccc'},  # Light red
+                    {'range': [14, 21], 'color': '#ffffcc'},  # Light yellow
+                    {'range': [21, 29.7], 'color': '#ccffcc'}  # Light green
+                ],
+                'threshold': {
+                    'line': {'color': "red", 'width': 4},
+                    'thickness': 0.75,
+                    'value': mof_mhz
+                }
+            }
+        ))
+        fig.update_layout(
+            height=200,
+            margin=dict(l=10, r=10, t=40, b=10),
+            font={'size': 12}
+        )
+        st.plotly_chart(fig, use_container_width=True)
+        st.caption("Last 30 minutes")
+    else:
+        st.metric(
+            "Maximum Observed Frequency", 
+            "No Data", 
+            help="Highest frequency with active propagation in the last 30 minutes"
+        )
+
+with col2:
+    st.metric(
+        "10m FM Band Status", 
+        band_status,
+        delta=band_status_delta,
+        delta_color="normal" if band_status == "OPEN" else "off",
+        help="Is the 10m FM band (29.6-29.7 MHz) currently open today?"
+    )
+
+with col3:
+    st.metric("Current Solar Flux", "TBD SFU", help="Solar flux units - indicator of ionospheric conditions")
+
+with col4:
+    st.metric("K-Index", "TBD", help="Geomagnetic activity level (0=quiet, 9=severe storm)")
+
+st.markdown("""
+**Metric Descriptions:**
+- **Maximum Observed Frequency (MOF)**: The highest frequency band showing active propagation, indicates ionospheric conditions
+- **10m FM Band Open**: Real-time indicator of whether the 10m FM calling frequency (29.600-29.700 MHz) is experiencing propagation
+- **Solar Flux**: Measurement of radio emissions from the sun at 2800 MHz, correlates with HF propagation conditions
+- **K-Index**: 3-hour geomagnetic activity index (lower is better for HF propagation)
+""")
+
+st.divider()
+
+# Band Conditions Section
+st.subheader("📊 Band-by-Band Conditions")
 
 st.markdown("""
 **Planned Features:**
-
-- **3D Globe View**: Interactive rotating globe with DX spot locations
-- **Propagation Paths**: Arc layers showing spotter-to-DX connections
-- **Heat Maps**: Geographic density of activity
-- **Time Animation**: Watch propagation patterns evolve over time
-- **Band Filtering**: Toggle visibility by band
-- **Grid Square Overlay**: Maidenhead locator grid display
-- **Zoom Controls**: Focus on specific regions or view global patterns
-- **Elevation Profiles**: Great circle paths with terrain elevation
-
-**Visualization Layers:**
-- Spotter locations (marker layer)
-- DX station locations (marker layer)
-- Propagation paths (arc layer)
-- Activity heat map (hexagon layer)
-- Grid square boundaries (path layer)
+- Real-time band status indicators (Open/Marginal/Closed)
+- Historical comparison charts
+- Band opening/closing predictions
+- Regional propagation differences
 """)
 
-# Mock data preview
-with st.expander("🔧 Technical Implementation Preview"):
+# Placeholder metrics grid
+bands = ["160m", "80m", "40m", "20m", "15m", "10m", "6m"]
+col_count = 4
+cols = st.columns(col_count)
+
+for idx, band in enumerate(bands):
+    with cols[idx % col_count]:
+        st.metric(
+            f"{band} Status",
+            "TBD",
+            help=f"Current propagation conditions on {band}"
+        )
+
+st.divider()
+
+# 10m Detailed Analysis
+st.subheader("📻 10m Band Detailed Analysis")
+
+st.markdown("""
+**10m Band Segments:**
+- **FM (29.6-29.7 MHz)**: Primary FM simplex calling frequency
+- **SSB (28.3-28.6 MHz)**: Single sideband DX and domestic
+- **CW (28.0-28.3 MHz)**: Morse code operations
+- **Digital (28.0-28.3 MHz)**: FT8, FT4, and other digital modes
+
+**Coming Soon:**
+- Real-time segment activity levels
+- Distance records by segment
+- Band opening duration tracking
+- Correlation with solar activity
+""")
+
+col1, col2, col3 = st.columns(3)
+
+with col1:
+    st.metric("FM Segment (29.6-29.7)", "TBD spots", "TBD% change")
+
+with col2:
+    st.metric("SSB Segment (28.3-28.6)", "TBD spots", "TBD% change")
+
+with col3:
+    st.metric("CW/Digital (28.0-28.3)", "TBD spots", "TBD% change")
+
+st.divider()
+
+# Propagation Quality Metrics
+st.subheader("📈 Propagation Quality Metrics")
+
+st.markdown("""
+**Planned Metrics:**
+- **MUF (Maximum Usable Frequency)**: Highest frequency usable for a given path
+- **LUF (Lowest Usable Frequency)**: Lowest frequency usable without excessive absorption
+- **Critical Frequency (foF2)**: Maximum frequency reflected by ionosphere at vertical incidence
+- **Signal-to-Noise Ratio Trends**: Quality indicators from spotted signals
+- **Path Reliability**: Percentage of successful propagation over time
+""")
+
+col1, col2 = st.columns(2)
+
+with col1:
+    st.metric("Estimated MUF", "TBD MHz")
+    st.metric("Critical Frequency", "TBD MHz")
+
+with col2:
+    st.metric("Average SNR", "TBD dB")
+    st.metric("Path Reliability", "TBD%")
+
+st.divider()
+
+# Integration Notes
+with st.expander("🔧 Grafana Metrics Integration Plan"):
     st.markdown("""
-    ### PyDeck Integration
+    ### Metrics to Migrate from Grafana
     
-    ```python
-    import pydeck as pdk
+    1. **Maximum Observed Frequency (MOF)**
+       - Calculate from highest frequency with active spots
+       - Update interval: Real-time
+       - Source: DX spot frequency data
     
-    # Example layer configuration:
-    arc_layer = pdk.Layer(
-        'ArcLayer',
-        data=spots_df,
-        get_source_position=['spotter_lon', 'spotter_lat'],
-        get_target_position=['dx_lon', 'dx_lat'],
-        get_source_color=[255, 0, 0, 160],
-        get_target_color=[0, 255, 0, 160],
-        get_width=2,
-        pickable=True
-    )
+    2. **10m FM Band Open Indicator**
+       - Boolean status based on 29.6-29.7 MHz activity
+       - Threshold: Configurable spot count in time window
+       - Visual: Green (Open) / Red (Closed) indicator
     
-    scatter_layer = pdk.Layer(
-        'ScatterplotLayer',
-        data=spots_df,
-        get_position=['dx_lon', 'dx_lat'],
-        get_radius=50000,
-        get_fill_color=[0, 255, 0, 200],
-        pickable=True
-    )
+    3. **Band Opening Durations**
+       - Track continuous periods of activity per band
+       - Historical tracking and statistics
     
-    view_state = pdk.ViewState(
-        latitude=0,
-        longitude=0,
-        zoom=1.5,
-        pitch=45
-    )
+    4. **Solar Activity Integration**
+       - Import SFI, K-index, A-index data
+       - Correlate with observed propagation
+       - Trend analysis and forecasting
     
-    deck = pdk.Deck(
-        layers=[arc_layer, scatter_layer],
-        initial_view_state=view_state,
-        map_style='mapbox://styles/mapbox/dark-v10'
-    )
+    5. **Signal Quality Metrics**
+       - Parse signal reports from spot comments
+       - Aggregate SNR statistics by band/mode
+       - Quality trending over time
     
-    st.pydeck_chart(deck)
+    ### Data Pipeline
+    ```
+    API/Database → Metrics Calculator → Cache → Dashboard Display
+                                      ↓
+                                 Time Series DB (Historical)
     ```
     
-    ### Data Requirements
-    - Geocoding of callsigns to lat/lon coordinates
-    - Grid square to coordinate conversion
-    - Great circle path calculations
-    - Real-time data streaming for live updates
+    ### Update Strategy
+    - Real-time: Every 30-60 seconds
+    - Historical: Hourly aggregations
+    - Trend data: Daily summaries
     """)
 
 st.divider()
 
-st.info("💡 **Tip**: Visit 'Latest Spots' and 'Current Conditions' pages for current data while the map is under development.")
+st.info("💡 **Note**: These metrics are currently being monitored in Grafana and will be progressively integrated into this dashboard.")
