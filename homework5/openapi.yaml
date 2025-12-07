@@ -126,13 +126,13 @@ paths:
           schema:
             type: string
             enum: [10m, 12m, 15m, 17m, 20m, 30m, 40m, 80m, 160m]
-        - name: min_freq
+        - name: frequency_min
           in: query
           description: Minimum frequency in kHz
           schema:
             type: number
             format: float
-        - name: max_freq
+        - name: frequency_max
           in: query
           description: Maximum frequency in kHz
           schema:

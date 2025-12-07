@@ -458,6 +458,47 @@ class DBClient:
                 conn.close()
         
         return False
+    
+    def get_latest_solar_data(self) -> Optional[Dict[str, Any]]:
+        """
+        Get the most recent solar data from wwv_announcements table
+        
+        Returns:
+            Dictionary with solar_flux, sunspot_number, k_index, a_index, and timestamp
+            or None if no data available
+        """
+        conn = self.get_connection()
+        if not conn:
+            return None
+        
+        try:
+            cursor = conn.cursor(cursor_factory=RealDictCursor)
+            cursor.execute('''
+                SELECT 
+                    solar_flux,
+                    sunspot_number,
+                    k_index,
+                    a_index,
+                    timestamp
+                FROM wwv_announcements
+                WHERE solar_flux IS NOT NULL 
+                   OR sunspot_number IS NOT NULL
+                   OR k_index IS NOT NULL
+                ORDER BY timestamp DESC
+                LIMIT 1
+            ''')
+            
+            result = cursor.fetchone()
+            cursor.close()
+            conn.close()
+            
+            return dict(result) if result else None
+            
+        except Exception as e:
+            st.error(f"Error fetching solar data: {e}")
+            if conn:
+                conn.close()
+            return None
 
 
 @st.cache_resource
