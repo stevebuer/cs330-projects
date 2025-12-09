@@ -22,7 +22,7 @@ def get_database_connection():
         conn = psycopg2.connect(
             host=os.getenv('DB_HOST', 'localhost'),
             port=os.getenv('DB_PORT', '5432'),
-            database=os.getenv('DB_NAME', 'dxcluster'),
+            database=os.getenv('DB_NAME', 'dx_analysis'),
             user=os.getenv('DB_USER', 'postgres'),
             password=os.getenv('DB_PASSWORD', '')
         )

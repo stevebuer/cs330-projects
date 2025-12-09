@@ -56,7 +56,7 @@ if not st.session_state.logged_in:
             password = st.text_input("Password", type="password")
             remember_me = st.checkbox("Remember me (30 days)", value=True)
             
-            submitted = st.form_submit_button("Login", type="primary", use_container_width=True)
+            submitted = st.form_submit_button("Login", type="primary", width='stretch')
             
             if submitted:
                 if not callsign or not password:
@@ -103,7 +103,7 @@ if not st.session_state.logged_in:
             new_email = st.text_input("Email (optional)", help="For notifications and alerts")
             new_phone = st.text_input("Phone (optional)", help="For SMS alerts (include country code)")
             
-            submitted = st.form_submit_button("Register", type="primary", use_container_width=True)
+            submitted = st.form_submit_button("Register", type="primary", width='stretch')
             
             if submitted:
                 if not new_callsign or not new_password:
@@ -185,7 +185,7 @@ else:
                 help="Select your local timezone for displaying times"
             )
             
-            if st.form_submit_button("Update Profile", use_container_width=True):
+            if st.form_submit_button("Update Profile", width='stretch'):
                 if db.update_user_settings(
                     st.session_state.user['callsign'],
                     name=new_name,
@@ -224,7 +224,7 @@ else:
             
             st.info("💡 **Coming Soon**: Configure specific alert triggers (band openings, rare DX, etc.)")
             
-            if st.form_submit_button("Save Alert Settings", use_container_width=True):
+            if st.form_submit_button("Save Alert Settings", width='stretch'):
                 if not st.session_state.user.get('phone') and sms_enabled:
                     st.error("Please add a phone number in Profile Settings first")
                 elif not st.session_state.user.get('email') and email_enabled:
@@ -247,7 +247,7 @@ else:
     # Logout
     col1, col2 = st.columns([1, 1])
     with col1:
-        if st.button("🚪 Logout", type="secondary", use_container_width=True):
+        if st.button("🚪 Logout", type="secondary", width='stretch'):
             # Clear session from database
             db.clear_session_token(st.session_state.user['callsign'])
             # Clear cookie

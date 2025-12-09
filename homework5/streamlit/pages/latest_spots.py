@@ -109,7 +109,7 @@ if spots:
         else:
             st.caption("Times displayed in: UTC (login to use your timezone)")
     
-    st.dataframe(df, use_container_width=True)
+    st.dataframe(df, width='stretch')
     
     # Download option
     csv = df.to_csv(index=False)

@@ -1,23 +1,13 @@
 version: '3'
-
 services:
-  dx-api:
-    image: ghcr.io/stevebuer/cs330-projects/dx-cluster-api:latest
-    container_name: dx-cluster-api
-    network_mode: host
-    env_file:
-      - .env
-    restart: unless-stopped
-
   dx-dashboard:
     image: ghcr.io/stevebuer/cs330-projects/dx-streamlit-dashboard:latest
     container_name: dx-streamlit-dashboard
-    ports:
-      - "8501:8501"
+    network_mode: host
     environment:
-      - PGHOST=${PGHOST}
+      - PGHOST=127.0.0.1
       - PGPORT=${PGPORT:-5432}
-      - PGDATABASE=${PGDATABASE}
+      - PGDATABASE=${PGDATABASE:-dx_analysis}
       - PGUSER=${PGUSER}
       - PGPASSWORD=${PGPASSWORD}
     restart: unless-stopped

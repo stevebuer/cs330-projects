@@ -32,7 +32,7 @@ CORS(app)  # Enable CORS for all domains
 # Database configuration
 DB_CONFIG = {
     'host': os.getenv('PGHOST', 'localhost'),
-    'database': os.getenv('PGDATABASE', 'dxcluster'),
+    'database': os.getenv('PGDATABASE', 'dx_analysis'),
     'user': os.getenv('PGUSER', 'dx_reader'),
     'password': os.getenv('PGPASSWORD'),
     'port': os.getenv('PGPORT', '5432')

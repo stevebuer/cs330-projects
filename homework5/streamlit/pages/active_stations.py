@@ -210,7 +210,7 @@ if spots:
             map_style='light',
         )
         
-        st.pydeck_chart(deck, use_container_width=True)
+        st.pydeck_chart(deck, width='stretch')
         
         # Statistics
         st.divider()
@@ -236,7 +236,7 @@ if spots:
             display_columns = ['dx_call', 'frequency', 'band', 'mode', 'grid_square', 'lat', 'lon']
             available_columns = [col for col in display_columns if col in df.columns]
             st.dataframe(df[available_columns].drop_duplicates(subset=['dx_call']).sort_values('dx_call'), 
-                        use_container_width=True)
+                        width='stretch')
     else:
         st.warning("No stations could be located on the map.")
         st.info("Stations are located by callsign prefix or grid square when available.")

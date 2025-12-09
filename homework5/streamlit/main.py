@@ -59,10 +59,16 @@ with st.spinner("Loading current conditions..."):
         thirty_min_ago = datetime.now() - timedelta(minutes=30)
         recent_spots = api.get_spots(since=thirty_min_ago.isoformat(), limit=1000)
         
-        # Get today's 10m FM spots for band status
-        today = datetime.now().date()
-        today_start = f"{today}T00:00:00"
-        fm_spots = api.get_spots(since=today_start, limit=1000)
+        # Get today's 10m FM spots for band status (in user's timezone if logged in)
+        if st.session_state.get('logged_in') and st.session_state.get('user', {}).get('timezone'):
+            user_tz = pytz.timezone(st.session_state.user.get('timezone', 'UTC'))
+            user_now = datetime.now(user_tz)
+        else:
+            user_now = datetime.now()
+        today = user_now.date()
+        today_start = user_now.replace(hour=0, minute=0, second=0, microsecond=0)
+        today_start_utc = today_start.astimezone(pytz.UTC).isoformat()
+        fm_spots = api.get_spots(since=today_start_utc, limit=1000)
         
         # Calculate Maximum Observed Frequency (MOF)
         if recent_spots:
@@ -144,9 +150,12 @@ col1, col2, col3 = st.columns(3)
 with col1:
     ssn_value = int(solar_data['sunspot_number']) if solar_data and solar_data.get('sunspot_number') is not None else "No Data"
     if solar_data and solar_data.get('timestamp'):
-        # Convert UTC to local timezone
-        local_tz = datetime.now().astimezone().tzinfo
-        local_time = solar_data['timestamp'].replace(tzinfo=pytz.UTC).astimezone(local_tz)
+        # Convert UTC to user's timezone if logged in, otherwise use server local
+        if st.session_state.get('logged_in') and st.session_state.get('user', {}).get('timezone'):
+            user_tz = pytz.timezone(st.session_state.user.get('timezone', 'UTC'))
+        else:
+            user_tz = datetime.now().astimezone().tzinfo
+        local_time = solar_data['timestamp'].replace(tzinfo=pytz.UTC).astimezone(user_tz)
         ssn_timestamp = local_time.strftime("%H:%M %Z")
     else:
         ssn_timestamp = ""
@@ -161,9 +170,12 @@ with col1:
 with col2:
     sfi_value = int(solar_data['solar_flux']) if solar_data and solar_data.get('solar_flux') is not None else "No Data"
     if solar_data and solar_data.get('timestamp'):
-        # Convert UTC to local timezone
-        local_tz = datetime.now().astimezone().tzinfo
-        local_time = solar_data['timestamp'].replace(tzinfo=pytz.UTC).astimezone(local_tz)
+        # Convert UTC to user's timezone if logged in, otherwise use server local
+        if st.session_state.get('logged_in') and st.session_state.get('user', {}).get('timezone'):
+            user_tz = pytz.timezone(st.session_state.user.get('timezone', 'UTC'))
+        else:
+            user_tz = datetime.now().astimezone().tzinfo
+        local_time = solar_data['timestamp'].replace(tzinfo=pytz.UTC).astimezone(user_tz)
         sfi_timestamp = local_time.strftime("%H:%M %Z")
     else:
         sfi_timestamp = ""
@@ -179,9 +191,12 @@ with col2:
 with col3:
     k_value = int(solar_data['k_index']) if solar_data and solar_data.get('k_index') is not None else "No Data"
     if solar_data and solar_data.get('timestamp'):
-        # Convert UTC to local timezone
-        local_tz = datetime.now().astimezone().tzinfo
-        local_time = solar_data['timestamp'].replace(tzinfo=pytz.UTC).astimezone(local_tz)
+        # Convert UTC to user's timezone if logged in, otherwise use server local
+        if st.session_state.get('logged_in') and st.session_state.get('user', {}).get('timezone'):
+            user_tz = pytz.timezone(st.session_state.user.get('timezone', 'UTC'))
+        else:
+            user_tz = datetime.now().astimezone().tzinfo
+        local_time = solar_data['timestamp'].replace(tzinfo=pytz.UTC).astimezone(user_tz)
         k_timestamp = local_time.strftime("%H:%M %Z")
     else:
         k_timestamp = ""
@@ -231,7 +246,7 @@ with col1:
             margin=dict(l=10, r=10, t=40, b=10),
             font={'size': 12}
         )
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, width='stretch')
         st.caption("Last 30 minutes")
     else:
         st.metric(
@@ -457,7 +472,7 @@ try:
                 )
             )
             
-            st.plotly_chart(fig_bar, use_container_width=True)
+            st.plotly_chart(fig_bar, width='stretch')
         else:
             st.info("No activity in the last 30 minutes")
     
@@ -521,7 +536,7 @@ try:
                 )
             )
             
-            st.plotly_chart(fig_scatter, use_container_width=True)
+            st.plotly_chart(fig_scatter, width='stretch')
         else:
             st.info("No frequency data to display")
     

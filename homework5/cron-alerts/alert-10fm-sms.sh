@@ -7,7 +7,7 @@
 # Database connection (customize as needed)
 DB_HOST="your-db-host"
 DB_USER="dx_user"
-DB_NAME="dx_cluster"
+DB_NAME="dx_analysis"
 
 # VoIP.ms Settings (configure these)
 VOIPMS_DID="2065551234"          # Your VoIP.ms phone number
