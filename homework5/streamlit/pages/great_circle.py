@@ -5,6 +5,7 @@ import os
 from dotenv import load_dotenv
 import pydeck as pdk
 import sys
+import pytz
 
 # Add parent directory to path to import modules
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -15,8 +16,13 @@ load_dotenv()
 # Import custom clients
 from api_client import get_api_client
 from db_client import get_db_client
+from auth import get_auth_cookie
 
 st.set_page_config(page_title="Great Circle Paths", layout="wide")
+
+# Get clients
+api = get_api_client()
+db = get_db_client()
 
 # Initialize session state for user
 if 'logged_in' not in st.session_state:
@@ -24,9 +30,14 @@ if 'logged_in' not in st.session_state:
 if 'user' not in st.session_state:
     st.session_state.user = {}
 
-# Get clients
-api = get_api_client()
-db = get_db_client()
+# Check for existing session from cookie if not already logged in
+if not st.session_state.logged_in:
+    auth_data = get_auth_cookie()
+    if auth_data:
+        user_data = db.get_user_by_session(auth_data['session_token'])
+        if user_data:
+            st.session_state.logged_in = True
+            st.session_state.user = user_data
 
 # Callsign prefix to coordinates mapping
 CALLSIGN_REGIONS = {
@@ -75,6 +86,39 @@ CALLSIGN_REGIONS = {
     'IW': {'lat': 41.9028, 'lon': 12.4964, 'name': 'Italy'},
     'DK': {'lat': 52.5200, 'lon': 13.4050, 'name': 'Germany'},
 }
+
+def format_timestamp(timestamp_str, user_timezone=None):
+    """Format timestamp to HH:MM with timezone abbreviation."""
+    try:
+        # Parse ISO format timestamp - handle various formats
+        if isinstance(timestamp_str, str):
+            # Remove 'Z' if present
+            timestamp_str = timestamp_str.replace('Z', '')
+            # Try parsing
+            try:
+                dt = datetime.fromisoformat(timestamp_str)
+            except:
+                # Try pandas for more flexible parsing
+                import pandas as pd
+                dt = pd.to_datetime(timestamp_str)
+                dt = dt.to_pydatetime()
+        else:
+            dt = timestamp_str
+        
+        # If user timezone provided, get timezone abbreviation
+        tz_abbr = 'UTC'
+        if user_timezone:
+            try:
+                tz = pytz.timezone(user_timezone)
+                # Get current timezone abbreviation (PST/PDT etc)
+                tz_abbr = dt.replace(tzinfo=pytz.UTC).astimezone(tz).strftime('%Z')
+            except:
+                pass
+        
+        # Return formatted as HH:MM TZ
+        return dt.strftime(f'%H:%M {tz_abbr}')
+    except Exception as e:
+        return str(timestamp_str)  # Return original if parsing fails
 
 def get_coordinates(callsign):
     """Extract approximate coordinates from callsign prefix."""
@@ -157,6 +201,13 @@ with st.sidebar:
 
 st.divider()
 
+# Debug: Show timezone info
+if st.session_state.get('logged_in'):
+    user_tz = st.session_state.user.get('timezone', 'Not Set')
+    st.info(f"🔍 Debug - Logged in as: {st.session_state.user.get('callsign')} | Timezone: {user_tz}")
+else:
+    st.info("🔍 Debug - Not logged in")
+
 # Fetch data
 with st.spinner("Fetching DX spots..."):
     try:
@@ -225,6 +276,11 @@ with st.spinner("Fetching DX spots..."):
             st.warning("📭 No spots found for the selected bands and time period. Try selecting different bands or expanding the time window.")
             st.stop()
         
+        # Get user timezone once before loop (more efficient)
+        user_tz = None
+        if st.session_state.get('logged_in') and st.session_state.get('user', {}).get('timezone'):
+            user_tz = st.session_state.user.get('timezone')
+        
         # Process spots and create arc data
         arc_data = []
         for spot in spots:
@@ -240,9 +296,9 @@ with st.spinner("Fetching DX spots..."):
                     'spotter': spot['spotter_call'],
                     'dx_station': spot['dx_call'],
                     'frequency': spot['frequency'],
+                    'frequency_mhz': f"{float(spot['frequency'])/1000:.3f}" if spot.get('frequency') else '',
                     'mode': spot.get('mode', 'N/A'),
-                    'timestamp': spot['timestamp'],
-                    'comment': spot.get('comment', ''),
+                    'time': format_timestamp(spot['timestamp'], user_tz),
                 }
                 arc_data.append(arc)
         
@@ -290,10 +346,8 @@ with st.spinner("Fetching DX spots..."):
         
         tooltip = {
             "html": "<b>{spotter}</b> → <b>{dx_station}</b><br/>"
-                    "Frequency: {frequency} kHz<br/>"
-                    "Mode: {mode}<br/>"
-                    "Time: {timestamp}<br/>"
-                    "Comment: {comment}",
+                    "Frequency: {frequency_mhz} MHz<br/>"
+                    "Time: {time}",
             "style": {
                 "backgroundColor": "steelblue",
                 "color": "white",
@@ -331,13 +385,6 @@ with st.spinner("Fetching DX spots..."):
             top_spotters = df['spotter'].value_counts().head()
             for call, count in top_spotters.items():
                 st.text(f"{call}: {count} spots")
-        
-        # Mode breakdown
-        if df['mode'].notna().any():
-            st.divider()
-            st.markdown("**Mode Breakdown**")
-            mode_counts = df['mode'].value_counts()
-            st.bar_chart(mode_counts)
         
     except Exception as e:
         st.error(f"Error loading visualization: {str(e)}")
