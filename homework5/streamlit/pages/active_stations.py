@@ -59,10 +59,13 @@ Geographic visualization of active DX stations plotted by their Maidenhead grid 
 col1, col2 = st.columns(2)
 
 with col1:
-    band = st.selectbox("Band", options=["All Bands", "40m", "30m", "20m", "17m", "15m", "12m", "10m"], index=0, key="active_stations_band")
+    band = st.selectbox("Band", options=["All Bands", "40m", "30m", "20m", "17m", "15m", "12m", "10m"], index=0)
 
 with col2:
-    hours = st.selectbox("Time Window (hours)", options=[1, 2, 4, 8, 12, 24], index=2, key="active_stations_hours")
+    hours = st.selectbox("Time Window (hours)", options=[1, 2, 4, 8, 12, 24], index=2)
+
+# Debug info
+st.caption(f"Current filters: Band={band}, Hours={hours}")
 
 # Load callsign country lookup table
 @st.cache_data
@@ -126,8 +129,9 @@ def maidenhead_to_latlon(grid):
     except:
         return None, None
 
-# Fetch data from API
-with st.spinner("Fetching active stations..."):
+# Function to fetch data from API
+def fetch_active_stations(band_filter, hours_filter):
+    """Fetch active stations from API with filters"""
     import requests
     import socket
     try:
@@ -140,25 +144,56 @@ with st.spinner("Fetching active stations..."):
         socket.getaddrinfo = getaddrinfo_ipv4_only
         
         try:
-            # Build URL with optional band filter
+            # Build URL - fetch all data and filter client-side for reliability
             url = f"http://api.jxqz.org:8080/api/spots/recent?limit=1000"
-            if band != "All Bands":
-                url += f"&band={band}"
             
             response = requests.get(url, timeout=10)
             response.raise_for_status()
             data = response.json()
             spots = data.get('spots', data) if isinstance(data, dict) else data
+            
+            if not spots:
+                return []
+            
+            # Apply band filter client-side
+            if band_filter != "All Bands":
+                spots = [s for s in spots if s.get('band') == band_filter]
+            
+            # Apply time filter
+            if hours_filter:
+                cutoff_time = datetime.now() - timedelta(hours=hours_filter)
+                filtered_spots = []
+                for spot in spots:
+                    try:
+                        # Parse timestamp - adjust format based on your API response
+                        spot_time = datetime.fromisoformat(spot.get('timestamp', '').replace('Z', '+00:00'))
+                        if spot_time >= cutoff_time:
+                            filtered_spots.append(spot)
+                    except:
+                        # If timestamp parsing fails, include the spot
+                        filtered_spots.append(spot)
+                spots = filtered_spots
+            
+            return spots
+            
         finally:
             socket.getaddrinfo = old_getaddrinfo
             
     except Exception as e:
         st.error(f"API request failed: {e}")
         st.info("Tip: Check that API is accessible and not blocking IPv6")
-        spots = []
+        return []
+
+# Fetch data from API
+with st.spinner("Fetching active stations..."):
+    spots = fetch_active_stations(band, hours)
 
 if spots:
     df = pd.DataFrame(spots)
+    
+    # Convert frequency from kHz to MHz with 3 decimal places for display
+    if 'frequency' in df.columns:
+        df['frequency_mhz'] = df['frequency'].apply(lambda x: f"{float(x)/1000:.3f}" if pd.notna(x) else "")
     
     # Load callsign prefix lookup
     prefix_lookup = load_callsign_countries()
@@ -206,7 +241,7 @@ if spots:
         deck = pdk.Deck(
             layers=[layer],
             initial_view_state=view_state,
-            tooltip={"text": "{dx_call}\n{frequency} kHz\n{mode}\n{grid_square}"},
+            tooltip={"text": "{dx_call}\n{frequency_mhz} MHz"},
             map_style='light',
         )
         
