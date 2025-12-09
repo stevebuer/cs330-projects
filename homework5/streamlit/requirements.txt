@@ -8,3 +8,4 @@ bcrypt
 extra-streamlit-components
 pytz
 pydeck
+openai>=1.0.0

@@ -52,13 +52,13 @@ with st.sidebar:
 col1, col2 = st.columns(2)
 
 with col1:
-    band = st.selectbox("Band", options=["All Bands", "40m", "30m", "20m", "17m", "15m", "12m", "10m"], index=0)
+    band = st.selectbox("Band", options=["All Bands", "40m", "30m", "20m", "17m", "15m", "12m", "10m"], index=0, key="band_filter")
 
 with col2:
-    limit = st.selectbox("Number of spots", options=[10, 25, 50, 100], index=0)
+    limit = st.selectbox("Number of spots", options=[10, 25, 50, 100], index=0, key="limit_filter")
 
 # Fetch data from API
-with st.spinner("Fetching latest spots..."):
+with st.spinner(f"Fetching latest {limit} spots{' for ' + band if band != 'All Bands' else ''}..."):
     import requests
     import socket
     try:
@@ -71,15 +71,20 @@ with st.spinner("Fetching latest spots..."):
         socket.getaddrinfo = getaddrinfo_ipv4_only
         
         try:
-            # Build URL with optional band filter
-            url = f"http://api.jxqz.org:8080/api/spots/recent?limit={limit}"
-            if band != "All Bands":
-                url += f"&band={band}"
+            # Fetch more data if filtering by band (to ensure we get enough results)
+            fetch_limit = limit * 5 if band != "All Bands" else limit
+            url = f"http://api.jxqz.org:8080/api/spots/recent?limit={fetch_limit}"
             
             response = requests.get(url, timeout=10)
             response.raise_for_status()
             data = response.json()
             spots = data.get('spots', data) if isinstance(data, dict) else data
+            
+            # Client-side band filtering
+            if band != "All Bands" and spots:
+                spots = [s for s in spots if s.get('band') == band]
+                # Limit to requested number after filtering
+                spots = spots[:limit]
         finally:
             socket.getaddrinfo = old_getaddrinfo
             
