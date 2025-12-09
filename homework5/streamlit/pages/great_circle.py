@@ -201,13 +201,6 @@ with st.sidebar:
 
 st.divider()
 
-# Debug: Show timezone info
-if st.session_state.get('logged_in'):
-    user_tz = st.session_state.user.get('timezone', 'Not Set')
-    st.info(f"🔍 Debug - Logged in as: {st.session_state.user.get('callsign')} | Timezone: {user_tz}")
-else:
-    st.info("🔍 Debug - Not logged in")
-
 # Fetch data
 with st.spinner("Fetching DX spots..."):
     try:

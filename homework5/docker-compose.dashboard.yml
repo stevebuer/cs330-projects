@@ -10,4 +10,5 @@ services:
       - PGDATABASE=${PGDATABASE:-dx_analysis}
       - PGUSER=${PGUSER}
       - PGPASSWORD=${PGPASSWORD}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
     restart: unless-stopped
