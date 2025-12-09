@@ -1,0 +1,173 @@
+@startuml database_schema
+
+' Styling
+skinparam linetype ortho
+skinparam class {
+    BackgroundColor White
+    ArrowColor Black
+    BorderColor Black
+}
+
+' Core DX Spot Tables (from homework1-3)
+entity "raw_spots" as raw {
+    * id : INTEGER <<PK>>
+    --
+    * timestamp : TIMESTAMP
+    * raw_text : TEXT
+}
+
+entity "dx_spots" as spots {
+    * id : INTEGER <<PK>>
+    --
+    * raw_spot_id : INTEGER <<FK>>
+    * timestamp : TIMESTAMP
+    * dx_call : VARCHAR(20)
+    * frequency : NUMERIC(10,3)
+    * spotter_call : VARCHAR(20)
+    comment : TEXT
+    mode : VARCHAR(10)
+    signal_report : VARCHAR(10)
+    grid_square : VARCHAR(6)
+    band : VARCHAR(10)
+}
+
+entity "callsigns" as calls {
+    * id : INTEGER <<PK>>
+    --
+    * callsign : VARCHAR(20) <<unique>>
+    * first_seen : TIMESTAMP
+    * last_seen : TIMESTAMP
+    * total_spots : INTEGER
+    * total_spotted : INTEGER
+}
+
+' Dashboard Users (Migration 002 + 003)
+entity "dashboard_users" as users {
+    * id : SERIAL <<PK>>
+    --
+    * callsign : VARCHAR(20) <<unique>>
+    name : VARCHAR(100)
+    grid_square : VARCHAR(6)
+    email : VARCHAR(255)
+    phone : VARCHAR(20)
+    * password_hash : VARCHAR(255)
+    session_token : VARCHAR(64)
+    session_expires_at : TIMESTAMP WITH TIME ZONE
+    timezone : VARCHAR(50)
+    sms_alerts_enabled : BOOLEAN
+    email_alerts_enabled : BOOLEAN
+    preferences : JSONB
+    * created_at : TIMESTAMP WITH TIME ZONE
+    last_login : TIMESTAMP WITH TIME ZONE
+}
+
+' Callsign Prefix Lookup (Migration 004)
+entity "callsign_prefixes" as prefixes {
+    * id : SERIAL <<PK>>
+    --
+    * prefix : VARCHAR(10) <<unique>>
+    * country : VARCHAR(255)
+    * latitude : DECIMAL(9,6)
+    * longitude : DECIMAL(10,6)
+    * created_at : TIMESTAMP WITH TIME ZONE
+    updated_at : TIMESTAMP WITH TIME ZONE
+}
+
+' WWV Announcements (homework3)
+entity "wwv_announcements" as wwv {
+    * id : SERIAL <<PK>>
+    --
+    * raw_announcement_id : INTEGER <<FK>>
+    * timestamp : TIMESTAMP WITH TIME ZONE
+    * raw_text : TEXT
+    solar_flux : INTEGER
+    a_index : INTEGER
+    k_index : INTEGER
+    sunspot_number : INTEGER
+    announcement_type : VARCHAR(20)
+    parsed_successfully : BOOLEAN
+    * created_at : TIMESTAMP WITH TIME ZONE
+}
+
+' Grid Squares Lookup (homework3)
+entity "grid_squares" as grids {
+    * grid : VARCHAR(6) <<PK>>
+    --
+    * lat : NUMERIC(8,4)
+    * lon : NUMERIC(9,4)
+}
+
+' Spot Grid Squares (homework3)
+entity "spot_grid_squares" as spot_grids {
+    * id : SERIAL <<PK>>
+    --
+    * dx_spot_id : INTEGER <<FK>> <<unique>>
+    * source_grid : VARCHAR(6)
+    * dest_grid : VARCHAR(6)
+    * created_at : TIMESTAMP WITH TIME ZONE
+}
+
+' Relationships
+raw ||--o{ spots : "raw_spot_id"
+raw ||--o{ wwv : "raw_announcement_id"
+spots }o--|| calls : "dx_call"
+spots }o--|| calls : "spotter_call"
+spots ||--o| spot_grids : "dx_spot_id"
+spot_grids }o--|| grids : "source_grid"
+spot_grids }o--|| grids : "dest_grid"
+
+' Notes
+note bottom of raw
+  Stores original, unmodified
+  DX spot messages as received
+  from the cluster network
+end note
+
+note bottom of spots
+  Parsed spot data with
+  structured fields for
+  efficient querying and analysis
+end note
+
+note bottom of calls
+  Tracks statistics for all callsigns,
+  both spotters and spotted stations.
+  Used for leaderboards and analytics.
+end note
+
+note bottom of users
+  User accounts for dashboard
+  authentication and preferences.
+  Added in homework5 for
+  personalized features and alerts.
+end note
+
+note bottom of prefixes
+  Geographic lookup table mapping
+  amateur radio callsign prefixes
+  to countries and coordinates.
+  Used for map visualizations.
+end note
+
+note bottom of wwv
+  Stores WWV propagation announcements
+  with solar data (SFI, A-index, K-index,
+  sunspot number). Used for solar
+  activity tracking and dashboard display.
+end note
+
+note bottom of grids
+  Maidenhead grid square lookup
+  table with latitude/longitude
+  coordinates for fast geographic
+  calculations and mapping.
+end note
+
+note bottom of spot_grids
+  Links DX spots to grid square
+  pairs (spotter → DX station).
+  Enables great circle path
+  visualization on maps.
+end note
+
+@enduml
