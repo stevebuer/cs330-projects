@@ -26,13 +26,13 @@ greater detail in separate files linked below. Some of the key features of the s
 
 ### Major Components Documentation
 
-* [PostgreSQL database](database.md)
-* [DX scraper daemon](scraper.md)
-* [API server](api-server.md)
-* [Dashboard](dashboard.md)
-* [SMS alerting](sms-alerts.md)
-* [Deployment infrastructure](devops.md)
-* [Monitoring](monitoring.md)
+* [PostgreSQL database](finalproject/database.md)
+* [DX scraper daemon](finalproject/scraper.md)
+* [API server](finalproject/api-server.md)
+* [Dashboard](finalproject/dashboard.md)
+* [SMS alerting](finalproject/sms-alerts.md)
+* [Deployment infrastructure](finalproject/devops.md)
+* [Monitoring](finalproject/monitoring.md)
 
 ## Homework
 
