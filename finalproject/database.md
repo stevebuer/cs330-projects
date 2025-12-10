@@ -12,6 +12,6 @@ An [entity relationship diagram](plantuml/database_schema.puml) (ERD) was create
 * *callsigns*: station calligns, spot counts, timestamps
 * *dx_spots*: parsed DX reports
 * *raw_spots*: raw text from scraper with timestamps 
-* *dashboard_users*: User login data for the dashboard 
+* *dashboard_users*: user login data for the dashboard 
 * *grid_squares*: grid square coordinates (lat/lon)
 * *callsign_prefixes*: callsign prefix coordinates (lat/lon)

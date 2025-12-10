@@ -219,21 +219,38 @@ if spots:
         st.info(f"Mapped {len(df)} of {initial_count} stations ({initial_count - len(df)} could not be located)")
     
     if not df.empty:
-        st.success(f"Displaying {len(df)} active stations on the map")
+        # Aggregate spots by callsign - count occurrences and get first location
+        callsign_agg = df.groupby('dx_call').agg({
+            'lat': 'first',
+            'lon': 'first',
+            'frequency': 'first',
+            'frequency_mhz': 'first',
+            'band': 'first',
+            'mode': 'first',
+            'grid_square': 'first' if 'grid_square' in df.columns else lambda x: None
+        }).reset_index()
+        
+        # Count spots per callsign
+        callsign_agg['spot_count'] = df.groupby('dx_call').size().values
+        
+        # Scale radius based on spot count (base 30k, scale up with count)
+        callsign_agg['radius'] = callsign_agg['spot_count'].apply(lambda x: 30000 + (x * 15000))
+        
+        st.success(f"Displaying {len(callsign_agg)} unique stations from {len(df)} total spots")
         
         # Create PyDeck scatterplot map
         layer = pdk.Layer(
             "ScatterplotLayer",
-            df,
+            callsign_agg,
             get_position=["lon", "lat"],
             get_color=[200, 30, 0, 160],
-            get_radius=50000,
+            get_radius="radius",
             pickable=True,
         )
         
         view_state = pdk.ViewState(
-            latitude=df['lat'].mean(),
-            longitude=df['lon'].mean(),
+            latitude=callsign_agg['lat'].mean(),
+            longitude=callsign_agg['lon'].mean(),
             zoom=2,
             pitch=0,
         )
@@ -241,7 +258,7 @@ if spots:
         deck = pdk.Deck(
             layers=[layer],
             initial_view_state=view_state,
-            tooltip={"text": "{dx_call}\n{frequency_mhz} MHz"},
+            tooltip={"text": "{dx_call}\n{frequency_mhz} MHz\n{spot_count} spots"},
             map_style='light',
         )
         
@@ -253,10 +270,10 @@ if spots:
         col1, col2, col3, col4 = st.columns(4)
         
         with col1:
-            st.metric("Total Stations", len(df))
+            st.metric("Total Spots", len(df))
         
         with col2:
-            st.metric("Unique Callsigns", df['dx_call'].nunique())
+            st.metric("Unique Callsigns", callsign_agg['dx_call'].nunique())
         
         with col3:
             if 'band' in df.columns:
@@ -268,9 +285,9 @@ if spots:
         
         # Show data table
         with st.expander("📊 View Station Data"):
-            display_columns = ['dx_call', 'frequency', 'band', 'mode', 'grid_square', 'lat', 'lon']
-            available_columns = [col for col in display_columns if col in df.columns]
-            st.dataframe(df[available_columns].drop_duplicates(subset=['dx_call']).sort_values('dx_call'), 
+            display_columns = ['dx_call', 'spot_count', 'frequency', 'band', 'mode', 'grid_square', 'lat', 'lon']
+            available_columns = [col for col in display_columns if col in callsign_agg.columns]
+            st.dataframe(callsign_agg[available_columns].sort_values('spot_count', ascending=False), 
                         width='stretch')
     else:
         st.warning("No stations could be located on the map.")
@@ -281,4 +298,4 @@ else:
 
 st.divider()
 
-st.info("💡 **Tip**: Hover over dots on the map to see station details. Zoom and pan to explore different regions.")
+st.info("💡 **Tip**: Hover over dots to see callsign, frequency, and spot count. Larger circles indicate more spots for that station.")
