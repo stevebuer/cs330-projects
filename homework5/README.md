@@ -2,12 +2,6 @@
 
 This file is maintained by Steve and is not to be modified by Github AI Copilot.
 
-## System Links
-
-* [DX Analysis Dashboard](http://dx.jxqz.org:8000)
-* [API Server](http://api.jxqz.org:8080)
-* [Grafana Monitoring](https://jersey.jxzq.org:3000)
-
 ## Tasks Completed
 
 ### Site Reliability / Debugging / Monitoring
@@ -46,42 +40,25 @@ I previously had a Core i5.
 
 ### Dashboard Overhaul
 
-As of 12/1 the dashboard component of the project is in total crisis. I am having to institute emergency
-project management triage. I am going to have to use the most powerful Github Co-Pilot models available
-for this rescue operation. This first drastic step is to have the dashboard query the Postgres database 
-directly. This will require all containers to run directly on that same server, which is fine for now.
-The API server takes time to modify and deploy and I need to iterate quickly on this dashboard with
-the simplest connection to the data as possible. I have also temporarily removed the ML model from the
-dashboard because I need to focus on core features.
+On 12/1 dashboard was in a state of crisis and the project was in jeopardy. Had to triage and adjust course. 
 
-We created a [user login table](db_migrations...) and added this to the production database. I want
-to be able to have persistent storage of my login and user config.
+On 12/8 after a weeklong sprint things are looking much better. 
 
-I want alerting.
+On 12/10 finished documentation. Out of time for all but spell checking.
 
 ## Todo
 
-* Get dashboard updated
-* Connect directly to DB
-* Persistent Login, remember settings!
-* Alerting
-* Commit Prometheus config to github
-* ML model
+* Better HTTP service monitoring
 
 ## Done
 
+* Dashboard overhaul
+* Solar data storage
+* Prototype alerts
+* ML model
 * Upgraded Production host VM instance in Vultr --> 25 GB disk & 1 GB RAM
 * Installed Grafana for monitoring and configured SSL
 * Installed Prometheus time-series database
 * Database migration for Grafana Postgres user
-* Install 
 * Sysadmin work to free up space on production server root partition
 * Scale instance in Vultr
-
----
-
-## References
-
-* Database Design For Mere Mortals
-* SQL Queries For Mere Mortals
-* DB Internals
