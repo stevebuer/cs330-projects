@@ -22,6 +22,6 @@ This past weekend I received several of these automated alerts and drove to one 
 spots and talked to someone in Tennessee. Ten minutes later I got an alert for my own callsign, which had
 been spotted on the network and then sent to me in an automatic alert (see third image below). Aha it works!
 
-<img src="images/dx_alerts.jpg">
-<img src="images/bluetooth.jpg">
-<img src="images/n7mko_alert.jpg">
+<img src="images/dx_alerts.jpg" width="200">
+<img src="images/bluetooth.jpg" width="400">
+<img src="images/n7mko_alert.jpg" width="200">
