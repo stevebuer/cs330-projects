@@ -296,7 +296,7 @@
             "h": 6,
             "w": 5,
             "x": 0,
-            "y": 30
+            "y": 41
           },
           "id": 6,
           "options": {
@@ -371,7 +371,7 @@
             "h": 6,
             "w": 5,
             "x": 5,
-            "y": 30
+            "y": 41
           },
           "id": 11,
           "options": {
@@ -486,7 +486,7 @@
             "h": 9,
             "w": 13,
             "x": 0,
-            "y": 79
+            "y": 90
           },
           "id": 1,
           "options": {
@@ -552,7 +552,7 @@
             "h": 4,
             "w": 5,
             "x": 13,
-            "y": 79
+            "y": 90
           },
           "id": 9,
           "options": {
@@ -695,7 +695,7 @@
             "h": 7,
             "w": 15,
             "x": 0,
-            "y": 80
+            "y": 91
           },
           "id": 7,
           "options": {
@@ -770,7 +770,7 @@
             "h": 5,
             "w": 4,
             "x": 15,
-            "y": 80
+            "y": 91
           },
           "id": 2,
           "options": {
@@ -833,6 +833,117 @@
         "x": 0,
         "y": 3
       },
+      "id": 15,
+      "panels": [
+        {
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "bf4ngs8ybrta8e"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "thresholds"
+              },
+              "mappings": [
+                {
+                  "options": {
+                    "1": {
+                      "index": 0,
+                      "text": "OK"
+                    }
+                  },
+                  "type": "value"
+                }
+              ],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": 0
+                  },
+                  {
+                    "color": "red",
+                    "value": 80
+                  }
+                ]
+              }
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 4,
+            "w": 4,
+            "x": 0,
+            "y": 4
+          },
+          "id": 16,
+          "options": {
+            "colorMode": "value",
+            "graphMode": "area",
+            "justifyMode": "auto",
+            "orientation": "auto",
+            "percentChangeColorMode": "standard",
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "showPercentChange": false,
+            "textMode": "auto",
+            "wideLayout": true
+          },
+          "pluginVersion": "12.3.0",
+          "targets": [
+            {
+              "dataset": "dx_analysis",
+              "datasource": {
+                "type": "grafana-postgresql-datasource",
+                "uid": "bf4ngs8ybrta8e"
+              },
+              "editorMode": "code",
+              "format": "table",
+              "rawQuery": true,
+              "rawSql": "select 1;",
+              "refId": "A",
+              "sql": {
+                "columns": [
+                  {
+                    "parameters": [],
+                    "type": "function"
+                  }
+                ],
+                "groupBy": [
+                  {
+                    "property": {
+                      "type": "string"
+                    },
+                    "type": "groupBy"
+                  }
+                ],
+                "limit": 50
+              },
+              "table": "wwv_announcements"
+            }
+          ],
+          "title": "API Status",
+          "type": "stat"
+        }
+      ],
+      "title": "HTTP Server and Container Status",
+      "type": "row"
+    },
+    {
+      "collapsed": true,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 4
+      },
       "id": 12,
       "panels": [
         {
@@ -874,7 +985,7 @@
             "h": 7,
             "w": 5,
             "x": 0,
-            "y": 4
+            "y": 8
           },
           "id": 13,
           "options": {
@@ -972,7 +1083,7 @@
             "h": 7,
             "w": 5,
             "x": 5,
-            "y": 4
+            "y": 8
           },
           "id": 14,
           "options": {
@@ -1020,7 +1131,7 @@
               }
             }
           ],
-          "title": "10m FM Band Today",
+          "title": "10m FM Band",
           "type": "stat"
         }
       ],
@@ -1035,12 +1146,12 @@
     "list": []
   },
   "time": {
-    "from": "now-3h",
+    "from": "now-1h",
     "to": "now"
   },
   "timepicker": {},
   "timezone": "browser",
   "title": "DX Ingest Monitoring",
   "uid": "ad9sq8s",
-  "version": 18
+  "version": 23
 }
