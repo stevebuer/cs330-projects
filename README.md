@@ -7,7 +7,7 @@ HF Radio Propagation Analysis and Prediction
 ## System Links
 
 * [Streamlit DX Analysis Dashboard](http://dx.jxqz.org)
-* [Grafana System Status](https://jersey.jxqz.org:3000) self-signed SSL certificate and [guest login](finalproject/monitoring.md)
+* [Grafana System Status](https://jersey.jxqz.org:3000) note: self-signed SSL certificate and [guest login](finalproject/monitoring.md)
 * [Database Query API](http://api.jxqz.org:8080)
 
 ## Overview
